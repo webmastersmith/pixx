@@ -1,2 +1,3 @@
 # pic
-Create web friendly images and code snippets
+
+Create web friendly images and code snippets.

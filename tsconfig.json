@@ -1,0 +1,31 @@
+{
+  "ts-node": {
+    "swc": true
+  },
+  "compilerOptions": {
+    "strict": true, // strict type checking.
+    // "target": "ES6", // only needed if you want to target browser support.
+    "lib": ["esnext"], // browser or NodeJS APIs are valid.
+    "module": "NodeNext", // do not change code in the output.
+    "moduleResolution": "nodenext", // support latest nodeJS APIs.
+    "incremental": true, // Enables incremental compilation, build only the changed code
+    "allowSyntheticDefaultImports": true, // prevents you from having to 'import * as ...'.
+    "esModuleInterop": true, // allows commonJS import with es6.
+    "skipLibCheck": true, // do not check imported libraries.
+    "resolveJsonModule": true, // json
+    "noUnusedParameters": false, // Do not allow unused parameters in functions.
+    "noUnusedLocals": false, // Similar to noUnusedParameters, but for local variables.
+    "noUncheckedIndexedAccess": true, // it ensures that indexed access types are checked for undefined values,
+    "noPropertyAccessFromIndexSignature": true, // object access via dot notation, must be defined in the type.
+    "allowUnreachableCode": false, // raise errors for code that cannot be executed.
+    "noFallthroughCasesInSwitch": true, // switch statement without a break, return, or throw statement.
+    "noErrorTruncation": true, // no truncating error messages, providing full details about the error.
+    "rootDir": "src",
+     "paths": {
+      //  "#/*": [ "./*" ],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
+  "exclude": ["node_modules"]
+}
