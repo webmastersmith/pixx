@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { OptionSchema, OptionType, StateType } from '@/schema';
 import { defaultSize, getMetadata, getName } from '@/utils';
 
-export async function pic(filePath: string, options: OptionType = {}) {
+export async function pic(filePath: string, options?: OptionType) {
   try {
     // throw error is image cannot be found.
     const file = getName(filePath);
@@ -13,28 +13,15 @@ export async function pic(filePath: string, options: OptionType = {}) {
     const meta = await getMetadata(filePath);
 
     // defaults
-    const state: StateType = {
+    const state = {
+      ...optionsParsed,
       meta,
       file,
-      increment: 300, // 300px
-      defaultSizes: defaultSize(
-        meta?.width,
-        meta?.height,
-        optionsParsed?.increment ? optionsParsed.increment : 300
-      ),
-      alt: `image ${file.image}`,
-      className: true, // class or className for styling
-      class: [],
-      clean: false, // always remake images? useful when developing.
-      heights: [],
-      loading: 'eager', // eager | lazy
-      log: false, // output image creation to console.
-      outDir: 'images',
-      picTypes: ['avif', 'webp', 'jpg'],
-      widths: [], // if aspectRatio: true, height is ignored.
-      ...optionsParsed,
-    };
-    console.log(state);
+      defaultSizes: defaultSize(meta?.width, meta?.height, optionsParsed.increment),
+    } as StateType;
+    // if (state.log) console.log('state: ', state);
+    console.log('state: ', state);
+
     return `<picture class={styles.texasImage}>
       <source
         type="image/avif"

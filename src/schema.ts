@@ -23,19 +23,40 @@ export const FilePathSchema = z.object({
 export type FilePathType = z.infer<typeof FilePathSchema>;
 
 // check options
-export const OptionSchema = z.object({
-  alt: z.string({ message: 'alt must be string' }).optional(),
-  className: z.boolean({ message: 'className option must be true or false.' }).optional(),
-  class: z.string({ message: 'class option must an array of strings.' }).optional().array().optional(),
-  clean: z.boolean({ message: 'clean option must be true or false.' }).optional(),
-  heights: z.number({ message: 'heights option must be an array of strings.' }).optional().array().optional(),
-  widths: z.number({ message: 'widths option must be an array of strings.' }).optional().array().optional(),
-  loading: z.enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy"' }).optional(),
-  log: z.boolean({ message: 'log option must be true or false' }).optional(),
-  outDir: z.string({ message: 'outDir option must be a string' }).optional(),
-  increment: z.number({ message: 'increment option must be a number' }).optional(),
-  picTypes: OutputImageTypeSchema.array().optional(),
-});
+export const OptionSchema = z
+  .object({
+    alt: z.string({ message: 'alt must be string' }).optional().default(`image`),
+    animation: z.boolean({ message: 'animation option must be true or false.' }).optional().default(false),
+    classes: z
+      .string({ message: 'class option must an array of strings.' })
+      .optional()
+      .array()
+      .optional()
+      .default([]),
+    isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
+    clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
+    heights: z
+      .number({ message: 'heights option must be an array of strings.' })
+      .optional()
+      .array()
+      .optional()
+      .default([]),
+    increment: z.number({ message: 'increment option must be a number' }).optional().default(300),
+    loading: z
+      .enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy"' })
+      .optional()
+      .default('eager'),
+    log: z.boolean({ message: 'log option must be true or false' }).optional().default(false),
+    outDir: z.string({ message: 'outDir option must be a string' }).optional().default('pic_images'),
+    picTypes: OutputImageTypeSchema.array().optional().default(['avif', 'webp', 'jpg']),
+    widths: z
+      .number({ message: 'widths option must be an array of strings.' })
+      .optional()
+      .array()
+      .optional()
+      .default([]),
+  })
+  .default({});
 export type OptionType = z.infer<typeof OptionSchema>;
 
 export type StateType = Required<
