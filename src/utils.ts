@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { FilePathSchema, FilePathType } from '@/types';
+import { FilePathSchema, FilePathType } from '@/schema';
 
 /**
  * Get original image size and format.

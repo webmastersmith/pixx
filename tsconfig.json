@@ -1,6 +1,7 @@
 {
   "ts-node": {
-    "swc": true
+    "swc": true,
+    "require": ["tsconfig-paths/register"]
   },
   "compilerOptions": {
     "strict": true, // strict type checking.
@@ -21,6 +22,8 @@
     "noFallthroughCasesInSwitch": true, // switch statement without a break, return, or throw statement.
     "noErrorTruncation": true, // no truncating error messages, providing full details about the error.
     "rootDir": "src",
+    "declaration": true,
+    "outDir": "dist",
      "paths": {
       //  "#/*": [ "./*" ],
       "@/*": ["./src/*"]

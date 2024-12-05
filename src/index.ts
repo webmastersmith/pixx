@@ -1,6 +1,6 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
-import { OptionSchema, OptionType, StateType } from '@/types';
+import { OptionSchema, OptionType, StateType } from '@/schema';
 import { defaultSize, getMetadata, getName } from '@/utils';
 
 export async function pic(filePath: string, options: OptionType = {}) {

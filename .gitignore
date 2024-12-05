@@ -5,6 +5,6 @@
 !index.ts
 !src
 !package.json
-!types.ts
+!schema.ts
 !tsconfig.json
 !webpack.config.js
