@@ -9,11 +9,14 @@ module.exports = {
   // devtool: 'inline-source-map',
   // plugins: [new NodePolyfillPlugin()],
   entry: {
-    pic: './src/index.ts',
+    index: './src/index.ts',
   },
   output: {
-    path: path.resolve(__dirname, './build'),
+    path: path.resolve(__dirname, './lib'),
     filename: '[name].js', // <--- Will be compiled to this single file
+    libraryTarget: 'umd',
+    library: 'pic',
+    umdNamedDefine: true,
   },
   externals: {
     // fs: 'require("fs")',

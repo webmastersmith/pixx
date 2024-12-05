@@ -66,3 +66,41 @@ export function getName(filePath: string): FilePathType {
   const file = { rootPath, image, name, ext };
   return FilePathSchema.parse(file);
 }
+
+/**
+ * When given (width / height), find closest aspect ratio.
+ * @param val (width / height)
+ * @returns  string. ex.. '16:9'
+ */
+export function findAspectRatio(val: number) {
+  const [w, h] = AspectRatio(val, 21);
+  return `${w}:${h}`;
+  function AspectRatio(val: number, lim: number) {
+    let lower: [number, number] = [0, 1];
+    let upper: [number, number] = [1, 0];
+
+    while (true) {
+      let mediant: [number, number] = [lower[0] + upper[0], lower[1] + upper[1]];
+
+      if (val * mediant[1] > mediant[0]) {
+        if (lim < mediant[1]) {
+          return upper;
+        }
+        lower = mediant;
+      } else if (val * mediant[1] == mediant[0]) {
+        if (lim >= mediant[1]) {
+          return mediant;
+        }
+        if (lower[1] < upper[1]) {
+          return lower;
+        }
+        return upper;
+      } else {
+        if (lim < mediant[1]) {
+          return lower;
+        }
+        upper = mediant;
+      }
+    }
+  }
+}

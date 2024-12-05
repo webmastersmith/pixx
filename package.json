@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "watch": "nodemon ./src/index.ts",
-    "build": "webpack",
-    "dist": "tsc && tsc-alias"
+    "prebuild": "rimraf ./pic && rimraf tsconfig.tsbuildinfo",
+    "build": "tsc && tsc-alias"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,6 @@
   },
   "homepage": "https://github.com/webmastersmith/pic#readme",
   "dependencies": {
-    "path-browserify": "^1.0.1",
     "sharp": "^0.33.5",
     "zod": "^3.23.8",
     "zod-validation-error": "^3.4.0"
@@ -38,9 +37,9 @@
     "@swc/core": "^1.10.0",
     "@swc/helpers": "^0.5.15",
     "@types/node": "^22.10.1",
-    "node-polyfill-webpack-plugin": "^4.1.0",
     "nodemon": "^3.1.7",
     "regenerator-runtime": "^0.14.1",
+    "rimraf": "^6.0.1",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",

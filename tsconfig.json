@@ -23,7 +23,7 @@
     "noErrorTruncation": true, // no truncating error messages, providing full details about the error.
     "rootDir": "src",
     "declaration": true,
-    "outDir": "dist",
+    "outDir": "pic",
      "paths": {
       //  "#/*": [ "./*" ],
       "@/*": ["./src/*"]
