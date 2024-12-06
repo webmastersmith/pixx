@@ -35,6 +35,7 @@ export const OptionSchema = z
       .default([]),
     isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
+    fallbackSize: z.number({ message: 'fallbackSize option must be number' }).optional(),
     heights: z
       .number({ message: 'heights option must be an array of strings.' })
       .optional()

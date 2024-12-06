@@ -1,8 +1,8 @@
 # pic
 
-## What it does?
+### What it does?
 
-- Quickly create responsive images, and the HTML img/picture element code is output to the console. Library agnostic.
+- Quickly create responsive images, and the HTML img/picture element code is output to the console.
 - Run with _NodeJS_ environment.
 
 ### Why
@@ -10,17 +10,13 @@
 - Responsive images can be complex and error prone. For instance, if you want resolution switching, `<img srcset="..."` and you accidentally forget the [`sizes` attribute, the browser will ignore `srcset` and use the fallback `src` attribute.](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/srcset) The `media` attribute [should only be used with Art Direction.](https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images#art_direction) There are many more small "gotcha's" that can be avoided through automation.
 - Run during build to ensure img/picture element is available when the HTMl is loaded, then the browser can download the correct images.
 
-## Using Vite?
-
-- [vite-plugin-solid-image](https://www.npmjs.com/package/vite-plugin-solid-image)
-
 ## Install & Run
 
-This will only create one img/picture element at a time. For art direction you can use multiple urls and the media attribute.
+- `comming soon`
 
 ```js
 // To use
-import { createImages } from 'pic';
+import pic from 'pic';
 pic('path/file.jpg');
 ```
 
@@ -28,20 +24,41 @@ pic('path/file.jpg');
 
 ### Resolution Switching
 
-- uses the `img` element.
+- Adds two new attributes: `srcset` and `sizes` to the `img` element.
+- must have `<meta name="viewport" content="width=device-width">` to the _head_ section of html for the browser to use the device width in decision making.
+- Allow browsers to download images based on device width.
 - **Pros**
   - The most performant. The browser downloads the HTML first. With the `sizes` attribute, the browser deicides what image it wants from the `srcset` attribute and starts downloading. This happens before other assets are downloaded.
+  - Older browsers 'fallback' to the _src_ attribute.
 - **Cons**
   - only one image format can be used.
   - if you forget the `sizes` attribute, `srcset` is ignored.
+    - **srcset**: describes the image width.
+      - e.g. width: `<img src="file.jpg" srcset="file-200.jpg 200w, file-400.jpg 400w">`
+      - e.g. resolution: `<img src="file.jpg" srcset="file-200.jpg, file-400.jpg 2x">`
+    - **sizes**: Informs browser how much of viewport the image will fill at a certain 'media' conditions.
+      - last 'sizes' item is the 'default', when no media conditions are true.
+      - e.g. `<img sizes="(max-width: 600px) 200px, 400px">`
+        - if device width is <=600px, use file-200.jpg, else use file-400.jpg
 
 ```html
-<img srcset="image-1.jpg w500, image-2.jpg w1000" sizes="100vw" src="image-1.jpg" alt="my image" />
+<!-- This image takes 100% viewport width. Browser will choose the image based on screen size. 500w or 1000w  -->
+<img srcset="img1.jpg 500w, img2.jpg 1000w" sizes="100vw" src="fallback.jpg" alt="my img" />
+
+<!-- Advanced sizes: A device viewport over 600px, the image will only take 50% of viewport -->
+<img
+  src="fallback.jpg"
+  alt="my img"
+  srcset="img1.jpg 600w, img2.jpg 1200w"
+  sizes="(max-width: 600px) 100vw, <!-- device with viewport <= 600px, image 100% of viewport.
+         (max-width: 1000px) 75vw, <!-- device with viewport > 600px but <= 1000px, image 75% of viewport.
+                             50vw" /> <!-- device with viewport > 1000px, the image will take 50% of viewport.>
 ```
 
 ### Multiple Formats
 
 - uses the `picture` element.
+- fallback is `img` element.
 - **Pros**
   - Allows the use of new and highly optimized image formats, and fallback formats for browsers that don't support newer formats.
 - **Cons**
@@ -84,71 +101,23 @@ pic('path/file.jpg');
 
 ## URL Options
 
-- **a** = aspect ratio. Crop image from center, to create desired aspect ratio. ex..`a=16:9`
-  - If aspect is not provided, output image will be same aspect as input image.
-  - If `enlarge=false`, image width will be reduced to maintain aspect ratio until 'height' is same size or smaller than original image height.
-- **alt** = img element `alt` attribute text. ex.. `alt=my image`.
-  - default: "This is a image"
-  - The last url must have the `alt=...` for the fallback image.
-- **animated** = ex.. `animated=true`
-  - default: false.
-  - Used with gif, webp, avif. Keep the animation when changing formats.
-  - Currently the Sharp library will only convert animated gif's to gif or webp format correctly.
-  - Animated gif's to avif format does not work correctly.
-- **c** = class names to add to img/picture element. ex.. `c=heroImage`
-  - default: ''.
-  - The **last url** will control the fallbackWidth, fallbackFormat, cssModule, classes, className.
-  - If `cssModule=true`, you can only have one class name.
-  - **tailwind**
-    - `c=bg-green-300 m-4 rounded !font-medium basis-1/4`
-- **className** = class or className. Should your class be called className? ex.. `className=false`
-  - default true. _// The css class will be called 'className'_
-  - The **last url** will control the fallbackWidth, fallbackFormat, cssModule, classes, className.
-- **clean** = delete old images inside the solid-image folder. ex.. `clean=true`
-  - Be careful! All old files inside the solid-image created folder will be deleted.
-  - default: false.
-- **cssModule** = css module? ex.. `cssModule=true`
-  - default: false
-  - The **last url** will control the fallbackWidth, fallbackFormat, cssModule, classes, className.
-  - `cssModule=true`
-    - `className={styles.class1}` // only one class name for css module.
-  - `cssModule=false`
-    - `className="class1 class2"` // can have multiple class names.- **debug** = print to console Sharp 'state' after each image creation. `debug=true`
-  - default: false
-- **enlarge** = allow image size to grow beyond original image size to create desired aspect ratio or desired width. `enlarge=false`
-  - default: true.
-- **f** = format types. Can also include quality to reduce image. ex.. `f=avif:50;webp:80;jpg;png:100`.
-  - Sharp defaults are used if you leave off quality. ex.. `f=avif;webp;jpg`
-  - Supported formats: `heif,avif,jpeg,jpg,png,tiff,webp,gif`.
-  - Gif images: The quality represents the number of colors between 1-256. ex.. `gif:3`
-    - original gif image colors are used if you leave quality off.
-    - gif will only have 3 colors. This is a good way to reduce gif image size.
-- **fallbackWidth** = width of fallback image. ex.. `fallbackWidth=700`
-  - default: 700px wide.
-  - The **last url** will control the fallbackWidth, fallbackFormat, cssModule, classes, className.
-  - Fallback Image is created in same directory as last url.
-- **fallbackFormat** = format you want fallback image to be. ex.. `fallbackFormat=jpg`
-  - default: jpg.
-  - The **last url** will control the fallbackWidth, fallbackFormat, cssModule, classes, className.
-- **flatten** = formats you want flatten transparent regions. ex.. `flatten=jpg;webp`.
-  - default: ''. // empty.
-- **flattenColor** = hex color code format. The background color for transparent regions. ex.. `flattenColor=FFFFFF`.
-  - default: black.
-- **loading** = image loading attribute. Two options: 'eager' | 'lazy' ex.. `loading=eager`.
-  - default: 'lazy'.
-- **media** = Art Direction only. ex.. `media=(min-width: 900px)`.
-  - default: ''.
-- **print** = print `img | picture` element to console.log. ex.. `print=false`
-  - default: true _// vite-plugin-solid-image default: false_.
-- **progressBar** = show progress bar while running. ex.. `progressBar=false`
-  - default: true _// vite-plugin-solid-image default: false_.
-- **sharpen** = sharpen image. This process does increases the image size. ex.. `sharpen=true`.
-  - default: false.
-- **sizes** = All responsive images need the `sizes` attribute.
-  - default: `100vw`
-  - ex.. `sizes=((min-width: 50em) and (max-width: 60em)) 50em, 20em`.
-- **w** = width of images. ex.. `w=600;800;1000`
-  - If width is not provided, output image will be same size as input image.
+- **alt**: default `image`. The 'img' alt attribute.
+- **animation**: default `false`. Does image have animations?
+- **classes**: array of class names.
+- **clean**: default `false`. Always create new images?
+- **fallbackSize**: default `input image`. Image used for the 'src' attribute. Customize the 'width' in pixels.
+  - Older browsers fallback to this image. Image will always be type `jpg`.
+  - (e.g. `1500`. The fallback _src_ image will be an image 1500px wide with height same aspect ratio as original).
+- **heights**: Array of heights to create images. To create custom _Aspect Ratio_ widths and heights must be provided.
+- **increment**: default `300`. Custom default image size creation. Only runs if `widths` or `heights` are empty.
+  - increment example: Create _img_ every `300px` until image size is reached.
+- **isClassName**: default `true`. Image class attribute. Options: `false = class` | `true = className`.
+- **loading**: default `eager`. Image loading attribute: `eager` | `lazy`.
+- **log**: default `true`. Output created html to console.
+- **outDir**: default `pic_images`. Where to create images?
+- **picTypes**: default `['avif', 'webp', 'jpg']`. What image types to create.
+  - picTypes available options: `['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp']`.
+- **widths**: Array of widths to create images. To create custom _Aspect Ratio_ widths and heights must be provided.
 
 ## Examples
 
