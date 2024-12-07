@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { optional, z } from 'zod';
 import { Metadata } from 'sharp';
 
 // sharp input images
@@ -12,6 +12,7 @@ const acceptableOutputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff',
 export const OutputImageTypeSchema = z.enum(acceptableOutputImageTypes, {
   message: `Sharp image library only creates image types: ${acceptableOutputImageTypes.join(', ')}.`,
 });
+export type OutputImageType = z.infer<typeof OutputImageTypeSchema>;
 
 // filePath schema
 export const FilePathSchema = z.object({
@@ -25,7 +26,7 @@ export type FilePathType = z.infer<typeof FilePathSchema>;
 // check options
 export const OptionSchema = z
   .object({
-    alt: z.string({ message: 'alt must be string' }).optional().default(`image`),
+    alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
     animation: z.boolean({ message: 'animation option must be true or false.' }).optional().default(false),
     classes: z
       .string({ message: 'class option must an array of strings.' })
@@ -35,27 +36,39 @@ export const OptionSchema = z
       .default([]),
     isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
-    fallbackSize: z.number({ message: 'fallbackSize option must be number' }).optional(),
+    fallbackSize: z.number({ message: 'fallbackSize option must be number.' }).optional().default(0),
     heights: z
       .number({ message: 'heights option must be an array of strings.' })
       .optional()
       .array()
       .optional()
       .default([]),
-    increment: z.number({ message: 'increment option must be a number' }).optional().default(300),
+    increment: z.number({ message: 'increment option must be a number.' }).optional().default(300),
     loading: z
-      .enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy"' })
+      .enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy".' })
       .optional()
       .default('eager'),
-    log: z.boolean({ message: 'log option must be true or false' }).optional().default(false),
-    outDir: z.string({ message: 'outDir option must be a string' }).optional().default('pic_images'),
+    log: z.boolean({ message: 'log option must be true or false.' }).optional().default(false),
+    outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pic_images'),
     picTypes: OutputImageTypeSchema.array().optional().default(['avif', 'webp', 'jpg']),
+    showHidden: z.boolean({ message: 'showHidden option must be true or false.' }).optional().default(false),
+    sizes: z
+      .string({ message: 'sizes option must an array of strings.' })
+      .optional()
+      .array()
+      .optional()
+      .default(['100vw']),
+    title: z.string({ message: 'title option must be a string.' }).optional().default(''),
     widths: z
       .number({ message: 'widths option must be an array of strings.' })
       .optional()
       .array()
       .optional()
       .default([]),
+    withMetadata: z
+      .boolean({ message: 'withMetadata option must be true or false.' })
+      .optional()
+      .default(true),
   })
   .default({});
 export type OptionType = z.infer<typeof OptionSchema>;
@@ -64,6 +77,9 @@ export type StateType = Required<
   OptionType & {
     meta: Metadata;
     file: FilePathType;
+    buf: Buffer;
+    aspectRatio: string;
+    names: { fallbackPath: string };
     defaultSizes: ['width' | 'height', number[]] | undefined;
   }
 >;

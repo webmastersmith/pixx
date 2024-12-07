@@ -1,52 +1,55 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
 import { OptionSchema, OptionType, StateType } from '@/schema';
-import { defaultSize, getMetadata, getName } from '@/utils';
+import {
+  defaultSize,
+  getMetadata,
+  getFile,
+  createImage,
+  getAspectRatio,
+  getNames,
+  createFallback,
+} from '@/utils';
 
 export async function pic(filePath: string, options?: OptionType) {
   try {
-    // throw error is image cannot be found.
-    const file = getName(filePath);
     // throw error if options are not correct.
     const optionsParsed = OptionSchema.parse(options);
-    // get image metadata.
-    const meta = await getMetadata(filePath);
-
+    // throw error is image cannot be found.
+    const { file, buf } = getFile(filePath);
+    // get image metadata. Throw error if width or height cannot be determined.
+    const meta = await getMetadata(buf, optionsParsed?.showHidden);
+    // get file names
+    const names = getNames(optionsParsed, file);
     // defaults
     const state = {
       ...optionsParsed,
       meta,
       file,
-      defaultSizes: defaultSize(meta?.width, meta?.height, optionsParsed.increment),
+      buf,
+      names,
+      aspectRatio: getAspectRatio(meta.width! / meta.height!),
+      defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.increment),
     } as StateType;
     // if (state.log) console.log('state: ', state);
     console.log('state: ', state);
 
-    return `<picture class={styles.texasImage}>
-      <source
-        type="image/avif"
-        srcset="/header/texasFlag/texasFlag_20-19_100x95.avif 100w, /header/texasFlag/texasFlag_22-21_200x191.avif 200w, /header/texasFlag/texasFlag_22-21_265x253.avif 265w"
-        sizes="100px"
-      />
-      <source
-        type="image/webp"
-        srcset="/header/texasFlag/texasFlag_20-19_100x95.webp 100w, /header/texasFlag/texasFlag_22-21_200x191.webp 200w, /header/texasFlag/texasFlag_22-21_265x253.webp 265w"
-        sizes="100px"
-      />
-      <source
-        type="image/png"
-        srcset="/header/texasFlag/texasFlag_20-19_100x95.png 100w, /header/texasFlag/texasFlag_22-21_200x191.png 200w, /header/texasFlag/texasFlag_22-21_265x253.png 265w"
-        sizes="100px"
-      />
-      <img
-        src="/header/texasFlag/texasFlag_20-19_100x95.png"
-        width="100"
-        height="95"
-        alt="Image of Texas Flag"
-        class={styles.texasImage}
-        loading="lazy"
-      />
-    </picture>`;
+    // Logic Functions ------------------------------------------------
+    // always create fallback
+    createFallback(state); // purposely not 'awaiting'.
+
+    // Resolution Switching: single image type.
+
+    // Multiple Types
+    // state.picTypes.length > 1 and no state.media.length
+
+    // Art Direction: state.media types.
+
+    // for (const w of [100, 200, 300]) {
+    //   createImage(state, ['width', w], 'jpg');
+    // }
+
+    return;
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(fromError(error).toString());
