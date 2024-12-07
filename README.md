@@ -10,20 +10,20 @@
 
 - All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of html, for _**mobile browsers**_ to use the actual device viewport in decision making.
 - **Responsive Image Advantages**
-  - When mobile or desktop browsers download the HTML, they check for the `sizes`, `srcset` and `media` attribute.
+  - When mobile or desktop browsers download and parse the HTML, the `sizes`, `srcset` and `media` attribute give clues to the browser what images to download.
   - Using these attributes, the browser decides the best image to download based on its viewport and resolution.
   - **srcset**: tells the browser available image widths.
   - **sizes**: tells the browser how much of viewport the image will fill.
-  - **media**: completely different image formats can be offered depending on matching _media_ condition.
+  - **media**: completely different images can be offered depending on matching _media_ condition.
 
 ### Resolution Switching
 
 - Uses the `img` element with the `srcset` and `sizes` attributes.
-- Single image type. Browsers can choose what image size to download based on the device viewport.
-- Fallback is the `img` element.
+- **Single image type**. Browsers can choose what image **size** to download based on the device viewport.
+- Fallback is the `img src` attribute.
 - **Pros**
-  - The least complex.
-  - Multiple size options.
+  - The least complex. Default sizes is `100vw`.
+  - Can offer multiple image size options.
 - **Cons**
   - Only single image type can be used at a time.
 
@@ -113,7 +113,7 @@ pic('path/file.jpg');
 - **alt**: default `image`. The 'img' alt attribute.
 - **animation**: default `false`. Does image have animations?
 - **classes**: array of class names.
-- **clean**: default `false`. Always create new images?
+- **clean**: default `false`. Delete image folder and create new.
 - **fallbackSize**: default `input image`. Image used for the 'src' attribute. Customize the 'width' in pixels.
   - Older browsers fallback to this image. Image will always be type `jpg`.
   - (e.g. `1500`. The fallback _src_ image will be an image 1500px wide with height same aspect ratio as original).

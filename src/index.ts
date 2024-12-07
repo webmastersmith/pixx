@@ -1,15 +1,7 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
 import { OptionSchema, OptionType, StateType } from '@/schema';
-import {
-  defaultSize,
-  getMetadata,
-  getFile,
-  createImage,
-  getAspectRatio,
-  getNames,
-  createFallback,
-} from '@/utils';
+import { defaultSize, getMetadata, getFile, createImage, getAspectRatio, startNames } from '@/utils';
 
 export async function pic(filePath: string, options?: OptionType) {
   try {
@@ -19,34 +11,36 @@ export async function pic(filePath: string, options?: OptionType) {
     const { file, buf } = getFile(filePath);
     // get image metadata. Throw error if width or height cannot be determined.
     const meta = await getMetadata(buf, optionsParsed?.showHidden);
-    // get file names
-    const names = getNames(optionsParsed, file);
+    // get file names. create outDir, clean?
+    const paths = startNames(optionsParsed, file, meta);
     // defaults
     const state = {
       ...optionsParsed,
       meta,
       file,
       buf,
-      names,
+      paths,
       aspectRatio: getAspectRatio(meta.width! / meta.height!),
-      defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.increment),
+      defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.increment!),
     } as StateType;
-    // if (state.log) console.log('state: ', state);
-    console.log('state: ', state);
+    if (state.log) console.log('state: ', state);
 
     // Logic Functions ------------------------------------------------
     // always create fallback
-    createFallback(state); // purposely not 'awaiting'.
+    state.fallbackPath = await createImage(state, [], 'jpg'); // purposely not 'awaiting'.
 
-    // Resolution Switching: single image type.
+    // 1. Art Direction: state.media types.
+    if (state.media.length) {
+      return;
+    }
 
-    // Multiple Types
-    // state.picTypes.length > 1 and no state.media.length
+    // 2. Resolution Switching: single image type.
+    if (state.picTypes.length < 2) {
+      return;
+    }
 
-    // Art Direction: state.media types.
-
+    // 3. Multiple Types default. state.picTypes.length > 1 and no state.media.length
     // for (const w of [100, 200, 300]) {
-    //   createImage(state, ['width', w], 'jpg');
     // }
 
     return;
@@ -62,5 +56,5 @@ export async function pic(filePath: string, options?: OptionType) {
 }
 
 // development
-pic('./src/test.jpg');
+pic('./src/test.jpg', { clean: true, log: true });
 export default pic;

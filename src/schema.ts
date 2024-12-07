@@ -49,6 +49,12 @@ export const OptionSchema = z
       .optional()
       .default('eager'),
     log: z.boolean({ message: 'log option must be true or false.' }).optional().default(false),
+    media: z
+      .string({ message: 'media option must an array of strings.' })
+      .optional()
+      .array()
+      .optional()
+      .default([]),
     outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pic_images'),
     picTypes: OutputImageTypeSchema.array().optional().default(['avif', 'webp', 'jpg']),
     showHidden: z.boolean({ message: 'showHidden option must be true or false.' }).optional().default(false),
@@ -71,7 +77,7 @@ export const OptionSchema = z
       .default(true),
   })
   .default({});
-export type OptionType = z.infer<typeof OptionSchema>;
+export type OptionType = z.input<typeof OptionSchema>;
 
 export type StateType = Required<
   OptionType & {
@@ -79,7 +85,8 @@ export type StateType = Required<
     file: FilePathType;
     buf: Buffer;
     aspectRatio: string;
-    names: { fallbackPath: string };
+    paths: { newImageDir: string };
+    fallbackPath: string;
     defaultSizes: ['width' | 'height', number[]] | undefined;
   }
 >;

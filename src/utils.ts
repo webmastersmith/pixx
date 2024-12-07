@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import sharp from 'sharp';
+import sharp, { Metadata } from 'sharp';
 import { FilePathSchema, FilePathType, StateType, OutputImageType, OptionType } from '@/schema';
 import exifr from 'exifr';
 import sizeOf from 'image-size';
@@ -87,15 +87,23 @@ export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
   return { file, buf: fs.readFileSync(filePath) };
 }
 
-export function getNames(options: OptionType, file: FilePathType) {
-  // create directories
-  if (!fs.existsSync(options.outDir)) {
-    fs.mkdirSync(options.outDir, { recursive: true });
-  }
-  // fallback name
-  const fallbackPath = path.join(options.outDir, `${file.name}.jpg`);
-  return { fallbackPath };
+/**
+ * Create start directories and image path names.
+ * @param options passed in options
+ * @param file image file name
+ * @returns paths for images
+ */
+export function startNames(options: OptionType, file: FilePathType, meta: Metadata) {
+  // newImage directory path
+  const newImageDir = path.join(options?.outDir!, file.name);
+  // clean?
+  if (options?.clean) fs.rmSync(newImageDir, { recursive: true, force: true });
+  // create image directory
+  if (!fs.existsSync(newImageDir)) fs.mkdirSync(newImageDir, { recursive: true });
+  return { newImageDir };
 }
+
+export function deletePath(dir: string) {}
 
 /**
  * When given image (width / height), find closest aspect ratio.
@@ -181,28 +189,43 @@ export function getDimension({
  */
 export async function createImage(
   state: StateType,
-  size: ['width' | 'height', number],
+  size: never[] | ['width' | 'height', number],
   type: OutputImageType
 ) {
-  const dimension = size[0] === 'width' ? 'w' : 'h';
-  const name = `${state.file.name}-${dimension}${size[1]}.${type}`;
-  const options = { [size[0]]: size[1] };
-  if (state.withMetadata) {
-    await sharp(state.buf).withMetadata().resize(options).toFormat(type).toFile(name);
-    return;
+  let w;
+  let h;
+  // empty size, create original image desired format
+  if (!size.length) {
+    w = state.meta.width;
+    h = state.meta.height;
+  } else {
+    const dimension = {
+      orgWidth: state.meta.width!,
+      orgHeight: state.meta.height!,
+      desiredDimension: size[1],
+      returnHeight: size[0] === 'width',
+    };
+    // get missing dimension
+    const missing = getDimension(dimension);
+    // record
+    if (size[0] === 'width') {
+      w = size[1];
+      h = missing;
+    } else {
+      w = missing;
+      h = size[1];
+    }
+  } // end else
+  // create subfolder path
+  const newImagePath = path.join(state.paths.newImageDir, `${state.file.name}-${w}w-${h}h.${type}`);
+  const options = size.length ? { [size[0]]: size[1] } : {};
+  // only create if marked clean, or image does not exist.
+  if (!fs.existsSync(newImagePath)) {
+    if (state.withMetadata)
+      await sharp(state.buf).withMetadata().resize(options).toFormat(type).toFile(newImagePath);
+    else await sharp(state.buf).resize(options).toFormat(type).toFile(newImagePath);
   }
-  await sharp(state.buf).resize(options).toFormat(type).toFile(name);
-  return;
+  return newImagePath;
 }
 
 export function createSrcSet(state: StateType) {}
-
-/**
- * Create jpg fallback image, if original image is not jpg.
- * @param state state
- */
-export async function createFallback(state: StateType) {
-  if (!fs.existsSync(state.names.fallbackPath))
-    await sharp(state.buf).toFormat('jpg').toFile(state.names.fallbackPath);
-  return;
-}
