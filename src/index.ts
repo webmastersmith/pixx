@@ -1,49 +1,30 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
-import { OptionSchema, OptionType, StateType } from '@/schema';
-import { defaultSize, getMetadata, getFile, createImage, getAspectRatio, startNames } from '@/utils';
+import { OptionType, StateType, OutputImageType } from '@/schema';
+import { createImage, getState, createSrcSet, createImgTag, createSourceTag } from '@/utils';
 
-export async function pic(filePath: string, options?: OptionType) {
+export async function pic(filePaths: string | string[], options?: OptionType) {
   try {
-    // throw error if options are not correct.
-    const optionsParsed = OptionSchema.parse(options);
-    // throw error is image cannot be found.
-    const { file, buf } = getFile(filePath);
-    // get image metadata. Throw error if width or height cannot be determined.
-    const meta = await getMetadata(buf, optionsParsed?.showHidden);
-    // get file names. create outDir, clean?
-    const paths = startNames(optionsParsed, file, meta);
-    // defaults
-    const state = {
-      ...optionsParsed,
-      meta,
-      file,
-      buf,
-      paths,
-      aspectRatio: getAspectRatio(meta.width! / meta.height!),
-      defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.increment!),
-    } as StateType;
-    if (state.log) console.log('state: ', state);
-
-    // Logic Functions ------------------------------------------------
-    // always create fallback
-    state.fallbackPath = await createImage(state, [], 'jpg'); // purposely not 'awaiting'.
-
-    // 1. Art Direction: state.media types.
-    if (state.media.length) {
+    // 1. Art direction only. filePaths string or array?
+    if (Array.isArray(filePaths)) {
       return;
     }
 
+    const state = (await getState(filePaths, options)) as StateType;
+
     // 2. Resolution Switching: single image type.
-    if (state.picTypes.length < 2) {
-      return;
+    if (state.picTypes.length === 1) {
+      return await createImgTag(state, false);
     }
 
     // 3. Multiple Types default. state.picTypes.length > 1 and no state.media.length
-    // for (const w of [100, 200, 300]) {
-    // }
-
-    return;
+    let picture = '<picture>\n';
+    for (const type of state.picTypes) {
+      picture += `\t${await createSourceTag(state, type)}\n`;
+    }
+    picture += `\t${await createImgTag(state, true)}\n`;
+    picture += '</picture>';
+    return picture;
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(fromError(error).toString());
@@ -56,5 +37,18 @@ export async function pic(filePath: string, options?: OptionType) {
 }
 
 // development
-pic('./src/test.jpg', { clean: true, log: true });
+// default test
+pic('./src/test.jpg').then((m) => console.log(m));
+
+// classes test
+// let pending = true;
+// pic('./src/test.jpg', {
+//   clean: false,
+//   log: true,
+//   title: 'my wonder pic',
+//   classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
+// }).then((m) => console.log(m));
+
+// single image test
+// pic('./src/test.jpg', { log: true, picTypes: ['png'] }).then((m) => console.log(m));
 export default pic;

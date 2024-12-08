@@ -29,14 +29,14 @@ export const OptionSchema = z
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
     animation: z.boolean({ message: 'animation option must be true or false.' }).optional().default(false),
     classes: z
-      .string({ message: 'class option must an array of strings.' })
+      .union([z.string().optional(), z.record(z.string(), z.boolean()).optional()])
       .optional()
       .array()
       .optional()
       .default([]),
     isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
-    fallbackSize: z.number({ message: 'fallbackSize option must be number.' }).optional().default(0),
+    fallbackWidth: z.number({ message: 'fallbackWidth option must be number.' }).optional().default(0),
     heights: z
       .number({ message: 'heights option must be an array of strings.' })
       .optional()
@@ -56,8 +56,7 @@ export const OptionSchema = z
       .optional()
       .default([]),
     outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pic_images'),
-    picTypes: OutputImageTypeSchema.array().optional().default(['avif', 'webp', 'jpg']),
-    showHidden: z.boolean({ message: 'showHidden option must be true or false.' }).optional().default(false),
+    picTypes: OutputImageTypeSchema.array().min(1).default(['avif', 'webp', 'jpg']),
     sizes: z
       .string({ message: 'sizes option must an array of strings.' })
       .optional()
@@ -80,14 +79,15 @@ export const OptionSchema = z
 export type OptionType = z.input<typeof OptionSchema>;
 
 export type StateType = Required<
-  OptionType & {
+  Required<OptionType> & {
     meta: Metadata;
     file: FilePathType;
     buf: Buffer;
     aspectRatio: string;
     paths: { newImageDir: string };
     fallbackPath: string;
-    defaultSizes: ['width' | 'height', number[]] | undefined;
+    classStr: string;
+    defaultSizes: ['width' | 'height', number[]];
   }
 >;
 

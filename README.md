@@ -5,6 +5,7 @@
 - Responsive images can be **complex** and **error prone**. This module tries to simplify the image creation and html code to match.
 - Using the _[sharp](https://sharp.pixelplumbing.com/)_ image library, quickly create responsive images, and the HTML code to match.
 - Run with _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
+- Does not increase image size. Start with the largest input image.
 
 ## Understanding Responsive Images: Resolutions Switching, Multiple Types, and Art Direction
 
@@ -122,20 +123,18 @@ pic('path/file.jpg');
   - increment example: Create _img_ every `300px` until image size is reached.
 - **isClassName**: default `true`. Image class attribute. Options: `false = class` | `true = className`.
 - **loading**: default `eager`. Image loading attribute: `eager` | `lazy`.
-- **log**: default `true`. Output created html to console.
+- **log**: default `false`. Output to console, state and image EXIF, XMP, ICC, and GPS metadata.
 - **outDir**: default `pic_images`. Where to create images?
 - **picTypes**: default `['avif', 'webp', 'jpg']`. What image types to create.
   - picTypes available options: `['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp']`.
-- **sizes**: default `['100vw']`. Array of image widths.
-- **showHidden**: default `false`. Show EXIF, XMP, ICC, and GPS metadata from image. Output to console.
+- **sizes**: default `['100vw']`. Array of image widths you would like.
+- **showHidden**: default `false`.
 - **title**: default "". Text to display as tooltip.
 - **widths**: Array of widths to create images. To create custom _Aspect Ratio_, both widths and heights must be provided.
 
 ## Examples
 
-### URL Examples
-
-**YourFileName.js**
+### Default
 
 ```ts
 import pic from 'pic';
@@ -160,13 +159,7 @@ await pic('img.jpg', {
 });
 ```
 
-### Resolution Switching Example
-
-- single url
-- single format
-- multiple widths
-
-**YourFileName.js**
+### Resolution Switching
 
 ```js
 import { createImages } from 'solid-image';
@@ -188,34 +181,7 @@ createImages([
 ]);
 ```
 
-**YourComponent.tsx**
-
-```tsx
-import styles from './Logo.module.scss';
-
-export default function Logo(props: any) {
-  return (
-    <img
-      srcset="/header/logo/bolt/bolt_2-3_25x37.gif 25w, /header/logo/bolt/bolt_2-3_55x81.gif 55w"
-      sizes="62px"
-      src="/header/logo/bolt/bolt_2-3_55x81.gif"
-      alt="lighting bolt image"
-      class={styles.bolt}
-      width="55"
-      height="81"
-      loading="lazy"
-    />
-  );
-}
-```
-
-### Multiple Formats Example
-
-- single url
-- multiple formats
-- mutiple widths
-
-**YourFileName.js**
+### Multiple Formats
 
 ```js
 import { createImages } from 'solid-image';
@@ -261,16 +227,17 @@ export default function TexasImage() {
 }
 ```
 
-### Art Direction Example
+### Art Direction
 
-- multiple urls
-- multiple image formats
-- multiple widths
-
-**YourFileName.js**
+- To use _Art Direction_ provide array of images that match the array of `media` conditions.
+- Art Direction allows you to switch image based on _media_ breakpoints.
+- `media` and `sizes` are used.
 
 ```js
-import { createImages } from 'solid-image';
+import pic from 'webpic';
+await pic(['img1.jpg', 'img2.jpg'], {
+  media: ['(max-width: 520px)', '(max-width: 800px)', '(min-width: 801px)'], // must have. Order matters. First truthy value.
+});
 createImages([
   [
     'public/hero/hero-full.jpg',
