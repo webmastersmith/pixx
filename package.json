@@ -7,7 +7,9 @@
     "watch": "nodemon ./src/index.ts",
     "dev": "ts-node ./src/index.ts",
     "prebuild": "rimraf ./pixx",
-    "build": "tsc && tsc-alias"
+    "build": "tsc && tsc-alias",
+    "prepublish": "npm run build",
+    "publish": "npm version patch && git push --tags origin main && npm publish"
   },
   "repository": {
     "type": "git",
