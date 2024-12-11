@@ -82,7 +82,7 @@ export const OptionSchema = z
       })
       .optional()
       .default('auto'),
-    returnHTML: z.boolean({ message: 'returnHTML option must be true or false.' }).optional().default(true),
+    returnHTML: z.boolean({ message: 'returnHTML option must be true or false.' }).optional().default(false),
     sizes: z
       .string({ message: 'sizes option must an array of strings.' })
       .optional()

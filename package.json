@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "nodemon ./src/index.ts",
     "dev": "ts-node ./src/index.ts",
-    "prebuild": "rimraf ./pixx && rimraf tsconfig.tsbuildinfo",
+    "prebuild": "rimraf ./pixx",
     "build": "tsc && tsc-alias"
   },
   "repository": {
@@ -53,5 +53,8 @@
     "typescript": "^5.7.2",
     "webpack": "^5.97.0",
     "webpack-cli": "^5.1.4"
-  }
+  },
+  "files": [
+    "/pixx"
+  ]
 }

@@ -1,4 +1,4 @@
-# pic
+# pixx
 
 ## What and Why
 

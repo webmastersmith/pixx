@@ -119,12 +119,11 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 
 // development
 // default test
-// pixx('./src/test.jpg', { returnHTML: false });
+// pixx('./src/test.jpg').then((m) => console.log('\n\n', m, '\n\n'));
 
 // classes test
 // let pending = true;
 // pixx('./src/test.jpg', {
-//   returnHTML: false,
 //   log: true,
 //   title: 'my wonder pic',
 //   isBlur: true,
@@ -135,16 +134,15 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 // pixx('./src/test.jpg', { log: true, picTypes: ['png'] });
 
 // art direction
-let pending = true;
-pixx(['./src/test.jpg', './src/happy face.jpg'], {
-  // log: true,
-  clean: true,
-  returnHTML: false,
-  omit: { remove: 'pixx_images', add: './hello' },
-  media: ['(max-width: 400px) happy face.jpg', '(min-width: 401px) test.jpg'],
-  sizes: ['(max-width: 400px) 100vw', '(min-width: 401px) 50vw'],
-  classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
-  isBlur: true,
-  // styles: { color: 'blue', backgroundColor: 'red' },
-  styles: ['color: blue', 'backgroundColor: red'],
-}).then((m) => console.log('\n\n', m));
+// let pending = true;
+// pixx(['./src/test.jpg', './src/happy face.jpg'], {
+//   // log: true,
+//   clean: true,
+//   omit: { remove: 'pixx_images', add: './hello' },
+//   media: ['(max-width: 400px) happy face.jpg', '(min-width: 401px) test.jpg'],
+//   sizes: ['(max-width: 400px) 100vw', '(min-width: 401px) 50vw'],
+//   classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
+//   isBlur: true,
+//   // styles: { color: 'blue', backgroundColor: 'red' },
+//   styles: ['color: blue', 'backgroundColor: red'],
+// }).then((m) => console.log('\n\n', m));
