@@ -1,7 +1,5 @@
-import { optional, z } from 'zod';
+import { z } from 'zod';
 import { Metadata } from 'sharp';
-import { GenericBar } from 'cli-progress';
-import ProgressBar from 'progress';
 // sharp input images
 const acceptableInputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp', 'svg'] as const;
 export const InputImageTypeSchema = z.enum(acceptableInputImageTypes, {

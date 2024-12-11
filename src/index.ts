@@ -1,6 +1,6 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
-import { OptionType, StateType, OptionSchema } from '@/schema';
+import { OptionType, StateType, OptionSchema } from './schema';
 import {
   createImage,
   getState,
@@ -11,6 +11,8 @@ import {
 } from '@/utils';
 import parse from 'html-react-parser';
 import { inspect } from 'util';
+
+const chalk = require('chalk');
 
 export async function pixx(filePaths: string | string[], options?: OptionType) {
   try {
@@ -32,8 +34,8 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
         if (state.isBlur) {
           const [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blur], 'jpg', true);
           // print blurData.
-          console.log(`\n\n${state.file.image}:`, imgPath);
-          console.log(`${state.file.image} blurDataURL:`, blurDataURL, '\n\n');
+          console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
+          console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
         }
       } // end images.
 
@@ -62,7 +64,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
       // show state after all processing done.
       if (optionsParsed.log) console.log('\n\nstates:', inspect(states, false, null, true), '\n\n');
       // show created image element.
-      if (optionsParsed.log) console.log('\n\n', picture, '\n\n');
+      if (optionsParsed.log) console.log('\n\n', chalk.greenBright(picture), '\n\n');
       return optionsParsed.returnHTML ? parse(picture) : picture;
     } // end Art Direction.
 
@@ -80,11 +82,11 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
       // show state after all processing done.
       if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
       // print img element
-      if (state.log) console.log('\n\n', img, '\n\n');
+      if (state.log) console.log('\n\n', chalk.greenBright(img), '\n\n');
       // print blurData.
       if (state.isBlur) {
-        console.log(`\n\n${state.file.image}:`, imgPath);
-        console.log(`${state.file.image} blurDataURL:`, blurDataURL, '\n\n');
+        console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
+        console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
       }
       return state.returnHTML ? parse(img) : img;
     } // end Resolution Switching
@@ -99,11 +101,11 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
     // show state after all processing done.
     if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
     // show picture element
-    if (state.log) console.log('\n\n', multiTypeImg, '\n\n');
+    if (state.log) console.log('\n\n', chalk.greenBright(multiTypeImg), '\n\n');
     // print blurData.
     if (state.isBlur) {
-      console.log(`\n\n${state.file.image}:`, imgPath);
-      console.log(`${state.file.image} blurDataURL:`, blurDataURL, '\n\n');
+      console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
+      console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
     }
     return state.returnHTML ? parse(multiTypeImg) : multiTypeImg;
   } catch (error) {
@@ -116,7 +118,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
     console.log(error);
   }
 }
-export default pixx;
+
 // development
 // default test
 // pixx('./src/test.jpg').then((m) => console.log('\n\n', m, '\n\n'));

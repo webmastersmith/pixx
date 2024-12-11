@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import sharp, { Metadata } from 'sharp';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as _sharp from 'sharp';
 import {
   FilePathSchema,
   FilePathType,
@@ -9,12 +9,13 @@ import {
   OptionSchema,
   OptionType,
   OptionRequiredType,
-} from '@/schema';
+} from './schema';
 import exifr from 'exifr';
 import sizeOf from 'image-size';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import colors from 'ansi-colors';
+const chalk = require('chalk');
+const sharp = 'default' in _sharp ? (_sharp.default as any) : _sharp;
 
 /**
  * Progress bar. bar(1, 25). creates 'one' tick. bar(2, 25). creates second tick.
@@ -27,7 +28,7 @@ export function bar(name: string, step: number, totalSteps: number) {
     const barWidth = 30; // length of bar.
     const filledWidth = Math.floor((progress / 100) * barWidth);
     const emptyWidth = barWidth - filledWidth;
-    const progressBar = colors.cyan('█').repeat(filledWidth) + colors.cyan('▒').repeat(emptyWidth);
+    const progressBar = chalk.cyan('█').repeat(filledWidth) + chalk.cyan('▒').repeat(emptyWidth);
     return `[${progressBar}] ${progress}%`;
   };
   // write to console.
@@ -166,7 +167,7 @@ export function defaultSize(
     } else {
       // check if image was smaller than increaseSize;
       if (sizes.length === 0) {
-        console.error(colors.cyan('\n\nImage increase size was bigger than image.\n\n'));
+        console.error(chalk.cyan('\n\nImage increase size was bigger than image.\n\n'));
         sizes.push(smallSide);
       }
       return [key, sizes];
@@ -201,7 +202,7 @@ export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
  * @param file image file name
  * @returns paths for images
  */
-export function createNewImageDir(options: OptionRequiredType, file: FilePathType, meta: Metadata) {
+export function createNewImageDir(options: OptionRequiredType, file: FilePathType, meta: _sharp.Metadata) {
   // newImage directory path
   const newImageDir = path.join(options.outDir, file.imgName);
   // clean?
@@ -349,7 +350,7 @@ export async function createImage(
   // preload
   if (state.preload)
     console.log(
-      `\n\n<${colors.red(
+      `\n\n<${chalk.red(
         'link'
       )} rel="preload" href="${fixImgPath}" as="image" type="image/${type}" fetchpriority="${
         state.preloadFetchPriority

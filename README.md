@@ -246,37 +246,7 @@ export default function TexasImage() {
 - `media` and `sizes` are used.
 
 ```js
-import pic from 'webpic';
-await pic(['img1.jpg', 'img2.jpg'], {
-  media: ['(max-width: 520px)', '(max-width: 800px)', '(min-width: 801px)'], // must have. Order matters. First truthy value.
-});
-createImages([
-  [
-    'public/hero/hero-full.jpg',
-    'w=600;800;1200;2400',
-    'a=9:16',
-    'f=avif;webp;jpg',
-    'alt=Image of house and pool with custom lighting',
-    'sizes=100vw',
-    'c=heroImage',
-    'media=(max-width: 600px)',
-  ],
-  // fallback info comes from last url.
-  [
-    'public/hero/hero.jpg',
-    'w=600;800;1200;2400',
-    'a=16:9',
-    'f=avif;webp;jpg',
-    'fallbackWidth=700',
-    'fallbackFormat=jpg',
-    'alt=Image of house and pool with custom lighting',
-    'sizes=100vw',
-    'c=heroImage',
-    'media=(min-width: 601px)',
-    'sharpen=true',
-    'loading=eager',
-  ],
-]);
+
 ```
 
 **YourComponent.tsx**

@@ -10,9 +10,11 @@
     "declarationMap": true, // allow editors(vscode) to jump to definition.
     // "incremental": true, // Enables incremental compilation, build only the changed code
     "lib": ["esnext"], // browser or NodeJS APIs are valid.
-    "module": "NodeNext", // do not change code in the output.
+    "module": "NodeNext", // do not change code in the output. Package.json needs: "type": "module".
     "moduleResolution": "nodenext", // support latest nodeJS APIs.
-    "esModuleInterop": true, // allows commonJS 'require' and import with es6.
+    // "esModuleInterop": true, // allows commonJS 'require' and import with es6.
+        // if making a library, forces user to turn on this flag.
+        // https://evertpot.com/universal-commonjs-esm-typescript-packages/
     "noUnusedParameters": false, // Do not allow unused parameters in functions.
     "noErrorTruncation": true, // no truncating error messages, providing full details about the error.
     "noUncheckedIndexedAccess": true, // it ensures that indexed access types are checked for undefined values,
@@ -21,7 +23,7 @@
     "noFallthroughCasesInSwitch": true, // switch statement without a break, return, or throw statement.
     "outDir": "pixx",
     "removeComments": true, // when build remove comments.
-    "resolveJsonModule": true, // json
+    // "resolveJsonModule": true, // json
     "rootDir": "src",
     "skipLibCheck": true, // do not check imported libraries.
     "strict": true, // strict type checking.
