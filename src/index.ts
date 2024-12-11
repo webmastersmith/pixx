@@ -116,7 +116,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
     console.log(error);
   }
 }
-
+export default pixx;
 // development
 // default test
 // pixx('./src/test.jpg').then((m) => console.log('\n\n', m, '\n\n'));

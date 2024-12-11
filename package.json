@@ -8,8 +8,8 @@
     "dev": "ts-node ./src/index.ts",
     "prebuild": "rimraf ./pixx",
     "build": "tsc && tsc-alias",
-    "prepub": "npm run build",
-    "pub": "npm version patch && git push --tags origin main && npm publish"
+    "prepac": "npm run build",
+    "pac": "npm version patch && git push --tags origin main && npm publish"
   },
   "repository": {
     "type": "git",
