@@ -12,7 +12,7 @@ import {
 import parse from 'html-react-parser';
 import { inspect } from 'util';
 
-export async function pic(filePaths: string | string[], options?: OptionType) {
+export async function pixx(filePaths: string | string[], options?: OptionType) {
   try {
     // 1. Art direction if array of multiple filePaths images.
     if (Array.isArray(filePaths)) {
@@ -119,11 +119,11 @@ export async function pic(filePaths: string | string[], options?: OptionType) {
 
 // development
 // default test
-// pic('./src/test.jpg', { returnHTML: false });
+// pixx('./src/test.jpg', { returnHTML: false });
 
 // classes test
 // let pending = true;
-// pic('./src/test.jpg', {
+// pixx('./src/test.jpg', {
 //   returnHTML: false,
 //   log: true,
 //   title: 'my wonder pic',
@@ -132,19 +132,19 @@ export async function pic(filePaths: string | string[], options?: OptionType) {
 // });
 
 // single type
-// pic('./src/test.jpg', { log: true, picTypes: ['png'] });
+// pixx('./src/test.jpg', { log: true, picTypes: ['png'] });
 
 // art direction
-// let pending = true;
-// pic(['./src/test.jpg', './src/happy face.jpg'], {
-//   // log: true,
-//   clean: true,
-//   returnHTML: false,
-//   omit: { remove: 'pic_images', add: './hello' },
-//   media: ['(max-width: 400px) happy face.jpg', '(min-width: 401px) test.jpg'],
-//   sizes: ['(max-width: 400px) 100vw', '(min-width: 401px) 50vw'],
-//   classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
-//   isBlur: true,
-//   // styles: { color: 'blue', backgroundColor: 'red' },
-//   styles: ['color: blue', 'backgroundColor: red'],
-// }).then((m) => console.log('\n\n', m));
+let pending = true;
+pixx(['./src/test.jpg', './src/happy face.jpg'], {
+  // log: true,
+  clean: true,
+  returnHTML: false,
+  omit: { remove: 'pixx_images', add: './hello' },
+  media: ['(max-width: 400px) happy face.jpg', '(min-width: 401px) test.jpg'],
+  sizes: ['(max-width: 400px) 100vw', '(min-width: 401px) 50vw'],
+  classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
+  isBlur: true,
+  // styles: { color: 'blue', backgroundColor: 'red' },
+  styles: ['color: blue', 'backgroundColor: red'],
+}).then((m) => console.log('\n\n', m));

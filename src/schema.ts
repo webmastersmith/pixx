@@ -72,7 +72,7 @@ export const OptionSchema = z
       .array()
       .optional()
       .default([]),
-    outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pic_images'),
+    outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pixx_images'),
     omit: OmitSchema.default({ remove: '', add: '' }),
     picTypes: OutputImageTypeSchema.array().min(1).default(['avif', 'webp', 'jpg']),
     preload: z.boolean({ message: 'preload option must be true or false.' }).optional().default(false),

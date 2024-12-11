@@ -23,12 +23,12 @@
     "noErrorTruncation": true, // no truncating error messages, providing full details about the error.
     "rootDir": "src",
     "declaration": true,
-    "outDir": "pic",
+    "outDir": "pixx",
      "paths": {
       //  "#/*": [ "./*" ],
       "@/*": ["./src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": ["node_modules", "pic"]
+  "exclude": ["node_modules", "pixx"]
 }
