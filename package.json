@@ -2,7 +2,7 @@
   "name": "pixx",
   "version": "0.0.1",
   "description": "Create web friendly images and code snippets",
-  "main": "src/index.js",
+  "main": "pixx/index.js",
   "scripts": {
     "watch": "nodemon ./src/index.ts",
     "dev": "ts-node ./src/index.ts",
