@@ -1,11 +1,41 @@
 import fs from 'fs';
 import path from 'path';
 import sharp, { Metadata } from 'sharp';
-import { FilePathSchema, FilePathType, StateType, OutputImageType, OptionSchema, OptionType } from '@/schema';
+import {
+  FilePathSchema,
+  FilePathType,
+  StateType,
+  OutputImageType,
+  OptionSchema,
+  OptionType,
+  OptionRequiredType,
+} from '@/schema';
 import exifr from 'exifr';
 import sizeOf from 'image-size';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import colors from 'ansi-colors';
+
+/**
+ * Progress bar. bar(1, 25). creates 'one' tick. bar(2, 25). creates second tick.
+ * @param step one tick of the progress bar
+ * @param totalSteps Total expected ticks.
+ */
+export function bar(name: string, step: number, totalSteps: number) {
+  // Drawing the Progress Bar Image
+  const drawProgressBar = (progress: number) => {
+    const barWidth = 30; // length of bar.
+    const filledWidth = Math.floor((progress / 100) * barWidth);
+    const emptyWidth = barWidth - filledWidth;
+    const progressBar = colors.cyan('█').repeat(filledWidth) + colors.cyan('▒').repeat(emptyWidth);
+    return `[${progressBar}] ${progress}%`;
+  };
+  // write to console.
+  const progressPercentage = Math.floor((step / totalSteps) * 100);
+  process.stdout.clearLine(0);
+  process.stdout.cursorTo(0);
+  process.stdout.write(`${name} Progress: ${drawProgressBar(progressPercentage)}`);
+}
 
 /**
  * Tailwind 'cn' function.
@@ -29,7 +59,7 @@ export async function getState(filePath: string, options: OptionType) {
   // throw error is image cannot be found.
   const { file, buf } = getFile(filePath);
   // get image metadata. Throw error if width or height cannot be determined.
-  const meta = await getMetadata(buf, optionsParsed);
+  const meta = await getImageMetadata(buf, optionsParsed);
   // get file names. create outDir, clean?
   const paths = createNewImageDir(optionsParsed, file, meta);
   // defaults
@@ -44,14 +74,26 @@ export async function getState(filePath: string, options: OptionType) {
   } as StateType;
 
   // All checks pass. Start creating images.
-  // create fallback image.
-  const size: never[] | ['width', number] = state.fallbackWidth ? ['width', state.fallbackWidth] : [];
-  const [newImagePath, { width, height }] = await createImage(state, size, 'jpg');
+  // create fallback image same as original image size unless fallbackWidth is provided.
+  const sizeArr: never[] | ['width', number] = state.fallbackWidth ? ['width', state.fallbackWidth] : [];
+  const [newImagePath, fallbackSize] = await createImage(state, sizeArr, 'jpg');
   state.fallbackPath = newImagePath;
+  state.fallbackSize = fallbackSize;
   // get class names
   state.classStr = cn(state.classes);
+  // initialize count
+  state.imgCount = 0;
+  // total created images. Check how many widths or heights or defaultSizes.
+  const sizeCount = state.widths.length
+    ? state.widths.length
+    : state.heights.length
+    ? state.heights.length
+    : state.defaultSizes[1].length;
+  const totalImages = state.picTypes.length * sizeCount + 1;
+  state.totalImages = totalImages;
 
-  if (state.log) console.log('state: ', state);
+  // Progress Bar
+  state.cliBar = bar;
   return state;
 }
 
@@ -60,13 +102,13 @@ export async function getState(filePath: string, options: OptionType) {
  * @param sharpDetails image state
  * @returns object: width, height, format
  */
-export async function getMetadata(buf: Buffer, options: OptionType) {
+export async function getImageMetadata(buf: Buffer, options: OptionType) {
   const details = await sharp(buf).metadata();
   // Make sure width, height are included in the metadata.
   if (!details.width || !details.height || Number.isNaN(+details.width) || Number.isNaN(+details.height)) {
     const dimensions = sizeOf(buf);
-    console.log('Width and Height attributes are missing from image metadata. Adding...');
-    console.log(dimensions);
+    console.log('\n\nWidth and Height attributes are missing from image metadata. Adding...');
+    console.log(dimensions, '\n\n');
     // throw error is second attempt to get image width, height fails.
     if (
       !dimensions.width ||
@@ -81,7 +123,7 @@ export async function getMetadata(buf: Buffer, options: OptionType) {
   }
   // show image EXIF, TIFF, GPS, XMP, IPTC, ICC, JFIF/Thumbnail data.
   if (options?.log) {
-    console.log('exifr', await exifr.parse(buf, true));
+    console.log('\n\nexifr', await exifr.parse(buf, true), '\n\n');
   }
   return details;
 }
@@ -91,7 +133,7 @@ export async function getMetadata(buf: Buffer, options: OptionType) {
  * @param condition media condition and path or size.
  * @returns array with media and path or size. e.g. [media, size]
  */
-export function splitCondition(condition: string) {
+export function splitCondition(condition: string): [string | boolean, string] {
   // if only descriptor.
   if (!/\) /.test(condition)) return [false, condition];
   // media condition and descriptor.
@@ -124,7 +166,7 @@ export function defaultSize(
     } else {
       // check if image was smaller than increaseSize;
       if (sizes.length === 0) {
-        console.error('Image increase size was bigger than image.');
+        console.error(colors.cyan('\n\nImage increase size was bigger than image.\n\n'));
         sizes.push(smallSide);
       }
       return [key, sizes];
@@ -142,13 +184,13 @@ export function defaultSize(
  */
 export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
   if (!fs.existsSync(filePath)) throw new Error(`File not found: ${filePath}`);
-  const paths = filePath.split(/\/|\\/);
-  const image = paths.pop();
+  const image = path.basename(filePath);
   const lastIndex = image?.lastIndexOf('.');
   const name = image?.slice(0, lastIndex);
+  const imgName = name.replaceAll(' ', '_');
   const ext = image?.slice(lastIndex! + 1).toLowerCase();
-  const rootPath = path.join(...paths); // if 'paths' is empty, will return '.'
-  const preFile = { rootPath, image, name, ext };
+  const rootPath = path.dirname(filePath);
+  const preFile = { rootPath, image, name, imgName, ext };
   const file = FilePathSchema.parse(preFile);
   return { file, buf: fs.readFileSync(filePath) };
 }
@@ -159,11 +201,11 @@ export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
  * @param file image file name
  * @returns paths for images
  */
-export function createNewImageDir(options: OptionType, file: FilePathType, meta: Metadata) {
+export function createNewImageDir(options: OptionRequiredType, file: FilePathType, meta: Metadata) {
   // newImage directory path
-  const newImageDir = path.join(options?.outDir!, file.name);
+  const newImageDir = path.join(options.outDir, file.imgName);
   // clean?
-  if (options?.clean) fs.rmSync(newImageDir, { recursive: true, force: true });
+  if (options.clean) fs.rmSync(newImageDir, { recursive: true, force: true });
   // create image directory
   if (!fs.existsSync(newImageDir)) fs.mkdirSync(newImageDir, { recursive: true });
   return { newImageDir };
@@ -254,8 +296,9 @@ export function getDimension({
 export async function createImage(
   state: StateType,
   size: never[] | ['width' | 'height', number],
-  type: OutputImageType
-): Promise<[string, { width: number; height: number }]> {
+  type: OutputImageType,
+  withBlur: boolean = false
+): Promise<[string, { width: number; height: number; blurDataURL?: string }]> {
   let w: number;
   let h: number;
   // if empty size, create same size as original image with desired format.
@@ -281,15 +324,44 @@ export async function createImage(
     }
   } // end else
   // create subfolder path
-  const newImagePath = path.join(state.paths.newImageDir, `${state.file.name}-${w}w${h}h.${type}`);
+  const newImagePath = path.join(
+    state.paths.newImageDir,
+    `${state.file.imgName}-${withBlur ? 'placeholder-' : ''}${w}w${h}h.${type}`
+  );
+  // resize.
   const options = size.length ? { [size[0]]: size[1] } : {};
-  // only create if marked clean, or image does not exist.
+  // only create if state.clean, or image does not exist.
   if (!fs.existsSync(newImagePath)) {
     if (state.withMetadata)
       await sharp(state.buf).withMetadata().resize(options).toFormat(type).toFile(newImagePath);
     else await sharp(state.buf).resize(options).toFormat(type).toFile(newImagePath);
   }
-  return [newImagePath, { width: w, height: h }];
+  // blur -just create base64, image was created above.
+  let blurDataURL = state.isBlur ? `data:image/${type};base64,` : '';
+  // Resize to 10px wide
+  if (state.isBlur) blurDataURL += (await sharp(state.buf).resize(state.blur).toBuffer()).toString('base64');
+
+  // image has been created. Fix return img path. linux or remove/add beginning.
+  const fixImgPath = state.linuxPaths
+    ? newImagePath.replaceAll('\\', '/').replace(state.omit.remove || '', state.omit.add || '')
+    : newImagePath.replace(state.omit.remove || '', state.omit.add || '');
+
+  // preload
+  if (state.preload)
+    console.log(
+      `\n\n<${colors.red(
+        'link'
+      )} rel="preload" href="${fixImgPath}" as="image" type="image/${type}" fetchpriority="${
+        state.preloadFetchPriority
+      }" />\n\n`
+    );
+  // increment image count.
+  state.imgCount++;
+  // if (state.cliBar instanceof SingleBar) state.cliBar.increment(state.imgCount);
+  // if (state.cliBar instanceof ProgressBar) state.cliBar.tick(state.imgCount);
+  if (typeof state.cliBar === 'function') state.cliBar(state.file.image, state.imgCount, state.totalImages);
+
+  return [fixImgPath, { width: w, height: h, blurDataURL }];
 }
 
 /**
@@ -325,24 +397,49 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   let imgStr = '';
   // create img element
   imgStr += '<img ';
+  // create class or className if not empty and not a picture element.
   imgStr += state.classStr ? `${c}="${state.classStr}" ` : '';
+  // styles attribute -can be an array of strings or object.
+  if (Array.isArray(state.styles)) {
+    // <p style="color: blue; font-size: 46px;"> // html
+    if (state.styles.length) imgStr += `style="${state.styles.join('; ')}"`;
+  }
+  if (!Array.isArray(state.styles) && typeof state.styles === 'object') {
+    // react inline style
+    // { "color": "blue", "fontSize": "46px" }
+    imgStr += `style={${JSON.stringify({ ...state.styles })}}`;
+  }
   // create srcset
   imgStr += !isPicture ? `srcset="${await createSrcSet(state, state.picTypes[0] as OutputImageType)}" ` : '';
   // create sizes
   imgStr += !isPicture ? `sizes="${state.sizes.join(', ')}" ` : '';
   imgStr += `src="${state.fallbackPath}" `;
   imgStr += `alt="${state.alt}" `;
+  imgStr += `width="${state.fallbackSize.width}" `;
+  imgStr += `height="${state.fallbackSize.height}" `;
   imgStr += state.title ? `title="${state.title}" ` : '';
   imgStr += `loading="${state.loading}" `;
+  imgStr += `decoding="${state.decoding}" `;
   imgStr += '/>';
   return imgStr;
 }
 
-export async function createSourceTag(state: StateType, type: OutputImageType) {
+export async function createSourceTag(state: StateType, type: OutputImageType, media: string = '') {
   let source = '<source ';
   source += `type="image/${type}" `;
+  source += media ? `media="${media}" ` : '';
   source += `sizes="${state.sizes.join(', ')}" `;
   source += `srcset="${await createSrcSet(state, type)}" `;
   source += '/>';
   return source;
+}
+export async function createPictureTag(state: StateType) {
+  const c = state.isClassName ? 'className' : 'class';
+  let picture = '<picture >\n';
+  for (const type of state.picTypes) {
+    picture += `\t${await createSourceTag(state, type)}\n`;
+  }
+  picture += `\t${await createImgTag(state, true)}\n`;
+  picture += '</picture>';
+  return picture;
 }

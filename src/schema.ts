@@ -1,6 +1,7 @@
 import { optional, z } from 'zod';
 import { Metadata } from 'sharp';
-
+import { GenericBar } from 'cli-progress';
+import ProgressBar from 'progress';
 // sharp input images
 const acceptableInputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp', 'svg'] as const;
 export const InputImageTypeSchema = z.enum(acceptableInputImageTypes, {
@@ -20,23 +21,37 @@ export const FilePathSchema = z.object({
   rootPath: z.string({ message: 'filePath must be a string' }),
   image: z.string({ message: 'filePath must be a string' }),
   name: z.string({ message: 'filePath must be a string' }),
+  imgName: z.string({ message: 'filePath must be a string' }),
 });
 export type FilePathType = z.infer<typeof FilePathSchema>;
+
+// omit and replace
+const OmitSchema = z
+  .object({
+    remove: z.string({ message: 'omit remove option must be string.' }).optional(),
+    add: z.string({ message: 'replace add option must be string.' }).optional(),
+  })
+  .optional();
 
 // check options
 export const OptionSchema = z
   .object({
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
     animation: z.boolean({ message: 'animation option must be true or false.' }).optional().default(false),
+    blur: z.number({ message: 'blur option must be a number.' }).optional().default(10),
+    isBlur: z.boolean({ message: 'isBlur option must be a number.' }).optional().default(false),
     classes: z
       .union([z.string().optional(), z.record(z.string(), z.boolean()).optional()])
       .optional()
       .array()
       .optional()
       .default([]),
-    isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
-    fallbackWidth: z.number({ message: 'fallbackWidth option must be number.' }).optional().default(0),
+    decoding: z
+      .enum(['sync', 'async'], { message: 'decoding option can only be "sync" or "async".' })
+      .optional()
+      .default('async'),
+    fallbackWidth: z.number({ message: 'fallbackWidth option must be a number.' }).optional().default(0),
     heights: z
       .number({ message: 'heights option must be an array of strings.' })
       .optional()
@@ -44,6 +59,8 @@ export const OptionSchema = z
       .optional()
       .default([]),
     increment: z.number({ message: 'increment option must be a number.' }).optional().default(300),
+    isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
+    linuxPaths: z.boolean({ message: 'linuxPaths option must be true or false.' }).optional().default(true),
     loading: z
       .enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy".' })
       .optional()
@@ -56,13 +73,31 @@ export const OptionSchema = z
       .optional()
       .default([]),
     outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pic_images'),
+    omit: OmitSchema.default({ remove: '', add: '' }),
     picTypes: OutputImageTypeSchema.array().min(1).default(['avif', 'webp', 'jpg']),
+    preload: z.boolean({ message: 'preload option must be true or false.' }).optional().default(false),
+    preloadFetchPriority: z
+      .enum(['auto', 'low', 'high'], {
+        message: 'preloadFetchPriority option can only be "auto", "low" or "high".',
+      })
+      .optional()
+      .default('auto'),
+    returnHTML: z.boolean({ message: 'returnHTML option must be true or false.' }).optional().default(true),
     sizes: z
       .string({ message: 'sizes option must an array of strings.' })
       .optional()
       .array()
       .optional()
       .default(['100vw']),
+    styles: z
+      .array(z.string({ message: 'styles option must be an array of strings or object' }).optional())
+      .or(
+        z
+          .record(z.string(), z.string(), { message: 'styles option must be an array of strings or object' })
+          .optional()
+      )
+      .optional()
+      .default([]),
     title: z.string({ message: 'title option must be a string.' }).optional().default(''),
     widths: z
       .number({ message: 'widths option must be an array of strings.' })
@@ -76,59 +111,24 @@ export const OptionSchema = z
       .default(true),
   })
   .default({});
-export type OptionType = z.input<typeof OptionSchema>;
+type NonNullable<T> = Exclude<T, null | undefined>; // remove undefined from property.
+export type OptionType = z.input<typeof OptionSchema>; // Required removes '?'.
+export type OptionRequiredType = Required<NonNullable<OptionType>>; // Required removes '?'.
 
 export type StateType = Required<
-  Required<OptionType> & {
+  OptionRequiredType & {
     meta: Metadata;
     file: FilePathType;
     buf: Buffer;
     aspectRatio: string;
     paths: { newImageDir: string };
     fallbackPath: string;
+    fallbackSize: { width: number; height: number };
     classStr: string;
+    imgCount: number;
+    totalImages: number;
+    // cliBar: GenericBar | boolean;
+    cliBar: (name: string, step: number, totalSteps: number) => void;
     defaultSizes: ['width' | 'height', number[]];
   }
 >;
-
-// export interface SharpDetails {
-//   alt: string;
-//   animated: boolean;
-//   c: string; // class
-//   className: string; // should your class be called className? default: className
-//   clean: boolean; // delete old image files.
-//   cssModule: boolean; // styles.class or class="class1 class2"
-//   currentFormat: string; // f = 'avif:50' -format and quality can be combined.
-//   debug: boolean;
-//   desiredAspect: string; // aspect
-//   desiredHeight: number;
-//   desiredWidth: number;
-//   enlarge: boolean;
-//   ext: string;
-//   _fallback: boolean; // internal use
-//   fallbackFormat: string; // Format type of fallback image.
-//   fallbackWidth: number;
-//   flatten: string[];
-//   flattenColor: string;
-//   folderPath: string;
-//   formats: string[];
-//   imgPath: string;
-//   imgName: string;
-//   loading: string; // eager | lazy
-//   mediaQuery: string;
-//   name: string;
-//   newFileName: string;
-//   orgHeight: number;
-//   orgWidth: number;
-//   print: boolean;
-//   progressBar: boolean;
-//   quality: number;
-//   sharpen: boolean; // boolean
-//   sizes: string;
-//   srcPath: string;
-//   url: string;
-//   urls: string[];
-//   widths: number[];
-//   writePath: string;
-//   _writePaths: string[]; // internal use
-// }

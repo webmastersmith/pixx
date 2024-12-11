@@ -7,6 +7,10 @@
 - Run with _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
 - Does not increase image size. Start with the largest input image.
 
+## React
+
+- if `isClassName: true`, output html, else output string. Default is true.
+
 ## Understanding Responsive Images: Resolutions Switching, Multiple Types, and Art Direction
 
 - All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of html, for _**mobile browsers**_ to use the actual device viewport in decision making.
@@ -16,6 +20,13 @@
   - **srcset**: tells the browser available image widths.
   - **sizes**: tells the browser how much of viewport the image will fill.
   - **media**: completely different images can be offered depending on matching _media_ condition.
+
+## Responsive Images
+
+- Three main ways to use responsive images.
+  1. Single image in multiple sizes. (e.g. img-100.jpg, img-200.jpg, img-300.jpg).
+  2. Single image in multiple sizes and types. (e.g. img.avif, img.webp, img.jpg).
+  3. Multiple images the browser will choose depending on viewport width. (e.g. img-full.jpg, img-crop.jpg)
 
 ### Resolution Switching
 
@@ -127,6 +138,7 @@ pic('path/file.jpg');
 - **outDir**: default `pic_images`. Where to create images?
 - **picTypes**: default `['avif', 'webp', 'jpg']`. What image types to create.
   - picTypes available options: `['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp']`.
+- **returnHTML**: default `true`. _pic_ function can return results as HTML or string.
 - **sizes**: default `['100vw']`. Array of image widths you would like.
 - **showHidden**: default `false`.
 - **title**: default "". Text to display as tooltip.
