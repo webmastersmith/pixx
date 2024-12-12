@@ -34,5 +34,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": ["node_modules", "build"]
+  "exclude": ["node_modules", "cjs", "esm"]
 }
