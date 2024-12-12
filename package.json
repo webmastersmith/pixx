@@ -10,7 +10,7 @@
     "prebuild": "rimraf ./pixx",
     "build": "tsc && tsc-alias",
     "watcher": "npm run build -- --watch src",
-    "prepac": "npm run build",
+    "prepac": "npm run compile",
     "pac": "npm version patch && git push --tags origin main && npm publish",
     "dry": "npm publish --dry-run",
     "compile:cjs": "tsc --outDir ./build/cjs --module commonjs",
