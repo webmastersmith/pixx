@@ -2,7 +2,7 @@
   "name": "pixx",
   "version": "0.0.15",
   "description": "Create web friendly images and code snippets",
-  "main": "cjs/index.js",
+  "main": "pixx/index.js",
   "scripts": {
     "watcher": "npm run build -- --watch src",
     "watch": "tsx watch ./src/index.ts",
