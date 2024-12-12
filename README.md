@@ -4,15 +4,18 @@
 
 - Responsive images can be **complex** and **error prone**. This module tries to simplify the image creation and html code to match.
 - Using the _[sharp](https://sharp.pixelplumbing.com/)_ image library, quickly create responsive images, and the HTML code to match.
-- This package only runs with in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
+- This package only runs in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
 - Pixx does not increase image size. Start with the **largest input image**.
 
 ## Simple Start
 
 ```js
-// npm i pixx;
+// download
+npm i pixx;
+
+// commonjs
 const { pixx } = require('pixx');
-// or
+// esm
 import { pixx } from 'pixx';
 
 // to use. -creates the images and html code.
