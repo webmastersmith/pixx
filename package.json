@@ -2,16 +2,29 @@
   "name": "pixx",
   "version": "0.0.17",
   "description": "Create web friendly images and code snippets",
-  "main": "pixx/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
   "scripts": {
     "watcher": "npm run build -- --watch src",
     "watch": "tsx watch ./src/index.ts",
     "dev": "tsx ./src/index.ts",
     "prebuild": "rimraf ./pixx",
     "build": "tsc && tsc-alias",
-    "prepac": "npm run build",
+    "prepac": "npm run compile",
     "pac": "npm version patch && git push --tags origin main && npm publish",
-    "dry": "npm publish --dry-run"
+    "dry": "npm publish --dry-run",
+    "compile": "pkgroll --clean-dist --sourcemap"
   },
   "repository": {
     "type": "git",
@@ -49,6 +62,7 @@
     "@swc/helpers": "^0.5.15",
     "@types/node": "^22.10.2",
     "nodemon": "^3.1.7",
+    "pkgroll": "^2.5.1",
     "regenerator-runtime": "^0.14.1",
     "rimraf": "^6.0.1",
     "ts-loader": "^9.5.1",
@@ -60,8 +74,5 @@
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4"
-  },
-  "files": [
-    "/pixx"
-  ]
+  }
 }

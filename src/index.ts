@@ -8,7 +8,7 @@ import {
   createSourceTag,
   splitCondition,
   createPictureTag,
-} from '@/utils';
+} from './utils';
 import parse from 'html-react-parser';
 // const parse = require('html-react-parser');
 import { inspect } from 'util';

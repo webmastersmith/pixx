@@ -9,7 +9,7 @@ import {
   OptionSchema,
   OptionType,
   OptionRequiredType,
-} from '@/schema';
+} from './schema';
 import exifr from 'exifr';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';

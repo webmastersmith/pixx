@@ -28,10 +28,10 @@
     "skipLibCheck": true, // do not check imported libraries.
     "strict": true, // strict type checking.
     // "target": "ES6", // only needed if you want to target browser support.
-     "paths": {
-      //  "#/*": [ "./*" ],
-      "@/*": ["./src/*"]
-    }
+    //  "paths": {
+    //   //  "#/*": [ "./*" ],
+    //   "@/*": ["./src/*"]
+    // }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
   "exclude": ["node_modules", "pixx"]
