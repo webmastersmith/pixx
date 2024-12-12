@@ -1,6 +1,6 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
-import { OptionType, StateType, OptionSchema } from './schema';
+import { OptionType, StateType, OptionSchema } from './schema.js';
 import {
   createImage,
   getState,
@@ -8,8 +8,8 @@ import {
   createSourceTag,
   splitCondition,
   createPictureTag,
-} from '@/utils';
-import parse from 'html-react-parser';
+} from '@/utils.js';
+const parse = require('html-react-parser');
 import { inspect } from 'util';
 
 const chalk = require('chalk');
@@ -118,7 +118,6 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
     console.log(error);
   }
 }
-
 // development
 // default test
 // pixx('./src/test.jpg').then((m) => console.log('\n\n', m, '\n\n'));

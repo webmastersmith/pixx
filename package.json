@@ -2,7 +2,8 @@
   "name": "pixx",
   "version": "0.0.10",
   "description": "Create web friendly images and code snippets",
-  "main": "pixx/index.js",
+  "main": "cjs/index.js",
+  "type": "module",
   "scripts": {
     "watch": "nodemon ./src/index.ts",
     "dev": "ts-node ./src/index.ts",
@@ -10,7 +11,12 @@
     "build": "tsc && tsc-alias",
     "watcher": "npm run build -- --watch src",
     "prepac": "npm run build",
-    "pac": "npm version patch && git push --tags origin main && npm publish"
+    "pac": "npm version patch && git push --tags origin main && npm publish",
+    "dry": "npm publish --dry-run",
+    "compile:cjs": "tsc --outDir ./build/cjs --module commonjs",
+    "compile:esm": "tsc --outDir ./build/esm --module nodenext",
+    "precompile": "rimraf ./build",
+    "compile": "npm run compile:cjs && npm run compile:esm"
   },
   "repository": {
     "type": "git",
@@ -60,6 +66,11 @@
     "webpack-cli": "^5.1.4"
   },
   "files": [
-    "/pixx"
-  ]
+    "/build/cjs",
+    "/build/esm"
+  ],
+  "exports": {
+    "require": "./cjs/index.js",
+    "import": "./esm/index.js"
+  }
 }

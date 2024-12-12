@@ -10,9 +10,9 @@
     "declarationMap": true, // allow editors(vscode) to jump to definition.
     // "incremental": true, // Enables incremental compilation, build only the changed code
     "lib": ["esnext"], // browser or NodeJS APIs are valid.
-    "module": "NodeNext", // do not change code in the output. Package.json needs: "type": "module".
-    "moduleResolution": "nodenext", // support latest nodeJS APIs.
-    // "esModuleInterop": true, // allows commonJS 'require' and import with es6.
+    // "module": "NodeNext", // do not change code in the output. Package.json needs: "type": "module".
+    // "moduleResolution": "nodenext", // support latest nodeJS APIs.
+    "esModuleInterop": true, // allows commonJS 'require' and import with es6.
         // if making a library, forces user to turn on this flag.
         // https://evertpot.com/universal-commonjs-esm-typescript-packages/
     "noUnusedParameters": false, // Do not allow unused parameters in functions.
@@ -21,7 +21,7 @@
     "noUnusedLocals": false, // Similar to noUnusedParameters, but for local variables.
     "noPropertyAccessFromIndexSignature": true, // object access via dot notation, must be defined in the type.
     "noFallthroughCasesInSwitch": true, // switch statement without a break, return, or throw statement.
-    "outDir": "pixx",
+    // "outDir": "pixx",
     "removeComments": true, // when build remove comments.
     // "resolveJsonModule": true, // json
     "rootDir": "src",
@@ -34,5 +34,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": ["node_modules", "pixx"]
+  "exclude": ["node_modules", "build"]
 }
