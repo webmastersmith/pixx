@@ -9,7 +9,7 @@
     "dev": "ts-node ./src/index.ts",
     "watcher": "npm run build -- --watch src",
     "build:cjs": "tsc --outDir ./cjs --module commonjs",
-    "build:esm": "tsc --outDir ./esm --module nodenext",
+    "build:esm": "tsc --outDir ./esm --module esnext --moduleResolution bundler",
     "prebuild": "rimraf ./cjs && rimraf ./esm",
     "build": "npm run build:cjs && npm run build:esm",
     "prepac": "npm run build",
