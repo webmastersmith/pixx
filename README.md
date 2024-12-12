@@ -41,13 +41,13 @@
 
 ```jsx
 // Resolution Switching based on screen resolution.
-await pic('img.jpg', { picType: ['jpg'], sizes: ['2x', '3x'] }) // 'img.jpg' will be cut in 1/3 and 1/2.
+await pixx('img.jpg', { picType: ['jpg'], sizes: ['2x', '3x'] }) // 'img.jpg' will be cut in 1/3 and 1/2.
 // returns
 <img src="img.jpg" alt="image" srcset="img-1-3.jpg, img-1-2.jpg 2x img.jpg 3x" />
 // 👆 No 'sizes' attribute. Browser assumes image will take 100vw.
 
 // Resolution Switching based on viewport size.
-await pic('img.jpg', { picType: ['jpg'], widths: [300, 600], sizes: ['300px'] });
+await pixx('img.jpg', { picType: ['jpg'], widths: [300, 600], sizes: ['300px'] });
 // returns
 <img src="fallback.jpg" alt="image" srcset="img-300.jpg 300w, img-600.jpg 600w" sizes="300px" />
 // 👆 Image will take '300px' of viewport. Choose best image to download.
@@ -116,8 +116,8 @@ await pic('img.jpg', { picType: ['jpg'], widths: [300, 600], sizes: ['300px'] })
 
 ```js
 // To use
-import pic from 'pic';
-pic('path/file.jpg');
+import pixx from 'pixx';
+pixx('path/file.jpg');
 ```
 
 ## URL Options
@@ -149,10 +149,10 @@ pic('path/file.jpg');
 ### Default
 
 ```ts
-import pic from 'pic';
+import pixx from 'pixx';
 
 // defaults
-await pic('img.jpg', {
+await pixx('img.jpg', {
   alt: 'image',
   animation: false,
   classes: [], // e.g. ['my-class', 'm-8', 'w-[350px]']
@@ -163,7 +163,7 @@ await pic('img.jpg', {
   isClassName: true, // <img className=''>
   loading: 'eager',
   log: true,
-  outDir: 'pic_images',
+  outDir: 'pixx_images',
   picTypes: ['avif', 'webp', 'jpg'],
   sizes: ['100vw'],
   title: '',
