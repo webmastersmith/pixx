@@ -8,7 +8,7 @@
     "watch": "tsx watch ./src/index.ts",
     "dev": "tsx ./src/index.ts",
     "prebuild": "rimraf ./pixx",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "prepac": "npm run build",
     "pac": "npm version patch && git push --tags origin main && npm publish",
     "dry": "npm publish --dry-run"
