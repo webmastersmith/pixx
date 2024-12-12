@@ -1,6 +1,6 @@
 {
   "name": "pixx",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Create web friendly images and code snippets",
   "main": "cjs/index.js",
   "scripts": {
