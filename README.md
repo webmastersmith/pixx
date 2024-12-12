@@ -4,21 +4,80 @@
 
 - Responsive images can be **complex** and **error prone**. This module tries to simplify the image creation and html code to match.
 - Using the _[sharp](https://sharp.pixelplumbing.com/)_ image library, quickly create responsive images, and the HTML code to match.
-- Run with _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
-- Does not increase image size. Start with the largest input image.
+- This package only runs with in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
+- Pixx does not increase image size. Start with the **largest input image**.
 
-## React
+## Simple Start
 
-- if `isClassName: true`, output html, else output string. Default is true.
+```js
+// npm i pixx;
+const { pixx } = require('pixx');
+// or
+import { pixx } from 'pixx';
+
+// to use. -creates the images and html code.
+await pixx('compass.jpg'); // size is 2560w x 1920h.
+
+// returns
+<picture>
+  <source
+    type="image/avif"
+    sizes="100vw"
+    srcset="
+      pixx_images/compass/compass-400w300h.avif    400w,
+      pixx_images/compass/compass-800w600h.avif    800w,
+      pixx_images/compass/compass-1200w900h.avif  1200w,
+      pixx_images/compass/compass-1600w1200h.avif 1600w,
+      pixx_images/compass/compass-2000w1500h.avif 2000w,
+      pixx_images/compass/compass-2400w1800h.avif 2400w,
+      pixx_images/compass/compass-2560w1920h.avif 2560w
+    "
+  />
+  <source
+    type="image/webp"
+    sizes="100vw"
+    srcset="
+      pixx_images/compass/compass-400w300h.webp    400w,
+      pixx_images/compass/compass-800w600h.webp    800w,
+      pixx_images/compass/compass-1200w900h.webp  1200w,
+      pixx_images/compass/compass-1600w1200h.webp 1600w,
+      pixx_images/compass/compass-2000w1500h.webp 2000w,
+      pixx_images/compass/compass-2400w1800h.webp 2400w,
+      pixx_images/compass/compass-2560w1920h.webp 2560w
+    "
+  />
+  <source
+    type="image/jpg"
+    sizes="100vw"
+    srcset="
+      pixx_images/compass/compass-400w300h.jpg    400w,
+      pixx_images/compass/compass-800w600h.jpg    800w,
+      pixx_images/compass/compass-1200w900h.jpg  1200w,
+      pixx_images/compass/compass-1600w1200h.jpg 1600w,
+      pixx_images/compass/compass-2000w1500h.jpg 2000w,
+      pixx_images/compass/compass-2400w1800h.jpg 2400w,
+      pixx_images/compass/compass-2560w1920h.jpg 2560w
+    "
+  />
+  <img
+    src="pixx_images/compass/compass-2560w1920h.jpg"
+    alt="image"
+    width="2560"
+    height="1920"
+    loading="eager"
+    decoding="async"
+  />
+</picture>;
+```
 
 ## Understanding Responsive Images: Resolutions Switching, Multiple Types, and Art Direction
 
 - All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of html, for _**mobile browsers**_ to use the actual device viewport in decision making.
 - **Responsive Image Advantages**
-  - When mobile or desktop browsers download and parse the HTML, the `sizes`, `srcset` and `media` attribute give clues to the browser what images to download.
-  - Using these attributes, the browser decides the best image to download based on its viewport and resolution.
-  - **srcset**: tells the browser available image widths.
-  - **sizes**: tells the browser how much of viewport the image will fill.
+  - When mobile or desktop browsers download and parse the HTML, the `sizes`, `srcset` and `media` attribute give clues to the browser about the best images to download.
+  - Using these attributes, the browser decides the best image to download based on its viewport size and resolution.
+  - **srcset**: inform the browser of the available image widths.
+  - **sizes**: inform the browser about how much of the viewport the image will fill.
   - **media**: completely different images can be offered depending on matching _media_ condition.
 
 ## Responsive Images
@@ -26,7 +85,7 @@
 - Three main ways to use responsive images.
   1. Single image in multiple sizes. (e.g. img-100.jpg, img-200.jpg, img-300.jpg).
   2. Single image in multiple sizes and types. (e.g. img.avif, img.webp, img.jpg).
-  3. Multiple images the browser will choose depending on viewport width. (e.g. img-full.jpg, img-crop.jpg)
+  3. Multiple different images the browser will choose depending on viewport width. (e.g. img-full.jpg, img-crop.jpg).
 
 ### Resolution Switching
 
@@ -34,34 +93,41 @@
 - **Single image type**. Browsers can choose what image **size** to download based on the device viewport.
 - Fallback is the `img src` attribute.
 - **Pros**
-  - The least complex. Default sizes is `100vw`.
+  - The least complex. Default _sizes_ attribute is `100vw`.
   - Can offer multiple image size options.
 - **Cons**
   - Only single image type can be used at a time.
 
 ```jsx
-// Resolution Switching based on screen resolution.
-await pixx('img.jpg', { picType: ['jpg'], sizes: ['2x', '3x'] }) // 'img.jpg' will be cut in 1/3 and 1/2.
-// returns
-<img src="img.jpg" alt="image" srcset="img-1-3.jpg, img-1-2.jpg 2x img.jpg 3x" />
-// 👆 No 'sizes' attribute. Browser assumes image will take 100vw.
+// Single image type, multiple sizes.
+await pixx('./compass.jpg', {
+  picTypes: ['webp'],
+  // device <= 450px, image will take 75vw. <= 800px, image will take 50vw. >800px, image will take 25vw.
+  sizes: ['(max-width: 450px) 75vw', '(max-width: 800px) 50vw', '25vw'],
+  // e.g. Device viewport has a width of 700px.
+  // The 'media condition' tells browser image will take 350px (50vw) of viewport.
+  // If viewport pixel density is 2x. Browser will choose >= 700px image. (compass-800w600h.webp)
+});
 
-// Resolution Switching based on viewport size.
-await pixx('img.jpg', { picType: ['jpg'], widths: [300, 600], sizes: ['300px'] });
 // returns
-<img src="fallback.jpg" alt="image" srcset="img-300.jpg 300w, img-600.jpg 600w" sizes="300px" />
-// 👆 Image will take '300px' of viewport. Choose best image to download.
-
-// Advanced 'sizes' attribute with media queries.
 <img
-  src="fallback.jpg"
-  alt="my img"
-  title="my img"
-  srcset="img1.jpg 600w, img2.jpg 1200w"
-  sizes="(max-width: 600px) 100vw, <-- device with viewport <= 600px, image 100% of viewport.
-         (max-width: 1000px) 75vw, <-- device with viewport > 600px but <= 1000px, image 75% of viewport.
-                             50vw"  //<-- device with viewport > 1000px, the image will take 50% of viewport.
-/>
+  srcset="
+    pixx_images/compass/compass-400w300h.webp    400w,
+    pixx_images/compass/compass-800w600h.webp    800w,
+    pixx_images/compass/compass-1200w900h.webp  1200w,
+    pixx_images/compass/compass-1600w1200h.webp 1600w,
+    pixx_images/compass/compass-2000w1500h.webp 2000w,
+    pixx_images/compass/compass-2400w1800h.webp 2400w,
+    pixx_images/compass/compass-2560w1920h.webp 2560w
+  "
+  sizes="(max-width: 450px) 75vw, (max-width: 800px) 50vw, 25vw"
+  src="pixx_images/compass/compass-2560w1920h.jpg"
+  alt="image"
+  width="2560"
+  height="1920"
+  loading="eager"
+  decoding="async"
+/>;
 ```
 
 ### Multiple Types
@@ -75,14 +141,70 @@ await pixx('img.jpg', { picType: ['jpg'], widths: [300, 600], sizes: ['300px'] }
   - Code can be complex.
   - Order matters. Browser takes the first truthy value.
 
-```html
-<!--  Browser knows image will ony take 100px of screen size.  -->
+```js
+let pending = true;
+await pixx('./src/compass.jpg', {
+  title: 'Antique compass',
+  alt: 'Image of an old compass',
+  withBlur: true,
+  classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }],
+});
+
+// withBlur will create blur image and console.log blurDataURL.
+compass.jpg: 'pixx_images/compass/compass-placeholder-10w8h.jpg'
+compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIxAAAQIFAwUAAAAAAAAAAAAAAQIDAAUGERIEEyEiIzFBkf/EABQBAQAAAAAAAAAAAAAAAAAAAAT/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADERL/2gAMAwEAAhEDEQA/AJ6jpVSKaN1BmzDTkwBVm85luINu2UEcefX2Mne0Ct5d1LJyN+mEIBXvTHYh0GCf/9k='
+
+// returns
 <picture>
-  <source srcset="img1.avif 500w, img2.avif 1000w" type="image/avif" sizes="100px" />
-  <source srcset="img1.webp 500w, img2.webp 1000w" type="image/webp" sizes="100px" />
-  <source srcset="img1.png 500w, img2.png 1000w" type="image/png" sizes="100px" />
-  <source srcset="img1.jpg 500w, img2.jpg 1000w" type="image/jpg" sizes="100px" />
-  <img src="fallback.jpg" alt="Human" />
+  <source
+    type="image/avif"
+    sizes="100vw"
+    srcset="
+      pixx_images/compass/compass-400w300h.avif    400w,
+      pixx_images/compass/compass-800w600h.avif    800w,
+      pixx_images/compass/compass-1200w900h.avif  1200w,
+      pixx_images/compass/compass-1600w1200h.avif 1600w,
+      pixx_images/compass/compass-2000w1500h.avif 2000w,
+      pixx_images/compass/compass-2400w1800h.avif 2400w,
+      pixx_images/compass/compass-2560w1920h.avif 2560w
+    "
+  />
+  <source
+    type="image/webp"
+    sizes="100vw"
+    srcset="
+      pixx_images/compass/compass-400w300h.webp    400w,
+      pixx_images/compass/compass-800w600h.webp    800w,
+      pixx_images/compass/compass-1200w900h.webp  1200w,
+      pixx_images/compass/compass-1600w1200h.webp 1600w,
+      pixx_images/compass/compass-2000w1500h.webp 2000w,
+      pixx_images/compass/compass-2400w1800h.webp 2400w,
+      pixx_images/compass/compass-2560w1920h.webp 2560w
+    "
+  />
+  <source
+    type="image/jpg"
+    sizes="100vw"
+    srcset="
+      pixx_images/compass/compass-400w300h.jpg    400w,
+      pixx_images/compass/compass-800w600h.jpg    800w,
+      pixx_images/compass/compass-1200w900h.jpg  1200w,
+      pixx_images/compass/compass-1600w1200h.jpg 1600w,
+      pixx_images/compass/compass-2000w1500h.jpg 2000w,
+      pixx_images/compass/compass-2400w1800h.jpg 2400w,
+      pixx_images/compass/compass-2560w1920h.jpg 2560w
+    "
+  />
+  <img
+    className="my-special-class border-red-200"
+    src="pixx_images/compass/compass-2560w1920h.jpg"
+    alt="Image of an old compass"
+    width="2560"
+    height="1920"
+    title="Antique compass"
+    loading="eager"
+    decoding="async"
+  />
 </picture>
 ```
 
@@ -97,214 +219,163 @@ await pixx('img.jpg', { picType: ['jpg'], widths: [300, 600], sizes: ['300px'] }
   - Code can be complex.
   - Order matters. Browser takes the first truthy value.
 
-```html
-<!-- Example of Art Direction. browser takes first format it understands and first truthy media condition  -->
-<picture>
-  <!-- viewport under 800px, image aspect ratio 9:16 -->
-  <source media="(max-width: 799px)" type="image/avif" srcset="img1_9-16.avif 500w, img2_9-16.avif 1000w" />
-  <source media="(max-width: 799px)" type="image/jpg" srcset="img1_9-16.jpg 500w, img2_9-16.jpg 1000w" />
-  <!-- viewport 800px or more, image aspect ratio 16:9 -->
-  <source media="(min-width: 800px)" type="image/avif" srcset="img1_16-9.avif 500w, img2_16-9.avif 1000w" />
-  <source media="(min-width: 800px)" type="image/jpg" srcset="img1_16-9.jpg 500w, img2_16-9.jpg 1000w" />
-  <img src="fallback.jpg" alt="my image" />
-</picture>
-```
-
-## Install & Run
-
-- `comming soon`
-
 ```js
-// To use
-import pixx from 'pixx';
-pixx('path/file.jpg');
+// Art Direction -multiple image types
+await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
+  // remove 'compass.jpg' and 'happy face.jpg' images.
+  clean: true,
+  // add custom path to output image path.
+  omit: { remove: 'pixx_images', add: './my-special-folder' },
+  // media condition and image name to use.
+  media: ['(min-width: 401px) compass.jpg', '(max-width: 401px) happy face.jpg'],
+  sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
+  // styles: { color: 'blue', backgroundColor: 'red' }, // react
+  styles: ['color: blue', 'border-color: red'], // html
+});
+
+// returns
+<picture>
+  <source
+    type="image/avif"
+    media="(max-width: 500px)"
+    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    srcset="
+      ./my-special-folder/compass/compass-400w300h.avif    400w,
+      ./my-special-folder/compass/compass-800w600h.avif    800w,
+      ./my-special-folder/compass/compass-1200w900h.avif  1200w,
+      ./my-special-folder/compass/compass-1600w1200h.avif 1600w,
+      ./my-special-folder/compass/compass-2000w1500h.avif 2000w,
+      ./my-special-folder/compass/compass-2400w1800h.avif 2400w,
+      ./my-special-folder/compass/compass-2560w1920h.avif 2560w
+    "
+  />
+  <source
+    type="image/webp"
+    media="(max-width: 500px)"
+    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    srcset="
+      ./my-special-folder/compass/compass-400w300h.webp    400w,
+      ./my-special-folder/compass/compass-800w600h.webp    800w,
+      ./my-special-folder/compass/compass-1200w900h.webp  1200w,
+      ./my-special-folder/compass/compass-1600w1200h.webp 1600w,
+      ./my-special-folder/compass/compass-2000w1500h.webp 2000w,
+      ./my-special-folder/compass/compass-2400w1800h.webp 2400w,
+      ./my-special-folder/compass/compass-2560w1920h.webp 2560w
+    "
+  />
+  <source
+    type="image/jpg"
+    media="(max-width: 500px)"
+    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    srcset="
+      ./my-special-folder/compass/compass-400w300h.jpg    400w,
+      ./my-special-folder/compass/compass-800w600h.jpg    800w,
+      ./my-special-folder/compass/compass-1200w900h.jpg  1200w,
+      ./my-special-folder/compass/compass-1600w1200h.jpg 1600w,
+      ./my-special-folder/compass/compass-2000w1500h.jpg 2000w,
+      ./my-special-folder/compass/compass-2400w1800h.jpg 2400w,
+      ./my-special-folder/compass/compass-2560w1920h.jpg 2560w
+    "
+  />
+  <source
+    type="image/avif"
+    media="(min-width: 501px)"
+    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    srcset="
+      ./my-special-folder/happy_face/happy_face-397w300h.avif 397w,
+      ./my-special-folder/happy_face/happy_face-640w484h.avif 640w
+    "
+  />
+  <source
+    type="image/webp"
+    media="(min-width: 501px)"
+    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    srcset="
+      ./my-special-folder/happy_face/happy_face-397w300h.webp 397w,
+      ./my-special-folder/happy_face/happy_face-640w484h.webp 640w
+    "
+  />
+  <source
+    type="image/jpg"
+    media="(min-width: 501px)"
+    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    srcset="
+      ./my-special-folder/happy_face/happy_face-397w300h.jpg 397w,
+      ./my-special-folder/happy_face/happy_face-640w484h.jpg 640w
+    "
+  />
+  <img
+    style="color: blue; border-color: red"
+    src="./my-special-folder/happy_face/happy_face-640w484h.jpg"
+    alt="image"
+    width="640"
+    height="484"
+    loading="eager"
+    decoding="async"
+  />
+</picture>;
 ```
 
-## URL Options
+## React
+
+- by default, html element is returned as a string. You can return a 'React' element by setting the option `returnReact: true`.
+
+## Options
 
 - **alt**: default `image`. The 'img' alt attribute.
-- **animation**: default `false`. Does image have animations?
-- **classes**: array of class names.
+- **blurSize**: default `10`px. Placeholder image width is **10px wide**. Bigger image, bigger _base64DataURL_.
+- **classes**: array of class names. Tailwindcss can be used, including object syntax.
+  - e.g. `['my-special-class', 'border-blue-200', { 'border-red-200': pending }]`.
 - **clean**: default `false`. Delete image folder and create new.
-- **fallbackSize**: default `input image`. Image used for the 'src' attribute. Customize the 'width' in pixels.
+- **decoding**: default `auto`. Image download priority. Values: `auto` | `async` | `sync`.
+  - [MDN HTML Image decoding property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decoding)
+- **fallbackWidth**: default `input image width`px. Fallback image is the image used for the 'src' attribute. Fallback width is in **pixels**.
   - Older browsers fallback to this image. Image will always be type `jpg`.
   - (e.g. `1500`. The fallback _src_ image will be an image 1500px wide with height same aspect ratio as original).
 - **heights**: Array of heights to create images. To create custom _Aspect Ratio_, both widths and heights must be provided.
-- **increment**: default `300`. Custom default image size creation. Only runs if `widths` or `heights` are empty.
-  - increment example: Create _img_ every `300px` until image size is reached.
-- **isClassName**: default `true`. Image class attribute. Options: `false = class` | `true = className`.
+  - e.g. `[300, 500, 650, 900, 1200]` // pixel size must be <= image size. Image size is not increased.
+- **incrementSize**: default `300`. Customize increment size creation.
+  - The increment pixel size `defaultSizes` uses to create images.
+  - Only valid if `widths` or `heights` are empty.
+  - e.g. Find image smaller side (width or height), then create _img_ every `300px` until image size is reached.
+- **linuxPaths**: default `true`. Development on Windows, convert image paths to _linux_ style.
 - **loading**: default `eager`. Image loading attribute: `eager` | `lazy`.
-- **log**: default `false`. Output to console, state and image EXIF, XMP, ICC, and GPS metadata.
-- **outDir**: default `pic_images`. Where to create images?
-- **picTypes**: default `['avif', 'webp', 'jpg']`. What image types to create.
+- **log**: default `false`. Output build details to console, including state and image: EXIF, XMP, ICC, and GPS metadata.
+- **media**: Array of **media condition** and the **image** file.
+  - This is solely used for **Art Direction**.
+  - e.g. `['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`.
+- **outDir**: default `pic_images`. Custom directory name to create images.
+- **omit**: Object with `remove` and `add`.
+  - Customize any part of the image path on the `src` or `srcset` attributes.
+  - Does not change the `outDir`. Images will still be created in the `outDir`.
+  - e.g. `{ remove: 'pixx_images', add: './my-special-path' }`
+- **picTypes**: default `['avif', 'webp', 'jpg']`. Custom image types to create.
   - picTypes available options: `['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp']`.
-- **returnHTML**: default `true`. _pic_ function can return results as HTML or string.
-- **sizes**: default `['100vw']`. Array of image widths you would like.
-- **showHidden**: default `false`.
-- **title**: default "". Text to display as tooltip.
-- **widths**: Array of widths to create images. To create custom _Aspect Ratio_, both widths and heights must be provided.
-
-## Examples
-
-### Default
-
-```ts
-import pixx from 'pixx';
-
-// defaults
-await pixx('img.jpg', {
-  alt: 'image',
-  animation: false,
-  classes: [], // e.g. ['my-class', 'm-8', 'w-[350px]']
-  clean: false,
-  fallbackSize: 0, // if not provided, will be original image as a jpg.
-  heights: [], // e.g. [450, 600, 1200]
-  increment: 300,
-  isClassName: true, // <img className=''>
-  loading: 'eager',
-  log: true,
-  outDir: 'pixx_images',
-  picTypes: ['avif', 'webp', 'jpg'],
-  sizes: ['100vw'],
-  title: '',
-  widths: [], // e.g. [50, 500, 1000]
-});
-```
-
-### Resolution Switching
-
-```js
-import { createImages } from 'solid-image';
-createImages(
-  'public/header/logo/bolt.gif?w=25;55&f=gif:4&animated=true&sizes=62px&c=bolt&alt=lighting bolt image'
-);
-// or
-createImages([
-  //must be nested array.
-  [
-    'public/header/logo/bolt.gif',
-    'w=25;55',
-    'f=gif:4',
-    'animated=true',
-    'sizes=62px',
-    'c=bolt',
-    'alt=lighting bolt image',
-  ],
-]);
-```
-
-### Multiple Formats
-
-```js
-import { createImages } from 'solid-image';
-// w=300. Original image is 265w x 253h. Image will be enlarged.
-createImages(
-  'public/header/texasFlag.png?w=100;200;300&f=png;avif;webp&fallbackWidth=100&alt=Image of Texas Flag&sizes=100px&c=texasImage&sharpen=true'
-);
-```
-
-**YourComponent.tsx**
-
-```tsx
-import styles from './TexasImage.module.scss';
-
-export default function TexasImage() {
-  return (
-    <picture class={styles.texasImage}>
-      <source
-        type="image/avif"
-        srcset="/header/texasFlag/texasFlag_20-19_100x95.avif 100w, /header/texasFlag/texasFlag_22-21_200x191.avif 200w, /header/texasFlag/texasFlag_22-21_265x253.avif 265w"
-        sizes="100px"
-      />
-      <source
-        type="image/webp"
-        srcset="/header/texasFlag/texasFlag_20-19_100x95.webp 100w, /header/texasFlag/texasFlag_22-21_200x191.webp 200w, /header/texasFlag/texasFlag_22-21_265x253.webp 265w"
-        sizes="100px"
-      />
-      <source
-        type="image/png"
-        srcset="/header/texasFlag/texasFlag_20-19_100x95.png 100w, /header/texasFlag/texasFlag_22-21_200x191.png 200w, /header/texasFlag/texasFlag_22-21_265x253.png 265w"
-        sizes="100px"
-      />
-      <img
-        src="/header/texasFlag/texasFlag_20-19_100x95.png"
-        width="100"
-        height="95"
-        alt="Image of Texas Flag"
-        class={styles.texasImage}
-        loading="lazy"
-      />
-    </picture>
-  );
-}
-```
-
-### Art Direction
-
-- To use _Art Direction_ provide array of images that match the array of `media` conditions.
-- Art Direction allows you to switch image based on _media_ breakpoints.
-- `media` and `sizes` are used.
-
-```js
-
-```
-
-**YourComponent.tsx**
-
-```tsx
-import styles from './HeroImage.module.scss';
-
-export default function HeroImage() {
-  return (
-    <picture class={styles.heroImage}>
-      <source
-        type="image/avif"
-        srcset="/hero/hero-full/hero-full_9-16_600x1067.avif 600w, /hero/hero-full/hero-full_9-16_800x1422.avif 800w, /hero/hero-full/hero-full_9-16_900x1600.avif 900w"
-        sizes="100vw"
-        media="(max-width: 600px)"
-      />
-      <source
-        type="image/webp"
-        srcset="/hero/hero-full/hero-full_9-16_600x1067.webp 600w, /hero/hero-full/hero-full_9-16_800x1422.webp 800w, /hero/hero-full/hero-full_9-16_900x1600.webp 900w"
-        sizes="100vw"
-        media="(max-width: 600px)"
-      />
-      <source
-        type="image/jpg"
-        srcset="/hero/hero-full/hero-full_9-16_600x1067.jpg 600w, /hero/hero-full/hero-full_9-16_800x1422.jpg 800w, /hero/hero-full/hero-full_9-16_900x1600.jpg 900w"
-        sizes="100vw"
-        media="(max-width: 600px)"
-      />
-      <source
-        type="image/avif"
-        srcset="/hero/hero/hero_16-9_600x338.avif 600w, /hero/hero/hero_16-9_800x450.avif 800w, /hero/hero/hero_16-9_1200x675.avif 1200w, /hero/hero/hero_16-9_2400x1350.avif 2400w"
-        sizes="100vw"
-        media="(min-width: 601px)"
-      />
-      <source
-        type="image/webp"
-        srcset="/hero/hero/hero_16-9_600x338.webp 600w, /hero/hero/hero_16-9_800x450.webp 800w, /hero/hero/hero_16-9_1200x675.webp 1200w, /hero/hero/hero_16-9_2400x1350.webp 2400w"
-        sizes="100vw"
-        media="(min-width: 601px)"
-      />
-      <source
-        type="image/jpg"
-        srcset="/hero/hero/hero_16-9_600x338.jpg 600w, /hero/hero/hero_16-9_800x450.jpg 800w, /hero/hero/hero_16-9_1200x675.jpg 1200w, /hero/hero/hero_16-9_2400x1350.jpg 2400w"
-        sizes="100vw"
-        media="(min-width: 601px)"
-      />
-      <img
-        src="/hero/hero/hero_16-9_700x394.jpg"
-        width="700"
-        height="394"
-        alt="Image of house and pool with custom lighting"
-        class={styles.heroImage}
-        loading="eager"
-      />
-    </picture>
-  );
-}
-```
+  - e.g. `['webp']` // create only _webp_ image types.
+- **preload**: default `false`. Create the image _link_ tag for HTML head element.
+  - Preloading images can optimize load times for critical images.
+  - Print to console.log _link_ tag.
+- **preloadFetchPriority**: default `auto`. Values: `auto` | `async` | `sync`.
+  - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
+- **returnReact**: default `false`. Return results as React component or string.
+- **sizes**: default `['100vw']`. Array of media conditions and the viewport fill width.
+  - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the media condition.
+  - The _descriptor_ can be any CSS **media condition**.
+  - The _value_ can be any **CSS length** except percentage. (e.g. 100rem; 75vw; 500px).
+  - The last item in the array is the '_default_' size if _media conditions_ do not match.
+  - e.g. `['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`.
+- **styles**: Array(HTML) or Object(React) of inline styles.
+  - **React**: `{ color: "blue", backgroundColor: "red" }`
+  - **HTML**: `['color: blue', 'background-color: red']`
+- **title**: Text to display as tooltip when hover over image.
+- **widths**: Array of widths to create images.
+  - e.g. `[300, 500, 650, 900, 1200]` // sizes must be <= image size. Image size is not increased.
+- **withAnimation**: default `false`. Sharp image library will retain the image animation.
+- **withBlur**: default `false`. Create **placeholder** image and **base64DataURL**.
+  - Print to console.log.
+- **withClassName**: default `true`. Image class attribute.
+  - Options: `false = class` | `true = className`.
+- **withMetadata**: default `false`. Copy original image metadata to new images.
 
 ## License
 

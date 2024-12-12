@@ -19,15 +19,12 @@
     "/dist"
   ],
   "scripts": {
-    "watcher": "npm run build -- --watch src",
     "watch": "tsx watch ./src/index.ts",
     "dev": "tsx ./src/index.ts",
-    "prebuild": "rimraf ./pixx",
-    "build": "tsc && tsc-alias",
-    "prepac": "npm run compile",
+    "build": "pkgroll --clean-dist --sourcemap",
+    "prepac": "npm run build",
     "pac": "npm version patch && git push --tags origin main && npm publish",
-    "dry": "npm publish --dry-run",
-    "compile": "pkgroll --clean-dist --sourcemap"
+    "dry": "npm publish --dry-run"
   },
   "repository": {
     "type": "git",
@@ -49,7 +46,6 @@
   },
   "homepage": "https://github.com/webmastersmith/pixx#readme",
   "dependencies": {
-    "ansi-colors": "^4.1.3",
     "chalk": "^4.1.2",
     "clsx": "^2.1.1",
     "exifr": "^7.1.3",
@@ -61,21 +57,9 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@swc/core": "^1.10.1",
-    "@swc/helpers": "^0.5.15",
     "@types/node": "^22.10.2",
-    "nodemon": "^3.1.7",
     "pkgroll": "^2.5.1",
-    "regenerator-runtime": "^0.14.1",
-    "rimraf": "^6.0.1",
-    "ts-loader": "^9.5.1",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.10",
-    "tsconfig-paths": "^4.2.0",
-    "tsup": "^8.3.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.7.2"
   }
 }

@@ -4,11 +4,12 @@ import sharp, { Metadata } from 'sharp';
 import {
   FilePathSchema,
   FilePathType,
-  StateType,
+  Meta,
   OutputImageType,
+  OptionRequiredType,
   OptionSchema,
   OptionType,
-  OptionRequiredType,
+  StateType,
 } from './schema';
 import exifr from 'exifr';
 import { clsx, type ClassValue } from 'clsx';
@@ -63,15 +64,27 @@ export async function getState(filePath: string, options: OptionType) {
   // get file names. create outDir, clean?
   const paths = createNewImageDir(optionsParsed, file, meta);
   // defaults
-  const state = {
+  const state: StateType = {
     ...optionsParsed,
     meta,
     file,
     buf,
     paths,
-    aspectRatio: getAspectRatio(meta.width! / meta.height!),
-    defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.increment!),
+    aspectRatio: getAspectRatio(meta.width / meta.height),
+    defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.incrementSize!),
   } as StateType;
+
+  // filter sizes above image size.
+  if (state.heights.length > 0) state.heights = state.heights.filter((h) => h! <= state.meta.height);
+  if (state.widths.length > 0) state.widths = state.widths.filter((w) => w! <= state.meta.width);
+
+  // check sizes array for default media condition.
+  if (state.sizes.at(-1)?.includes(')'))
+    console.log(
+      chalk.red(
+        '\n\nDid you forget the default "sizes" media condition? ------------------------------- \n--------------------------------------------------------------------------- \n---------------------------------------------------------------------------\n\n'
+      )
+    );
 
   // All checks pass. Start creating images.
   // create fallback image same as original image size unless fallbackWidth is provided.
@@ -102,7 +115,7 @@ export async function getState(filePath: string, options: OptionType) {
  * @param sharpDetails image state
  * @returns object: width, height, format
  */
-export async function getImageMetadata(buf: Buffer, options: OptionType) {
+export async function getImageMetadata(buf: Buffer, options: OptionType): Promise<Meta> {
   const details = await sharp(buf).metadata();
   // Make sure width, height are included in the metadata.
   if (!details.width || !details.height || Number.isNaN(+details.width) || Number.isNaN(+details.height)) {
@@ -125,7 +138,7 @@ export async function getImageMetadata(buf: Buffer, options: OptionType) {
   if (options?.log) {
     console.log('\n\nexifr', await exifr.parse(buf, true), '\n\n');
   }
-  return details;
+  return details as Meta;
 }
 
 /**
@@ -297,7 +310,7 @@ export async function createImage(
   state: StateType,
   size: never[] | ['width' | 'height', number],
   type: OutputImageType,
-  withBlur: boolean = false
+  isBlur: boolean = false
 ): Promise<[string, { width: number; height: number; blurDataURL?: string }]> {
   let w: number;
   let h: number;
@@ -326,20 +339,31 @@ export async function createImage(
   // create subfolder path
   const newImagePath = path.join(
     state.paths.newImageDir,
-    `${state.file.imgName}-${withBlur ? 'placeholder-' : ''}${w}w${h}h.${type}`
+    `${state.file.imgName}-${isBlur ? 'placeholder-' : ''}${w}w${h}h.${type}`
   );
   // resize.
   const options = size.length ? { [size[0]]: size[1] } : {};
   // only create if state.clean, or image does not exist.
   if (!fs.existsSync(newImagePath)) {
+    // keep original image metadata.
     if (state.withMetadata)
-      await sharp(state.buf).withMetadata().resize(options).toFormat(type).toFile(newImagePath);
-    else await sharp(state.buf).resize(options).toFormat(type).toFile(newImagePath);
+      await sharp(state.buf, { animated: state.withAnimation })
+        .withMetadata()
+        .resize(options)
+        .toFormat(type)
+        .toFile(newImagePath);
+    // do not copy original image metadata.
+    else
+      await sharp(state.buf, { animated: state.withAnimation })
+        .resize(options)
+        .toFormat(type)
+        .toFile(newImagePath);
   }
   // blur -just create base64, image was created above.
-  let blurDataURL = state.isBlur ? `data:image/${type};base64,` : '';
+  let blurDataURL = state.withBlur ? `data:image/${type};base64,` : '';
   // Resize to 10px wide
-  if (state.isBlur) blurDataURL += (await sharp(state.buf).resize(state.blur).toBuffer()).toString('base64');
+  if (state.withBlur)
+    blurDataURL += (await sharp(state.buf).resize(state.blurSize).toBuffer()).toString('base64');
 
   // image has been created. Fix return img path. linux or remove/add beginning.
   const fixImgPath = state.linuxPaths
@@ -349,7 +373,7 @@ export async function createImage(
   // preload
   if (state.preload)
     console.log(
-      `\n\n<${chalk.red(
+      `\n\n<${chalk.yellowBright(
         'link'
       )} rel="preload" href="${fixImgPath}" as="image" type="image/${type}" fetchpriority="${
         state.preloadFetchPriority
@@ -393,7 +417,7 @@ export async function createSrcSet(state: StateType, type: OutputImageType) {
  * @returns img element
  */
 export async function createImgTag(state: StateType, isPicture: boolean = false) {
-  const c = state.isClassName ? 'className' : 'class';
+  const c = state.withClassName ? 'className' : 'class';
   let imgStr = '';
   // create img element
   imgStr += '<img ';
@@ -447,7 +471,7 @@ export async function createSourceTag(state: StateType, type: OutputImageType, m
  * @returns HTML picture element code.
  */
 export async function createPictureTag(state: StateType) {
-  const c = state.isClassName ? 'className' : 'class';
+  const c = state.withClassName ? 'className' : 'class';
   let picture = '<picture >\n';
   for (const type of state.picTypes) {
     picture += `\t${await createSourceTag(state, type)}\n`;

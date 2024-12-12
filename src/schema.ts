@@ -35,41 +35,31 @@ const OmitSchema = z
 export const OptionSchema = z
   .object({
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
-    animation: z.boolean({ message: 'animation option must be true or false.' }).optional().default(false),
-    blur: z.number({ message: 'blur option must be a number.' }).optional().default(10),
-    isBlur: z.boolean({ message: 'isBlur option must be a number.' }).optional().default(false),
+    blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(10),
     classes: z
-      .union([z.string().optional(), z.record(z.string(), z.boolean()).optional()])
-      .optional()
+      .union([z.string(), z.record(z.string(), z.boolean())])
       .array()
       .optional()
       .default([]),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
     decoding: z
-      .enum(['sync', 'async'], { message: 'decoding option can only be "sync" or "async".' })
+      .enum(['auto', 'sync', 'async'], { message: 'decoding option can only be "auto", "sync" or "async".' })
       .optional()
-      .default('async'),
+      .default('auto'),
     fallbackWidth: z.number({ message: 'fallbackWidth option must be a number.' }).optional().default(0),
     heights: z
       .number({ message: 'heights option must be an array of strings.' })
-      .optional()
       .array()
       .optional()
       .default([]),
-    increment: z.number({ message: 'increment option must be a number.' }).optional().default(300),
-    isClassName: z.boolean({ message: 'className option must be true or false.' }).optional().default(true),
+    incrementSize: z.number({ message: 'incrementSize option must be a number.' }).optional().default(300),
     linuxPaths: z.boolean({ message: 'linuxPaths option must be true or false.' }).optional().default(true),
     loading: z
       .enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy".' })
       .optional()
       .default('eager'),
     log: z.boolean({ message: 'log option must be true or false.' }).optional().default(false),
-    media: z
-      .string({ message: 'media option must an array of strings.' })
-      .optional()
-      .array()
-      .optional()
-      .default([]),
+    media: z.string({ message: 'media option must an array of strings.' }).array().optional().default([]),
     outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pixx_images'),
     omit: OmitSchema.default({ remove: '', add: '' }),
     picTypes: OutputImageTypeSchema.array().min(1).default(['avif', 'webp', 'jpg']),
@@ -80,10 +70,12 @@ export const OptionSchema = z
       })
       .optional()
       .default('auto'),
-    returnHTML: z.boolean({ message: 'returnHTML option must be true or false.' }).optional().default(false),
+    returnReact: z
+      .boolean({ message: 'returnReact option must be true or false.' })
+      .optional()
+      .default(false),
     sizes: z
       .string({ message: 'sizes option must an array of strings.' })
-      .optional()
       .array()
       .optional()
       .default(['100vw']),
@@ -99,23 +91,33 @@ export const OptionSchema = z
     title: z.string({ message: 'title option must be a string.' }).optional().default(''),
     widths: z
       .number({ message: 'widths option must be an array of strings.' })
-      .optional()
       .array()
       .optional()
       .default([]),
+    withAnimation: z
+      .boolean({ message: 'withAnimation option must be true or false.' })
+      .optional()
+      .default(false),
+    withBlur: z.boolean({ message: 'withBlur option must be a number.' }).optional().default(false),
+    withClassName: z
+      .boolean({ message: 'withClassName option must be true or false.' })
+      .optional()
+      .default(true),
     withMetadata: z
       .boolean({ message: 'withMetadata option must be true or false.' })
       .optional()
-      .default(true),
+      .default(false),
   })
   .default({});
 type NonNullable<T> = Exclude<T, null | undefined>; // remove undefined from property.
 export type OptionType = z.input<typeof OptionSchema>; // Required removes '?'.
 export type OptionRequiredType = Required<NonNullable<OptionType>>; // Required removes '?'.
 
+// Sharp Metadata with  width/height number[]
+export type Meta = Omit<Metadata, 'width' | 'height'> & { width: number; height: number };
 export type StateType = Required<
   OptionRequiredType & {
-    meta: Metadata;
+    meta: Meta;
     file: FilePathType;
     buf: Buffer;
     aspectRatio: string;
@@ -125,7 +127,6 @@ export type StateType = Required<
     classStr: string;
     imgCount: number;
     totalImages: number;
-    // cliBar: GenericBar | boolean;
     cliBar: (name: string, step: number, totalSteps: number) => void;
     defaultSizes: ['width' | 'height', number[]];
   }

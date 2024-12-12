@@ -32,8 +32,8 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
         const state = (await getState(filePath, options)) as StateType;
         states.push([`${state.file.imgName}.${state.file.ext}`, state]);
         // create blurData
-        if (state.isBlur) {
-          const [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blur], 'jpg', true);
+        if (state.withBlur) {
+          const [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blurSize], 'jpg', true);
           // print blurData.
           console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
           console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
@@ -66,7 +66,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
       if (optionsParsed.log) console.log('\n\nstates:', inspect(states, false, null, true), '\n\n');
       // show created image element.
       if (optionsParsed.log) console.log('\n\n', chalk.magentaBright(picture), '\n\n');
-      return optionsParsed.returnHTML ? parse(picture) : picture;
+      return optionsParsed.returnReact ? parse(picture) : picture;
     } // end Art Direction.
 
     // Responsive Images 👇 -------------------------------------------------------------
@@ -77,38 +77,38 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
       const img = await createImgTag(state, false);
       // blurData
       let imgPath, blurDataURL;
-      if (state.isBlur) {
-        [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blur], 'jpg', true);
+      if (state.withBlur) {
+        [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blurSize], 'jpg', true);
       }
       // show state after all processing done.
       if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
       // print img element
       if (state.log) console.log('\n\n', chalk.magentaBright(img), '\n\n');
       // print blurData.
-      if (state.isBlur) {
+      if (state.withBlur) {
         console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
         console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
       }
-      return state.returnHTML ? parse(img) : img;
+      return state.returnReact ? parse(img) : img;
     } // end Resolution Switching
 
     // 3. Multiple Types default. state.picTypes.length > 1 and no state.media.length
     const multiTypeImg = await createPictureTag(state);
     // log blur
     let imgPath, blurDataURL;
-    if (state.isBlur) {
-      [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blur], 'jpg', true);
+    if (state.withBlur) {
+      [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blurSize], 'jpg', true);
     }
     // show state after all processing done.
     if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
     // show picture element
     if (state.log) console.log('\n\n', chalk.magentaBright(multiTypeImg), '\n\n');
     // print blurData.
-    if (state.isBlur) {
+    if (state.withBlur) {
       console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
       console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
     }
-    return state.returnHTML ? parse(multiTypeImg) : multiTypeImg;
+    return state.returnReact ? parse(multiTypeImg) : multiTypeImg;
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error(fromError(error).toString());
@@ -123,31 +123,34 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 
 // development
 // default test
-// pixx('./src/test.jpg').then((m) => console.log('\n\n', m, '\n\n'));
+// pixx('./src/compass.jpg').then((m) => console.log('\n\n', m, '\n\n'));
 
 // classes test
 // let pending = true;
-// pixx('./src/test.jpg', {
+// pixx('./src/compass.jpg', {
 //   log: true,
-//   title: 'my wonder pic',
-//   isBlur: true,
-//   classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
+//   title: 'Antique compass',
+//   alt: 'Image of an old compass',
+//   withBlur: true,
+//   classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }],
 // });
 
 // single type
-// pixx('./src/test.jpg', { log: true, picTypes: ['png'] });
+// pixx('./src/compass.jpg', {
+//   log: true,
+//   picTypes: ['webp'],
+//   sizes: ['(max-width: 450px) 75vw', '(max-width: 800px) 50vw', '25vw'],
+// });
 
 // art direction
-// let pending = true;
-// pixx(['./src/test.jpg', './src/happy face.jpg'], {
-//   log: true,
-//   clean: true,
-//   returnHTML: true,
-//   omit: { remove: 'pixx_images', add: './hello' },
-//   media: ['(max-width: 400px) happy face.jpg', '(min-width: 401px) test.jpg'],
-//   sizes: ['(max-width: 400px) 100vw', '(min-width: 401px) 50vw'],
-//   classes: ['one', 'bg-red-500', { 'bg-blue-200': pending }],
-//   isBlur: true,
-//   // styles: { color: 'blue', backgroundColor: 'red' },
-//   styles: ['color: blue', 'backgroundColor: red'],
+pixx(['./src/compass.jpg', './src/happy face.jpg'], {
+  log: true,
+  clean: true,
+  // returnReact: true,
+  omit: { remove: 'pixx_images', add: './my-special-folder' },
+  media: ['(max-width: 500px) compass.jpg', '(min-width: 501px) happy face.jpg'],
+  sizes: ['(max-width: 500px) 50vw', '(min-width: 501px) 25vw', '30vw'],
+  // styles: { color: 'blue', backgroundColor: 'red' }, // react
+  styles: ['color: blue', 'border-color: red'], // html
+}).then((m) => console.log('\n\n', m, '\n\n'));
 // }).then((m) => console.log('\n\n', JSON.stringify(m)));
