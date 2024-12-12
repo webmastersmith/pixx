@@ -8,11 +8,12 @@ import {
   createSourceTag,
   splitCondition,
   createPictureTag,
-} from '@/utils.js';
-const parse = require('html-react-parser');
+} from '@/utils';
+import parse from 'html-react-parser';
+// const parse = require('html-react-parser');
 import { inspect } from 'util';
-
-const chalk = require('chalk');
+import chalk from 'chalk';
+// const chalk = require('chalk');
 
 export async function pixx(filePaths: string | string[], options?: OptionType) {
   try {
@@ -64,7 +65,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
       // show state after all processing done.
       if (optionsParsed.log) console.log('\n\nstates:', inspect(states, false, null, true), '\n\n');
       // show created image element.
-      if (optionsParsed.log) console.log('\n\n', chalk.greenBright(picture), '\n\n');
+      if (optionsParsed.log) console.log('\n\n', chalk.magentaBright(picture), '\n\n');
       return optionsParsed.returnHTML ? parse(picture) : picture;
     } // end Art Direction.
 
@@ -82,7 +83,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
       // show state after all processing done.
       if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
       // print img element
-      if (state.log) console.log('\n\n', chalk.greenBright(img), '\n\n');
+      if (state.log) console.log('\n\n', chalk.magentaBright(img), '\n\n');
       // print blurData.
       if (state.isBlur) {
         console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
@@ -101,7 +102,7 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
     // show state after all processing done.
     if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
     // show picture element
-    if (state.log) console.log('\n\n', chalk.greenBright(multiTypeImg), '\n\n');
+    if (state.log) console.log('\n\n', chalk.magentaBright(multiTypeImg), '\n\n');
     // print blurData.
     if (state.isBlur) {
       console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
@@ -118,6 +119,8 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
     console.log(error);
   }
 }
+// export default pixx;
+
 // development
 // default test
 // pixx('./src/test.jpg').then((m) => console.log('\n\n', m, '\n\n'));
@@ -137,8 +140,9 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 // art direction
 // let pending = true;
 // pixx(['./src/test.jpg', './src/happy face.jpg'], {
-//   // log: true,
+//   log: true,
 //   clean: true,
+//   returnHTML: true,
 //   omit: { remove: 'pixx_images', add: './hello' },
 //   media: ['(max-width: 400px) happy face.jpg', '(min-width: 401px) test.jpg'],
 //   sizes: ['(max-width: 400px) 100vw', '(min-width: 401px) 50vw'],
@@ -146,4 +150,4 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 //   isBlur: true,
 //   // styles: { color: 'blue', backgroundColor: 'red' },
 //   styles: ['color: blue', 'backgroundColor: red'],
-// }).then((m) => console.log('\n\n', m));
+// }).then((m) => console.log('\n\n', JSON.stringify(m)));

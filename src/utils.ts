@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import * as fs from 'fs';
+import * as path from 'path';
 import sharp, { Metadata } from 'sharp';
 import {
   FilePathSchema,
@@ -9,12 +9,12 @@ import {
   OptionSchema,
   OptionType,
   OptionRequiredType,
-} from './schema.js';
+} from '@/schema';
 import exifr from 'exifr';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-const chalk = require('chalk');
-const sizeOf = require('image-size');
+import chalk from 'chalk';
+import sizeOf from 'image-size';
 
 /**
  * Progress bar. bar(1, 25). creates 'one' tick. bar(2, 25). creates second tick.
@@ -424,6 +424,13 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   return imgStr;
 }
 
+/**
+ * Create the source tag on a picture element.
+ * @param state StateType
+ * @param type 'jpg', 'webp'...
+ * @param media CSS media condition applied to each 'source' attribute.
+ * @returns HTML 'source' attribute code.
+ */
 export async function createSourceTag(state: StateType, type: OutputImageType, media: string = '') {
   let source = '<source ';
   source += `type="image/${type}" `;
@@ -433,6 +440,12 @@ export async function createSourceTag(state: StateType, type: OutputImageType, m
   source += '/>';
   return source;
 }
+
+/**
+ * Create the 'picture' element. This function does not create the 'Art Direction' 'picture' element.
+ * @param state StateType
+ * @returns HTML picture element code.
+ */
 export async function createPictureTag(state: StateType) {
   const c = state.isClassName ? 'className' : 'class';
   let picture = '<picture >\n';

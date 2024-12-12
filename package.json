@@ -3,15 +3,12 @@
   "version": "0.0.14",
   "description": "Create web friendly images and code snippets",
   "main": "cjs/index.js",
-  "type": "module",
   "scripts": {
-    "watch": "nodemon ./src/index.ts",
-    "dev": "ts-node ./src/index.ts",
     "watcher": "npm run build -- --watch src",
-    "build:cjs": "tsc --outDir ./cjs --module commonjs",
-    "build:esm": "tsc --outDir ./esm --module esnext --moduleResolution bundler",
-    "prebuild": "rimraf ./cjs && rimraf ./esm",
-    "build": "npm run build:cjs && npm run build:esm",
+    "watch": "tsx watch ./src/index.ts",
+    "dev": "tsx ./src/index.ts",
+    "prebuild": "rimraf ./pixx",
+    "build": "tsc",
     "prepac": "npm run build",
     "pac": "npm version patch && git push --tags origin main && npm publish",
     "dry": "npm publish --dry-run"
@@ -44,13 +41,13 @@
     "image-size": "^1.1.1",
     "sharp": "^0.33.5",
     "tailwind-merge": "^2.5.5",
-    "zod": "^3.23.8",
+    "zod": "^3.24.1",
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@swc/core": "^1.10.0",
+    "@swc/core": "^1.10.1",
     "@swc/helpers": "^0.5.15",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "nodemon": "^3.1.7",
     "regenerator-runtime": "^0.14.1",
     "rimraf": "^6.0.1",
@@ -59,16 +56,12 @@
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "webpack": "^5.97.0",
+    "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4"
   },
   "files": [
-    "/cjs",
-    "/esm"
-  ],
-  "exports": {
-    "require": "./cjs/index.js",
-    "import": "./esm/index.js"
-  }
+    "/pixx"
+  ]
 }
