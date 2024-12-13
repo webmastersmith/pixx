@@ -138,3 +138,7 @@ export type Pixx = (
   FilePaths: string | string[],
   options?: OptionType
 ) => Promise<string | undefined | ReturnType<typeof parse>>;
+
+export type PixxFlowOptions = {
+  log?: boolean;
+};

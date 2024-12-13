@@ -43,4 +43,5 @@ export { pixxFlow } from './pixxFlow';
 pixxFlow(pixx, {
   include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
   ignore: ['node_modules/**', '**/avoid*'],
+  options: { log: true },
 });
