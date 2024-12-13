@@ -86,9 +86,12 @@ export async function getState(filePath: string, options: OptionType) {
       )
     );
 
-  // All checks pass. Start creating images.
-  // create fallback image same as original image size unless fallbackWidth is provided.
-  const sizeArr: never[] | ['width', number] = state.fallbackWidth ? ['width', state.fallbackWidth] : [];
+  // All checks pass.
+  // Create Fallback Image.
+  // Check if fallback width is bigger than original image width.
+  if (state.fallbackWidth > state.meta.width) state.fallbackWidth = state.meta.width;
+  // Create fallback image same as original image size unless fallbackWidth is provided.
+  const sizeArr: [] | ['width', number] = state.fallbackWidth ? ['width', state.fallbackWidth] : [];
   const [newImagePath, fallbackSize] = await createImage(state, sizeArr, 'jpg');
   state.fallbackPath = newImagePath;
   state.fallbackSize = fallbackSize;

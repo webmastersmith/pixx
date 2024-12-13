@@ -126,14 +126,14 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 // pixx('./src/compass.jpg').then((m) => console.log('\n\n', m, '\n\n'));
 
 // classes test
-// let pending = true;
-// pixx('./src/compass.jpg', {
-//   log: true,
-//   title: 'Antique compass',
-//   alt: 'Image of an old compass',
-//   withBlur: true,
-//   classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }],
-// });
+let pending = true;
+pixx('./src/compass.jpg', {
+  log: true,
+  title: 'Antique compass',
+  alt: 'Image of an old compass',
+  withBlur: true,
+  classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }],
+});
 
 // single type
 // pixx('./src/compass.jpg', {
@@ -143,14 +143,14 @@ export async function pixx(filePaths: string | string[], options?: OptionType) {
 // });
 
 // art direction
-pixx(['./src/compass.jpg', './src/happy face.jpg'], {
-  log: true,
-  clean: true,
-  // returnReact: true,
-  omit: { remove: 'pixx_images', add: './my-special-folder' },
-  media: ['(max-width: 500px) compass.jpg', '(min-width: 501px) happy face.jpg'],
-  sizes: ['(max-width: 500px) 50vw', '(min-width: 501px) 25vw', '30vw'],
-  // styles: { color: 'blue', backgroundColor: 'red' }, // react
-  styles: ['color: blue', 'border-color: red'], // html
-}).then((m) => console.log('\n\n', m, '\n\n'));
+// pixx(['./src/compass.jpg', './src/happy face.jpg'], {
+//   log: true,
+//   clean: true,
+//   // returnReact: true,
+//   omit: { remove: 'pixx_images', add: './my-special-folder' },
+//   media: ['(max-width: 500px) compass.jpg', '(min-width: 501px) happy face.jpg'],
+//   sizes: ['(max-width: 500px) 50vw', '(min-width: 501px) 25vw', '30vw'],
+//   // styles: { color: 'blue', backgroundColor: 'red' }, // react
+//   styles: ['color: blue', 'border-color: red'], // html
+// }).then((m) => console.log('\n\n', m, '\n\n'));
 // }).then((m) => console.log('\n\n', JSON.stringify(m)));

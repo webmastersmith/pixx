@@ -78,7 +78,7 @@ await pixx('compass.jpg'); // size is 2560w x 1920h.
 - All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of html, for _**mobile browsers**_ to use the actual device viewport in decision making.
 - **Responsive Image Advantages**
   - When mobile or desktop browsers download and parse the HTML, the `sizes`, `srcset` and `media` attribute give clues to the browser about the best images to download.
-  - Using these attributes, the browser decides the best image to download based on its viewport size and resolution.
+  - Using these attributes, the browser decides the best image to download based on its viewport size and pixel density.
   - **srcset**: inform the browser of the available image widths.
   - **sizes**: inform the browser about how much of the viewport the image will fill.
   - **media**: completely different images can be offered depending on matching _media_ condition.
@@ -88,13 +88,14 @@ await pixx('compass.jpg'); // size is 2560w x 1920h.
 - Three main ways to use responsive images.
   1. Single image in multiple sizes. (e.g. img-100.jpg, img-200.jpg, img-300.jpg).
   2. Single image in multiple sizes and types. (e.g. img.avif, img.webp, img.jpg).
-  3. Multiple different images the browser will choose depending on viewport width. (e.g. img-full.jpg, img-crop.jpg).
+  3. Multiple different images the browser will choose depending on viewport width.
+     1. (e.g. img-full.jpg, img-crop.jpg).
 
 ### Resolution Switching
 
 - Uses the `img` element with the `srcset` and `sizes` attributes.
 - **Single image type**. Browsers can choose what image **size** to download based on the device viewport.
-- Fallback is the `img src` attribute.
+- Fallback is the img `src` attribute.
 - **Pros**
   - The least complex. Default _sizes_ attribute is `100vw`.
   - Can offer multiple image size options.
@@ -103,13 +104,12 @@ await pixx('compass.jpg'); // size is 2560w x 1920h.
 
 ```jsx
 // Single image type, multiple sizes.
+// e.g. Device viewport has a width of 700px.
+// The 'media condition' tells browser image will take 350px (50vw) of viewport.
+// If viewport pixel density is 2x. Browser will choose >= 700px image. (compass-800w600h.webp)
 await pixx('./compass.jpg', {
   picTypes: ['webp'],
-  // device <= 450px, image will take 75vw. <= 800px, image will take 50vw. >800px, image will take 25vw.
   sizes: ['(max-width: 450px) 75vw', '(max-width: 800px) 50vw', '25vw'],
-  // e.g. Device viewport has a width of 700px.
-  // The 'media condition' tells browser image will take 350px (50vw) of viewport.
-  // If viewport pixel density is 2x. Browser will choose >= 700px image. (compass-800w600h.webp)
 });
 
 // returns
@@ -153,9 +153,9 @@ await pixx('./src/compass.jpg', {
   classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }],
 });
 
-// withBlur will create blur image and console.log blurDataURL.
+// console.log blur image path and blurDataURL.
 compass.jpg: 'pixx_images/compass/compass-placeholder-10w8h.jpg'
-compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYH/8QAIxAAAQIFAwUAAAAAAAAAAAAAAQIDAAUGERIEEyEiIzFBkf/EABQBAQAAAAAAAAAAAAAAAAAAAAT/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADERL/2gAMAwEAAhEDEQA/AJ6jpVSKaN1BmzDTkwBVm85luINu2UEcefX2Mne0Ct5d1LJyN+mEIBXvTHYh0GCf/9k='
+compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
 
 // returns
 <picture>
@@ -213,11 +213,11 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAK
 
 ### Art Direction
 
-- Uses the `picture` and `source` element with the `srcset` and `media` attributes.
+- Uses the `picture` and `source` element with the `srcset`, `sizes` and `media` attributes.
 - Switch different image formats based on first truthy _media_ condition.
-- fallback is `img` element.
+- Fallback is `img` element.
 - **Pros**
-  - Switch image format based viewport size.
+  - Switch image based viewport size.
 - **Cons**
   - Code can be complex.
   - Order matters. Browser takes the first truthy value.
@@ -225,14 +225,10 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAK
 ```js
 // Art Direction -multiple image types
 await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
-  // remove 'compass.jpg' and 'happy face.jpg' images.
   clean: true,
-  // add custom path to output image path.
   omit: { remove: 'pixx_images', add: './my-special-folder' },
-  // media condition and image name to use.
   media: ['(min-width: 401px) compass.jpg', '(max-width: 401px) happy face.jpg'],
   sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
-  // styles: { color: 'blue', backgroundColor: 'red' }, // react
   styles: ['color: blue', 'border-color: red'], // html
 });
 
@@ -321,64 +317,72 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ## React
 
-- by default, html element is returned as a string. You can return a 'React' element by setting the option `returnReact: true`.
+- By default, html element is returned as a string. You can return a 'React' component by setting the option `returnReact: true`.
 
 ## Options
 
-- **alt**: default `image`. The 'img' alt attribute.
-- **blurSize**: default `10`px. Placeholder image width is **10px wide**. Bigger image, bigger _base64DataURL_.
-- **classes**: array of class names. Tailwindcss can be used, including object syntax.
+- **alt**: _string_. default `image`. The img `alt` attribute.
+- **blurSize**: default _number_ `10`. Number of pixels wide the _placeholder_ image is resized to.
+  - Bigger _blurSize_, bigger _base64DataURL_.
+- **classes**: _string[]_. Array of class names. Tailwindcss can be used, and optional object syntax.
   - e.g. `['my-special-class', 'border-blue-200', { 'border-red-200': pending }]`.
-- **clean**: default `false`. Delete image folder and create new.
-- **decoding**: default `auto`. Image download priority. Values: `auto` | `async` | `sync`.
+- **clean**: _boolean_. Default `false`. Delete image folder and create new.
+- **decoding**: _enum('auto', 'async', 'sync')_. default `auto`. Image download priority.
   - [MDN HTML Image decoding property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decoding)
-- **fallbackWidth**: default `input image width`px. Fallback image is the image used for the 'src' attribute. Fallback width is in **pixels**.
+- **fallbackWidth**: _number_ . Default `image width`. Custom fallback image width in pixels.
   - Older browsers fallback to this image. Image will always be type `jpg`.
-  - (e.g. `1500`. The fallback _src_ image will be an image 1500px wide with height same aspect ratio as original).
-- **heights**: Array of heights to create images. To create custom _Aspect Ratio_, both widths and heights must be provided.
-  - e.g. `[300, 500, 650, 900, 1200]` // pixel size must be <= image size. Image size is not increased.
-- **incrementSize**: default `300`. Customize increment size creation.
+  - fallbackWidth must be <= image width. Image size is not increased.
+  - (e.g. `1500`. The fallback img _src_ will be an image 1500px wide with height same aspect ratio as original).
+- **heights**: _number[]_. Array of numbers representing height in pixels.
+  - heights numbers must be <= image size. Image size is not increased.
+  - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
+  - (e.g. `[300, 500, 650, 900, 1200]`).
+- **incrementSize**: _number_. Default `300`. Customize increment size creation.
   - The increment pixel size `defaultSizes` uses to create images.
   - Only valid if `widths` or `heights` are empty.
-  - e.g. Find image smaller side (width or height), then create _img_ every `300px` until image size is reached.
-- **linuxPaths**: default `true`. Development on Windows, convert image paths to _linux_ style.
-- **loading**: default `eager`. Image loading attribute: `eager` | `lazy`.
-- **log**: default `false`. Output build details to console, including state and image: EXIF, XMP, ICC, and GPS metadata.
-- **media**: Array of **media condition** and the **image** file.
+  - (e.g. Find the smaller image side (width or height), then create _img_ every `300px` until image size is reached).
+- **linuxPaths**: _boolean_. Default `true`. Development on Windows, convert image paths to _linux_ style.
+- **loading**: _enum('eager', 'lazy')_. Default `eager`. Image loading priority.
+- **log**: _boolean_. Default `false`. Output build details to console.log.
+  - Includes state and hidden image details: EXIF, XMP, ICC, and GPS metadata.
+- **media**: _string[]_. Array of media conditions and image names.
+  - Tells browser what image to display based on viewport size.
   - This is solely used for **Art Direction**.
-  - e.g. `['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`.
-- **outDir**: default `pic_images`. Custom directory name to create images.
-- **omit**: Object with `remove` and `add`.
-  - Customize any part of the image path on the `src` or `srcset` attributes.
+  - (e.g. `['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`).
+- **outDir**: _string_. Default `pic_images`. Custom directory name to create images.
+- **omit**: _{ remove: string, add: string }_. Object with `remove` and `add` properties.
+  - Customize any part of the image path on the `img` or `picture` elements.
   - Does not change the `outDir`. Images will still be created in the `outDir`.
-  - e.g. `{ remove: 'pixx_images', add: './my-special-path' }`
-- **picTypes**: default `['avif', 'webp', 'jpg']`. Custom image types to create.
-  - picTypes available options: `['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp']`.
-  - e.g. `['webp']` // create only _webp_ image types.
-- **preload**: default `false`. Create the image _link_ tag for HTML head element.
+  - (e.g. `{ remove: 'pixx_images', add: './my-special-path' }`).
+- **picTypes**: _enums('avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp')_. Array of strings.
+  - Default `['avif', 'webp', 'jpg']`.
+  - (e.g. `['webp']`. Create only _webp_ image types).
+- **preload**: _boolean_. Default`false`. Create the image _link_ tag for HTML `head` element.
   - Preloading images can optimize load times for critical images.
-  - Print to console.log _link_ tag.
-- **preloadFetchPriority**: default `auto`. Values: `auto` | `async` | `sync`.
+  - Print the _link_ tag to console.log.
+- **preloadFetchPriority**: _enum('auto', 'async', 'sync')_. Default `auto`.
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
-- **returnReact**: default `false`. Return results as React component or string.
-- **sizes**: default `['100vw']`. Array of media conditions and the viewport fill width.
+- **returnReact**: _boolean_. Default `false`. Return results as React component or string.
+- **sizes**: default _string[]_ `['100vw']`. Array of media conditions and the viewport fill width.
   - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the media condition.
   - The _descriptor_ can be any CSS **media condition**.
   - The _value_ can be any **CSS length** except percentage. (e.g. 100rem; 75vw; 500px).
   - The last item in the array is the '_default_' size if _media conditions_ do not match.
-  - e.g. `['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`.
-- **styles**: Array(HTML) or Object(React) of inline styles.
+  - (e.g. `['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`).
+- **styles**: _string[] | { [key: string]: string }_. Array(HTML) or Object(React) of inline styles.
   - **React**: `{ color: "blue", backgroundColor: "red" }`
   - **HTML**: `['color: blue', 'background-color: red']`
-- **title**: Text to display as tooltip when hover over image.
-- **widths**: Array of widths to create images.
-  - e.g. `[300, 500, 650, 900, 1200]` // sizes must be <= image size. Image size is not increased.
-- **withAnimation**: default `false`. Sharp image library will retain the image animation.
-- **withBlur**: default `false`. Create **placeholder** image and **base64DataURL**.
+- **title**: _string_. Text to display as tooltip when hover over image.
+- **widths**: _number[]_. Array of widths to create images.
+  - widths numbers must be <= image size. Image size is not increased.
+  - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
+  - (e.g. `[300, 500, 650, 900, 1200]`).
+- **withAnimation**: _boolean_. Default `false`. Sharp image library will retain the image animation.
+- **withBlur**: _boolean_. Default `false`. Create **placeholder** image and **base64DataURL**.
   - Print to console.log.
-- **withClassName**: default `true`. Image class attribute.
+- **withClassName**: _boolean_. Default `true`. Image class attribute.
   - Options: `false = class` | `true = className`.
-- **withMetadata**: default `false`. Copy original image metadata to new images.
+- **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
 ## License
 
