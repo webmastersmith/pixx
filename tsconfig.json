@@ -34,5 +34,5 @@
     // }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"],
-  "exclude": ["node_modules", "pixx"]
+  "exclude": ["node_modules", "test", "dist", "pixx_images", "./*.tsx", "./*.ts"]
 }

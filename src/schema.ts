@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { Metadata } from 'sharp';
+import parse from 'html-react-parser';
+
 // sharp input images
 const acceptableInputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp', 'svg'] as const;
 export const InputImageTypeSchema = z.enum(acceptableInputImageTypes, {
@@ -131,3 +133,8 @@ export type StateType = Required<
     defaultSizes: ['width' | 'height', number[]];
   }
 >;
+
+export type Pixx = (
+  FilePaths: string | string[],
+  options?: OptionType
+) => Promise<string | undefined | ReturnType<typeof parse>>;
