@@ -392,6 +392,170 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your files and replace the pixx function with the returned html code. The code is statically run.
 - Formatters such as prettier, expect HTML and can malform code. Escape code with `<!-- prettier-ignore -->`
 
+```html
+<!-- Example HTML -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <p>hello</p>
+    pixx('./images/img1.webp')
+    <p>goodbye</p>
+    <!-- prettier-ignore -->
+    pixx(['./images/compass.jpg', './images/happy face.jpg'], {
+      omit: { remove: 'pixx_images', add: './my-special-folder' },
+      media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
+      sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
+      styles: ['color:    blue', 'border-color: red'],
+    })
+  </body>
+</html>
+
+<!-- Returns -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <p>hello</p>
+    <!-- pixx('./images/img1.webp') -->
+    <picture>
+      <source
+        type="image/avif"
+        sizes="100vw"
+        srcset="
+          pixx_images/img1/img1-300w346h.avif 300w,
+          pixx_images/img1/img1-600w691h.avif 600w,
+          pixx_images/img1/img1-750w864h.avif 750w
+        "
+      />
+      <source
+        type="image/webp"
+        sizes="100vw"
+        srcset="
+          pixx_images/img1/img1-300w346h.webp 300w,
+          pixx_images/img1/img1-600w691h.webp 600w,
+          pixx_images/img1/img1-750w864h.webp 750w
+        "
+      />
+      <source
+        type="image/jpg"
+        sizes="100vw"
+        srcset="
+          pixx_images/img1/img1-300w346h.jpg 300w,
+          pixx_images/img1/img1-600w691h.jpg 600w,
+          pixx_images/img1/img1-750w864h.jpg 750w
+        "
+      />
+      <img
+        src="pixx_images/img1/img1-750w864h.jpg"
+        alt="image"
+        width="750"
+        height="864"
+        loading="eager"
+        decoding="auto"
+      />
+    </picture>
+
+    <p>goodbye</p>
+    <!-- prettier-ignore -->
+    <!-- pixx(['./images/compass.jpg', './images/happy face.jpg'], {
+      omit: { remove: 'pixx_images', add: './my-special-folder' },
+      media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
+      sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
+      styles: ['color:    blue', 'border-color: red'],
+    }) -->
+    <picture>
+      <source
+        type="image/avif"
+        media="(min-width: 401px)"
+        sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
+        srcset="
+          ./my-special-folder/compass/compass-400w300h.avif    400w,
+          ./my-special-folder/compass/compass-800w600h.avif    800w,
+          ./my-special-folder/compass/compass-1200w900h.avif  1200w,
+          ./my-special-folder/compass/compass-1600w1200h.avif 1600w,
+          ./my-special-folder/compass/compass-2000w1500h.avif 2000w,
+          ./my-special-folder/compass/compass-2400w1800h.avif 2400w,
+          ./my-special-folder/compass/compass-2560w1920h.avif 2560w
+        "
+      />
+      <source
+        type="image/webp"
+        media="(min-width: 401px)"
+        sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
+        srcset="
+          ./my-special-folder/compass/compass-400w300h.webp    400w,
+          ./my-special-folder/compass/compass-800w600h.webp    800w,
+          ./my-special-folder/compass/compass-1200w900h.webp  1200w,
+          ./my-special-folder/compass/compass-1600w1200h.webp 1600w,
+          ./my-special-folder/compass/compass-2000w1500h.webp 2000w,
+          ./my-special-folder/compass/compass-2400w1800h.webp 2400w,
+          ./my-special-folder/compass/compass-2560w1920h.webp 2560w
+        "
+      />
+      <source
+        type="image/jpg"
+        media="(min-width: 401px)"
+        sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
+        srcset="
+          ./my-special-folder/compass/compass-400w300h.jpg    400w,
+          ./my-special-folder/compass/compass-800w600h.jpg    800w,
+          ./my-special-folder/compass/compass-1200w900h.jpg  1200w,
+          ./my-special-folder/compass/compass-1600w1200h.jpg 1600w,
+          ./my-special-folder/compass/compass-2000w1500h.jpg 2000w,
+          ./my-special-folder/compass/compass-2400w1800h.jpg 2400w,
+          ./my-special-folder/compass/compass-2560w1920h.jpg 2560w
+        "
+      />
+      <source
+        type="image/avif"
+        media="(max-width: 400px)"
+        sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
+        srcset="
+          ./my-special-folder/happy_face/happy_face-600w300h.avif 600w,
+          ./my-special-folder/happy_face/happy_face-720w360h.avif 720w
+        "
+      />
+      <source
+        type="image/webp"
+        media="(max-width: 400px)"
+        sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
+        srcset="
+          ./my-special-folder/happy_face/happy_face-600w300h.webp 600w,
+          ./my-special-folder/happy_face/happy_face-720w360h.webp 720w
+        "
+      />
+      <source
+        type="image/jpg"
+        media="(max-width: 400px)"
+        sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
+        srcset="
+          ./my-special-folder/happy_face/happy_face-600w300h.jpg 600w,
+          ./my-special-folder/happy_face/happy_face-720w360h.jpg 720w
+        "
+      />
+      <img
+        style="color: blue; border-color: red"
+        src="./my-special-folder/happy_face/happy_face-720w360h.jpg"
+        alt="image"
+        width="720"
+        height="360"
+        loading="eager"
+        decoding="auto"
+      />
+    </picture>
+  </body>
+</html>
+```
+
 ## License
 
 Published under the Apache-2.0 license. © Bryon Smith 2024.

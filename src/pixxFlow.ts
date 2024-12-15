@@ -124,11 +124,11 @@ async function asyncFn(
   // log options.
   if ((options?.log || options?.debug) && _pixxOptions.includes('{')) {
     if (typeof pixxOptions === 'object')
-      console.log(chalk.blueBright('Options passed into pixx'), inspect(pixxOptions, false, null, true));
+      console.log(chalk.blueBright('Pixx options after parse:'), inspect(pixxOptions, false, null, true));
     // Object parse failed.
-    else console.log(chalk.blueBright('Options passed into pixx'), pixxOptions);
+    else console.log(chalk.blueBright('Pixx options after parse:'), pixxOptions);
     console.log(
-      chalk.yellowBright('Pixx options should be returned as an object. Instead this was returned:'),
+      chalk.yellowBright('Pixx options should be returned as an object. Pixx object "typeof" is:'),
       chalk.magentaBright(typeof pixxOptions)
     );
   }
