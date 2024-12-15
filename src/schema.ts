@@ -144,4 +144,5 @@ export type PixxFlowOptions = {
   include: string[];
   ignore?: string[];
   log?: boolean;
+  overwrite?: boolean;
 };

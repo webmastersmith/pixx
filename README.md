@@ -16,13 +16,13 @@
 // download
 npm i -D pixx;
 
+
 // commonjs
 const { pixx } = require('pixx');
-// esm
+pixx('compass.jpg').then((HTML) => {});
+// esm -package.json "type": "module",
 import { pixx } from 'pixx';
-
-// to use. -creates the images and html code.
-await pixx('compass.jpg'); // size is 2560w x 1920h.
+const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
 
 // returns
 <picture>
@@ -322,7 +322,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 - By default, html element is returned as a string. You can return a 'React' component by setting the option `returnReact: true`.
 
-## Options
+## Pixx Options
 
 - **alt**: _string_. default `image`. The img `alt` attribute.
 - **blurSize**: default _number_ `10`. Number of pixels wide the _placeholder_ image is resized to.
@@ -389,8 +389,32 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ## pixxFlow
 
-- Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your files and replace the pixx function with the returned html code. The code is statically run.
-- Formatters such as prettier, expect HTML and can malform code. Escape code with `<!-- prettier-ignore -->`
+- Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your 'static' files and replace the pixx function with the returned html code. The code is statically run.
+- Formatters such as prettier, expect HTML and can malform Javascript code. Escape code with `<!-- prettier-ignore -->`
+- run file with: `node file.js`
+- **Caution**: pixxFlow uses `eval()` to convert the pixx options string to an object. Only use this function in **_development_**
+
+## PixxFlow Options
+
+- **include**: string[]. Files to include. PixxFlow uses [glob](https://www.npmjs.com/package/glob) to search for files.
+- **ignore**?: string[]. Files to ignore.
+- **log**?: boolean. default `false`. Console.log important results for debugging.
+- **debug**?: boolean. default `false`. Console.log everything for debugging.
+- **overwrite**?: boolean. default `false`. Create a new starting with pixx, or overwrite the file.
+
+```js
+// file.js
+import { pixx, pixxFlow } from 'pixx';
+// const { pixx, pixxFlow } = require('pixx');
+
+// PixxFlow
+pixxFlow(pixx, {
+  include: ['**/*.html', '**/*.jsx', '**/*.tsx'],
+  ignore: ['node_modules/**'],
+  log: true,
+  overwrite: true,
+});
+```
 
 ```html
 <!-- Example HTML -->
@@ -402,9 +426,9 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
     <title>Document</title>
   </head>
   <body>
-    <p>hello</p>
+    <p>Exmaple 1</p>
     pixx('./images/img1.webp')
-    <p>goodbye</p>
+    <p>Example 2</p>
     <!-- prettier-ignore -->
     pixx(['./images/compass.jpg', './images/happy face.jpg'], {
       omit: { remove: 'pixx_images', add: './my-special-folder' },
@@ -424,7 +448,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
     <title>Document</title>
   </head>
   <body>
-    <p>hello</p>
+    <p>Example 1</p>
     <!-- pixx('./images/img1.webp') -->
     <picture>
       <source
@@ -464,7 +488,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
       />
     </picture>
 
-    <p>goodbye</p>
+    <p>Example 2</p>
     <!-- prettier-ignore -->
     <!-- pixx(['./images/compass.jpg', './images/happy face.jpg'], {
       omit: { remove: 'pixx_images', add: './my-special-folder' },

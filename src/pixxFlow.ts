@@ -1,5 +1,6 @@
-import { glob } from 'glob';
 import fs from 'fs';
+import path from 'path';
+import { glob } from 'glob';
 import { pixx } from './pixx';
 import { Pixx, PixxFlowOptions } from './schema';
 import { inspect } from 'util';
@@ -25,7 +26,10 @@ export async function pixxFlow(pixx: Pixx, options: PixxFlowOptions) {
 
       if (options?.debug) console.log('Processed text to write:', textOut);
       // write file.
-      fs.writeFileSync(`avoid-${file.replaceAll('\\', '')}`, textOut);
+      const parsed = path.parse(file);
+      if (options?.debug) console.log(parsed);
+      const newFileName = options?.overwrite ? file : `pixx-${parsed.base}`;
+      fs.writeFileSync(newFileName, textOut);
     }
   } catch (error) {
     console.log(error);
@@ -149,7 +153,7 @@ async function asyncFn(
   if (!isHTML) {
     // everything but last '}'
     const code = match.trim().slice(0, -1);
-    commentMatch += `/* ${match.trim()} */}`;
+    commentMatch += `/* ${code.trim()} */}`;
     html += await (pixxOptions && typeof pixxOptions === 'object'
       ? pixx(pixxFiles, pixxOptions)
       : pixx(pixxFiles));

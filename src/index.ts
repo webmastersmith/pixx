@@ -52,4 +52,5 @@ export { pixxFlow } from './pixxFlow';
 //   include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
 //   ignore: ['node_modules/**', '**/avoid*'],
 //   log: true,
+//   overwrite: true,
 // });
