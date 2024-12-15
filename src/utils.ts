@@ -87,7 +87,7 @@ export async function getState(filePath: string, options: OptionType) {
     );
 
   // All checks pass.
-  // Create Fallback Image.
+  // 1. Create Fallback Image.
   // Check if fallback width is bigger than original image width.
   if (state.fallbackWidth > state.meta.width) state.fallbackWidth = state.meta.width;
   // Create fallback image same as original image size unless fallbackWidth is provided.
@@ -108,7 +108,7 @@ export async function getState(filePath: string, options: OptionType) {
   const totalImages = state.picTypes.length * sizeCount + 1;
   state.totalImages = totalImages;
 
-  // Progress Bar
+  // 2. Progress Bar
   state.cliBar = bar;
   return state;
 }
@@ -424,17 +424,20 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   let imgStr = '';
   // create img element
   imgStr += '<img ';
-  // create class or className if not empty and not a picture element.
+  // Class. Create class or className if not empty and not a picture element.
   imgStr += state.classStr ? `${c}="${state.classStr}" ` : '';
-  // styles attribute -can be an array of strings or object.
+  // Styles
+  // state.styles: string[] | object.
   if (Array.isArray(state.styles)) {
     // <p style="color: blue; font-size: 46px;"> // html
-    if (state.styles.length) imgStr += `style="${state.styles.join('; ')}"`;
-  }
-  if (!Array.isArray(state.styles) && typeof state.styles === 'object') {
-    // react inline style
-    // { "color": "blue", "fontSize": "46px" }
-    imgStr += `style={${JSON.stringify({ ...state.styles })}}`;
+    if (state.styles.length) imgStr += `style="${state.styles.join('; ')}" `;
+  } else {
+    // state.styles is not an array. must be an object.
+    if (typeof state.styles === 'object') {
+      // react inline style is an object: { "color": "blue", "fontSize": "46px" }
+      imgStr += `style={${JSON.stringify({ ...state.styles })}} `;
+      // state.styles is not an array or object. Log message.
+    } else console.log(chalk.redBright('Styles could not be loaded. Double check it is an Array or object.'));
   }
   // create srcset
   imgStr += !isPicture ? `srcset="${await createSrcSet(state, state.picTypes[0] as OutputImageType)}" ` : '';

@@ -56,12 +56,14 @@ async function asyncFn(match: string, args: string[], isHTML: boolean, options?:
   if (options?.log) console.log('\n\nargs:', args[0], '\n\n\n');
   // check args for match on pixx arguments. Other args are numbers.
   let wholeMatch = '';
+  // remove React output.
   if (typeof args[0] === 'string')
     wholeMatch += args[0].trim().replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '');
+  // Check if pixx has options as argument.
   const singleImageWithOptionsRegex = /['"][^'"]*['"](?=\s*,\s*{)/;
   const multipleImageWithOptionsRegex = /\[[^\]]*\](?=\s*,\s*{)/;
 
-  // assign matching regex. -can be [], {} or ', {}
+  // Test if single image or an array. assign matching regex.
   const regEx = multipleImageWithOptionsRegex.test(wholeMatch)
     ? multipleImageWithOptionsRegex
     : singleImageWithOptionsRegex.test(wholeMatch)
@@ -71,6 +73,7 @@ async function asyncFn(match: string, args: string[], isHTML: boolean, options?:
 
   let _files = '';
   let _pixxOptions = '';
+  // use matching regex to split paths and options.
   if (regEx) {
     const m = wholeMatch.match(regEx);
     // Get match start and end index.

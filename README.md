@@ -6,8 +6,8 @@
 - Using the _[sharp](https://sharp.pixelplumbing.com/)_ image library, quickly create responsive images, and the HTML code to match.
 - This package only runs in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
 - Pixx does not increase image size. Start with the **largest input image**.
-- Pixx is designed to use in project development.
-- **Sharp Error on Windows**: Could not load the "sharp" module using the win32-x64 runtime.
+- Pixx is designed to use in **project development**.
+- **Sharp error on Windows**: Could not load the "sharp" module using the win32-x64 runtime.
   - **Solution**: `npm install --include=optional sharp`
 
 ## Simple Start
@@ -226,11 +226,11 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
   - Order matters. Browser takes the first truthy value.
 
 ```js
-// Art Direction -multiple image types
+// Art Direction -multiple images: Compass.jpg 2560x1920, Happy face.jpg 720x360
 await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   clean: true,
   omit: { remove: 'pixx_images', add: './my-special-folder' },
-  media: ['(min-width: 401px) compass.jpg', '(max-width: 401px) happy face.jpg'],
+  media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
   sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
   styles: ['color: blue', 'border-color: red'], // html
 });
@@ -239,81 +239,81 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 <picture>
   <source
     type="image/avif"
-    media="(max-width: 500px)"
-    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    media="(min-width: 401px)"
+    sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
     srcset="
-      ./my-special-folder/compass/compass-400w300h.avif    400w,
-      ./my-special-folder/compass/compass-800w600h.avif    800w,
-      ./my-special-folder/compass/compass-1200w900h.avif  1200w,
-      ./my-special-folder/compass/compass-1600w1200h.avif 1600w,
-      ./my-special-folder/compass/compass-2000w1500h.avif 2000w,
-      ./my-special-folder/compass/compass-2400w1800h.avif 2400w,
-      ./my-special-folder/compass/compass-2560w1920h.avif 2560w
-    "
+          ./my-special-folder/compass/compass-400w300h.avif    400w,
+          ./my-special-folder/compass/compass-800w600h.avif    800w,
+          ./my-special-folder/compass/compass-1200w900h.avif  1200w,
+          ./my-special-folder/compass/compass-1600w1200h.avif 1600w,
+          ./my-special-folder/compass/compass-2000w1500h.avif 2000w,
+          ./my-special-folder/compass/compass-2400w1800h.avif 2400w,
+          ./my-special-folder/compass/compass-2560w1920h.avif 2560w
+        "
   />
   <source
     type="image/webp"
-    media="(max-width: 500px)"
-    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    media="(min-width: 401px)"
+    sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
     srcset="
-      ./my-special-folder/compass/compass-400w300h.webp    400w,
-      ./my-special-folder/compass/compass-800w600h.webp    800w,
-      ./my-special-folder/compass/compass-1200w900h.webp  1200w,
-      ./my-special-folder/compass/compass-1600w1200h.webp 1600w,
-      ./my-special-folder/compass/compass-2000w1500h.webp 2000w,
-      ./my-special-folder/compass/compass-2400w1800h.webp 2400w,
-      ./my-special-folder/compass/compass-2560w1920h.webp 2560w
-    "
+          ./my-special-folder/compass/compass-400w300h.webp    400w,
+          ./my-special-folder/compass/compass-800w600h.webp    800w,
+          ./my-special-folder/compass/compass-1200w900h.webp  1200w,
+          ./my-special-folder/compass/compass-1600w1200h.webp 1600w,
+          ./my-special-folder/compass/compass-2000w1500h.webp 2000w,
+          ./my-special-folder/compass/compass-2400w1800h.webp 2400w,
+          ./my-special-folder/compass/compass-2560w1920h.webp 2560w
+        "
   />
   <source
     type="image/jpg"
-    media="(max-width: 500px)"
-    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    media="(min-width: 401px)"
+    sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
     srcset="
-      ./my-special-folder/compass/compass-400w300h.jpg    400w,
-      ./my-special-folder/compass/compass-800w600h.jpg    800w,
-      ./my-special-folder/compass/compass-1200w900h.jpg  1200w,
-      ./my-special-folder/compass/compass-1600w1200h.jpg 1600w,
-      ./my-special-folder/compass/compass-2000w1500h.jpg 2000w,
-      ./my-special-folder/compass/compass-2400w1800h.jpg 2400w,
-      ./my-special-folder/compass/compass-2560w1920h.jpg 2560w
-    "
+          ./my-special-folder/compass/compass-400w300h.jpg    400w,
+          ./my-special-folder/compass/compass-800w600h.jpg    800w,
+          ./my-special-folder/compass/compass-1200w900h.jpg  1200w,
+          ./my-special-folder/compass/compass-1600w1200h.jpg 1600w,
+          ./my-special-folder/compass/compass-2000w1500h.jpg 2000w,
+          ./my-special-folder/compass/compass-2400w1800h.jpg 2400w,
+          ./my-special-folder/compass/compass-2560w1920h.jpg 2560w
+        "
   />
   <source
     type="image/avif"
-    media="(min-width: 501px)"
-    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    media="(max-width: 400px)"
+    sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
     srcset="
-      ./my-special-folder/happy_face/happy_face-397w300h.avif 397w,
-      ./my-special-folder/happy_face/happy_face-640w484h.avif 640w
-    "
+          ./my-special-folder/happy_face/happy_face-600w300h.avif 600w,
+          ./my-special-folder/happy_face/happy_face-720w360h.avif 720w
+        "
   />
   <source
     type="image/webp"
-    media="(min-width: 501px)"
-    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    media="(max-width: 400px)"
+    sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
     srcset="
-      ./my-special-folder/happy_face/happy_face-397w300h.webp 397w,
-      ./my-special-folder/happy_face/happy_face-640w484h.webp 640w
-    "
+          ./my-special-folder/happy_face/happy_face-600w300h.webp 600w,
+          ./my-special-folder/happy_face/happy_face-720w360h.webp 720w
+        "
   />
   <source
     type="image/jpg"
-    media="(min-width: 501px)"
-    sizes="(max-width: 500px) 50vw, (min-width: 501px) 25vw, 30vw"
+    media="(max-width: 400px)"
+    sizes="(min-width: 401px) 50vw, (max-width: 400px) 100vw, 100vw"
     srcset="
-      ./my-special-folder/happy_face/happy_face-397w300h.jpg 397w,
-      ./my-special-folder/happy_face/happy_face-640w484h.jpg 640w
-    "
+          ./my-special-folder/happy_face/happy_face-600w300h.jpg 600w,
+          ./my-special-folder/happy_face/happy_face-720w360h.jpg 720w
+        "
   />
   <img
     style="color: blue; border-color: red"
-    src="./my-special-folder/happy_face/happy_face-640w484h.jpg"
+    src="./my-special-folder/happy_face/happy_face-720w360h.jpg"
     alt="image"
-    width="640"
-    height="484"
+    width="720"
+    height="360"
     loading="eager"
-    decoding="async"
+    decoding="auto"
   />
 </picture>;
 ```
