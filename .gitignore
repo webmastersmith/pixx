@@ -8,3 +8,6 @@
 !schema.ts
 !tsconfig.json
 !webpack.config.js
+!pixx.ts
+!pixxFlow.ts
+!test>*
