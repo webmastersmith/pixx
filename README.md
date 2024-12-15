@@ -387,6 +387,11 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Options: `false = class` | `true = className`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
+## pixxFlow
+
+- Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your files and replace the pixx function with the returned html code. The code is statically run.
+- Formatters such as prettier, expect HTML and can malform code. Escape code with `<!-- prettier-ignore -->`
+
 ## License
 
 Published under the Apache-2.0 license. © Bryon Smith 2024.

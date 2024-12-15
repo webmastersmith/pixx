@@ -48,8 +48,8 @@ export { pixxFlow } from './pixxFlow';
 // }).then((m) => console.log('\n\n', m, '\n\n'));
 
 // PixxFlow
-pixxFlow(pixx, {
-  include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
-  ignore: ['node_modules/**', '**/avoid*'],
-  options: { log: true },
-});
+// pixxFlow(pixx, {
+//   include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
+//   ignore: ['node_modules/**', '**/avoid*'],
+//   log: true,
+// });

@@ -3,30 +3,32 @@ import fs from 'fs';
 import { pixx } from './pixx';
 import { Pixx, PixxFlowOptions } from './schema';
 import { inspect } from 'util';
+import chalk from 'chalk';
 
-export async function pixxFlow(
-  pixx: Pixx,
-  globFiles: { include: string[]; ignore: string[] },
-  options?: PixxFlowOptions
-) {
-  // pixx('./src/happy face.jpg').then((m) => console.log('\n\n', m, '\n\n'));
+export async function pixxFlow(pixx: Pixx, options: PixxFlowOptions) {
+  try {
+    // All files to parse. string[].
+    const files = await (options?.ignore
+      ? glob(options.include, { ignore: options.ignore })
+      : glob(options.include));
+    if (options?.log || options?.debug) console.log(files);
 
-  const files = await (globFiles?.ignore
-    ? glob(globFiles.include, { ignore: globFiles.ignore })
-    : glob(globFiles.include));
-  if (options?.log) console.log(files);
+    // Loop files. Extract static code. Run code.
+    for (const file of files) {
+      console.log(chalk.blueBright('Parsing:'), chalk.greenBright(file), '\n\n');
+      const textIn = fs.readFileSync(file, 'utf-8');
+      const isHTML = /htm.?$/i.test(file);
+      // Regex to find pixx functions not commented out.
+      const regExJSX = /(?<!\/\*\s*{\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?\s*}/gis; // jsx/tsx.
+      const regExHTML = /(?<!<!--\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?/gis; // html
+      const textOut = await replaceAsync(textIn, isHTML ? regExHTML : regExJSX, isHTML, options, file);
 
-  // Loop files. Extract static code. Run code.
-  for (const file of files) {
-    console.log('Parsing:', file);
-    const textIn = fs.readFileSync(file, 'utf-8');
-    const isHTML = /htm.?$/i.test(file);
-    const regExJSX = /(?<!\/\*\s*{\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?\s*}/gis; // jsx/tsx.
-    const regExHTML = /(?<!<!--\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?/gis; // html
-    const textOut = await replaceAsync(textIn, isHTML ? regExHTML : regExJSX, isHTML, options);
-    if (options?.log) console.log('Processed text to write:', textOut);
-    // write file.
-    fs.writeFileSync(`avoid-${file.replaceAll('\\', '')}`, textOut);
+      if (options?.debug) console.log('Processed text to write:', textOut);
+      // write file.
+      fs.writeFileSync(`avoid-${file.replaceAll('\\', '')}`, textOut);
+    }
+  } catch (error) {
+    console.log(error);
   }
 
   /**
@@ -36,12 +38,18 @@ export async function pixxFlow(
    * @param isHTML When commenting out code, use HTML or JSX style comments.
    * @returns modified str.
    */
-  async function replaceAsync(str: string, regex: RegExp, isHTML: boolean, options?: PixxFlowOptions) {
+  async function replaceAsync(
+    str: string,
+    regex: RegExp,
+    isHTML: boolean,
+    options: PixxFlowOptions,
+    fileName: string
+  ) {
     const promises: Promise<string>[] = [];
     // 1. Run first time with promises.
     str.replace(regex, (match, ...args) => {
       // do something with match, push into promises array. 'args' is an array.
-      promises.push(asyncFn(match, args, isHTML, options));
+      promises.push(asyncFn(match, args, isHTML, options, fileName));
       return match;
     });
     // 2. resolve promises
@@ -51,15 +59,22 @@ export async function pixxFlow(
   }
 }
 
-async function asyncFn(match: string, args: string[], isHTML: boolean, options?: PixxFlowOptions) {
-  if (options?.log) console.log('match', match);
-  if (options?.log) console.log('\n\nargs:', args[0], '\n\n\n');
+async function asyncFn(
+  match: string,
+  args: string[],
+  isHTML: boolean,
+  options: PixxFlowOptions,
+  fileName: string
+) {
+  if (options?.log || options?.debug) console.log(chalk.cyanBright(fileName));
+  if (options?.log || options?.debug) console.log(chalk.red('Regex Match:'), chalk.yellowBright(match));
+  if (options?.debug) console.log('args:', args[0]);
   // check args for match on pixx arguments. Other args are numbers.
   let wholeMatch = '';
   // remove React output.
   if (typeof args[0] === 'string')
     wholeMatch += args[0].trim().replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '');
-  // Check if pixx has options as argument.
+  // Check if pixx has options as argument. This will match only the 'paths'.
   const singleImageWithOptionsRegex = /['"][^'"]*['"](?=\s*,\s*{)/;
   const multipleImageWithOptionsRegex = /\[[^\]]*\](?=\s*,\s*{)/;
 
@@ -69,21 +84,23 @@ async function asyncFn(match: string, args: string[], isHTML: boolean, options?:
     : singleImageWithOptionsRegex.test(wholeMatch)
     ? singleImageWithOptionsRegex
     : null;
-  if (options?.log) console.log('regex:', regEx);
+  if (options?.debug) console.log(chalk.redBright('Regex that matched:'), regEx);
 
-  let _files = '';
-  let _pixxOptions = '';
+  let _files = 'No files found';
+  let _pixxOptions = 'No options were passed into pixx.';
   // use matching regex to split paths and options.
   if (regEx) {
     const m = wholeMatch.match(regEx);
-    // Get match start and end index.
+    // The match start and end index.
     const start = m && typeof m.index === 'number' ? m.index : 0;
     const end = start + ((m && m[0].length) || 0);
-    _files += wholeMatch.slice(start, end);
-    _pixxOptions += wholeMatch.slice(end).trim().replace(/,\s*/, '');
-    if (options?.log) console.log('\n\n_files', _files, '\n\n_options: ', _pixxOptions, '\n\n');
+    _files = wholeMatch.slice(start, end);
+    // Get object passed to pixx, remove beginning comma and spaces.
+    _pixxOptions = wholeMatch.slice(end).trim().replace(/,\s*/, '');
+    if (options?.debug)
+      console.log(chalk.blueBright('_files:'), _files, chalk.blueBright('\n_options: '), _pixxOptions);
     // must be only _files and no _pixxOptions.
-  } else _files += wholeMatch;
+  } else _files = wholeMatch;
 
   // convert to string[].
   const pixxFiles = _files
@@ -93,24 +110,60 @@ async function asyncFn(match: string, args: string[], isHTML: boolean, options?:
     .map((s) => s.trim())
     .filter((s) => !!s);
 
-  if (options?.log) console.log('\n\npixxFiles:', pixxFiles, '\n\n');
-  const pixxOptions = eval(_pixxOptions) || undefined;
-  if (options?.log) console.log('\n\noptions:', inspect(options, false, null, true), '\n\n');
+  if (options?.log || options?.debug) console.log(chalk.blueBright('pixxFiles passed into pixx:'), pixxFiles);
+  if (options?.log || options?.debug)
+    console.log(chalk.blueBright('_pixxOptions String:'), chalk.green(_pixxOptions));
+  // only parse _pixxOptions if it exist.
+  let pixxOptions = chalk.redBright('Could not parse pixx options. It is malformed. ');
+  if (_pixxOptions.startsWith('{'))
+    try {
+      pixxOptions = eval('(' + _pixxOptions + ')');
+    } catch (e) {
+      console.log(e);
+    }
+  // log options.
+  if ((options?.log || options?.debug) && _pixxOptions.includes('{')) {
+    if (typeof pixxOptions === 'object')
+      console.log(chalk.blueBright('Options passed into pixx'), inspect(pixxOptions, false, null, true));
+    // Object parse failed.
+    else console.log(chalk.blueBright('Options passed into pixx'), pixxOptions);
+    console.log(
+      chalk.yellowBright('Pixx options should be returned as an object. Instead this was returned:'),
+      chalk.magentaBright(typeof pixxOptions)
+    );
+  }
+  // object parse failed.
+  if (_pixxOptions.includes('{') && typeof pixxOptions !== 'object') {
+    console.log(
+      chalk.redBright(
+        'Object parse Failed. No images were created from this function. Use a code formatter to properly format the pixx function.\n\n'
+      )
+    );
+    return '';
+  }
 
-  // Comment Code and return.
+  // Comment out 'match' Code and return.
   let commentMatch = '';
   let html = '';
+  // JSX Add comments
   if (!isHTML) {
-    // JSX Add comments
+    // everything but last '}'
     const code = match.trim().slice(0, -1);
-    const bracket = match.trim().slice(-1);
-    commentMatch += `/* ${match.trim()} */${bracket}`;
-    html += await (pixxOptions ? pixx(pixxFiles, pixxOptions) : pixx(pixxFiles));
+    commentMatch += `/* ${match.trim()} */}`;
+    html += await (pixxOptions && typeof pixxOptions === 'object'
+      ? pixx(pixxFiles, pixxOptions)
+      : pixx(pixxFiles));
+    if (options?.log || options?.debug)
+      console.log(chalk.blueBright('Is this an HTML file?'), chalk.magentaBright(isHTML), '\n\n');
   } else {
     // HTML page
+    if (options?.log || options?.debug)
+      console.log(chalk.blueBright('Is this an HTML file?'), chalk.magentaBright(isHTML), '\n\n');
+
     commentMatch += `<!-- ${match} -->`;
-    // html += await (pixxOptions ? pixx(pixxFiles, pixxOptions) : pixx(pixxFiles));
+    html += await (pixxOptions && typeof pixxOptions === 'object'
+      ? pixx(pixxFiles, pixxOptions)
+      : pixx(pixxFiles));
   }
   return `${commentMatch}\n${html.trim()}\n\n`;
-  // return matchFix;
 }

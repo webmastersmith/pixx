@@ -140,5 +140,8 @@ export type Pixx = (
 ) => Promise<string | undefined | ReturnType<typeof parse>>;
 
 export type PixxFlowOptions = {
+  debug?: boolean;
+  include: string[];
+  ignore?: string[];
   log?: boolean;
 };
