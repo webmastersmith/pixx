@@ -74,9 +74,10 @@ export async function pixx(
 
     // Responsive Images 👇 -------------------------------------------------------------
     // filePaths could be an array of one or empty.
-    if (Array.isArray(filePaths) && filePaths.length === 1) {
-      filePaths = filePaths[0]!;
-    } else throw new Error('Input file error. Check pixx input files.');
+    if (Array.isArray(filePaths)) {
+      if (filePaths.length === 1) filePaths = filePaths[0]!;
+      else throw new Error('Input file error. Check pixx input files.');
+    }
 
     const state = (await getState(filePaths, options)) as StateType;
 

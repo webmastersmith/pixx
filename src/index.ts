@@ -19,11 +19,11 @@ export { pixxFlow } from './pixxFlow';
 // });
 
 // single type
-// pixx('./src/compass.jpg', {
-//   log: true,
-//   picTypes: ['webp'],
-//   sizes: ['(max-width: 450px) 75vw', '(max-width: 800px) 50vw', '25vw'],
-// });
+pixx('./src/compass.jpg', {
+  log: true,
+  picTypes: ['webp'],
+  sizes: ['(max-width: 450px) 75vw', '(max-width: 800px) 50vw', '25vw'],
+});
 
 // art direction
 // pixx(['./src/compass.jpg', './src/happy face.jpg'], {

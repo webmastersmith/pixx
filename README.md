@@ -6,12 +6,15 @@
 - Using the _[sharp](https://sharp.pixelplumbing.com/)_ image library, quickly create responsive images, and the HTML code to match.
 - This package only runs in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
 - Pixx does not increase image size. Start with the **largest input image**.
+- Pixx is designed to use in project development.
+- **Sharp Error on Windows**: Could not load the "sharp" module using the win32-x64 runtime.
+  - **Solution**: `npm install --include=optional sharp`
 
 ## Simple Start
 
 ```js
 // download
-npm i pixx;
+npm i -D pixx;
 
 // commonjs
 const { pixx } = require('pixx');
