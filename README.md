@@ -392,7 +392,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your 'static' files and replace the pixx function with the returned html code. The code is statically run.
 - Formatters such as prettier, expect HTML and can malform Javascript code. Escape code with `<!-- prettier-ignore -->`
 - run file with: `node file.js`
-- **Caution**: pixxFlow uses `eval()` to convert the pixx options string to an object. Only use this function in **_development_**
+- **Caution**: pixxFlow uses `eval()` to convert the pixx options 'string' to an 'object'. Only use this function in **_development_**.
 
 ## PixxFlow Options
 
@@ -404,6 +404,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ```js
 // file.js
+// run with: node file.js
 import { pixx, pixxFlow } from 'pixx';
 // const { pixx, pixxFlow } = require('pixx');
 
@@ -439,7 +440,7 @@ pixxFlow(pixx, {
   </body>
 </html>
 
-<!-- Returns -->
+<!-- Returns ----------------------------------------------->
 <!DOCTYPE html>
 <html lang="en">
   <head>
