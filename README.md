@@ -390,7 +390,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 ## pixxFlow
 
 - Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your 'static' files and replace the pixx function with the returned html code. The code is statically run.
-- Formatters such as prettier, expect HTML and can malform Javascript code. Escape code with `<!-- prettier-ignore -->`
+- In HTML, place a **single** pixx function in a script tag.
 - run file with: `node file.js`
 - **Caution**: pixxFlow uses `eval()` to convert the pixx options 'string' to an 'object'. Only use this function in **_development_**.
 
@@ -427,16 +427,19 @@ pixxFlow(pixx, {
     <title>Document</title>
   </head>
   <body>
-    <p>Exmaple 1</p>
-    pixx('./images/img1.webp')
+    <p>Example 1</p>
+    <script>
+      pixx('./images/img1.webp');
+    </script>
     <p>Example 2</p>
-    <!-- prettier-ignore -->
-    pixx(['./images/compass.jpg', './images/happy face.jpg'], {
-      omit: { remove: 'pixx_images', add: './my-special-folder' },
-      media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
-      sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
-      styles: ['color:    blue', 'border-color: red'],
-    })
+    <script>
+      pixx(['./images/compass.jpg', './images/happy face.jpg'], {
+        omit: { remove: 'pixx_images', add: './my-special-folder' },
+        media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
+        sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
+        styles: ['color:    blue', 'border-color: red'],
+      });
+    </script>
   </body>
 </html>
 
@@ -450,7 +453,9 @@ pixxFlow(pixx, {
   </head>
   <body>
     <p>Example 1</p>
-    <!-- pixx('./images/img1.webp') -->
+    <!-- <script>
+      pixx('./images/img1.webp');
+    </script> -->
     <picture>
       <source
         type="image/avif"
@@ -490,13 +495,14 @@ pixxFlow(pixx, {
     </picture>
 
     <p>Example 2</p>
-    <!-- prettier-ignore -->
-    <!-- pixx(['./images/compass.jpg', './images/happy face.jpg'], {
-      omit: { remove: 'pixx_images', add: './my-special-folder' },
-      media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
-      sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
-      styles: ['color:    blue', 'border-color: red'],
-    }) -->
+    <!-- <script>
+      pixx(['./images/compass.jpg', './images/happy face.jpg'], {
+        omit: { remove: 'pixx_images', add: './my-special-folder' },
+        media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
+        sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
+        styles: ['color:    blue', 'border-color: red'],
+      });
+    </script> -->
     <picture>
       <source
         type="image/avif"

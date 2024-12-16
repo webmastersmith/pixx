@@ -21,7 +21,9 @@ export async function pixxFlow(pixx: Pixx, options: PixxFlowOptions) {
       const isHTML = /htm.?$/i.test(file);
       // Regex to find pixx functions not commented out.
       const regExJSX = /(?<!\/\*\s*{\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?\s*}/gis; // jsx/tsx.
-      const regExHTML = /(?<!<!--\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?/gis; // html
+      // const regExHTML = /(?<!<!--\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?/gis; // html
+      const regExHTML =
+        /(?<!<!--\s*)(?:<script[^>]*>)\s*pixx\s*\((.*?(?:'|"|\]|})\s*)\);?\s*(?:<\/script>)/gis;
       const textOut = await replaceAsync(textIn, isHTML ? regExHTML : regExJSX, isHTML, options, file);
 
       if (options?.debug) console.log('Processed text to write:', textOut);
