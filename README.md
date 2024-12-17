@@ -406,12 +406,22 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 ```js
 // NEXTJS Example
 // -npm i -D pixx
+// 1. Create run file: file.js
+import { pixx, pixxFlow } from 'pixx';
+pixxFlow(pixx, {
+  log: true,
+  include: ['src/**/*.tsx', 'src/**/*.jsx'],
+  ignore: ['node_modules', '**/pixx*'],
+  overwrite: true,
+});
+
+// page.tsx
 import { pixx } from 'pixx';
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] ">
+    <div className="grid grid-rows-[20px_1fr_20px]">
       <main className="flex flex-col sm:items-start">
-      {/* Create pixx function. Run dev server. Stop server to build. */}
+        {/* Create pixx function. Run dev server. Stop server to build. */}
         {pixx('./images/happy face.jpg', {
           returnReact: true,
           outDir: 'public',
@@ -422,17 +432,50 @@ export default function Home() {
   );
 }
 
-// 2. Create run file: file.js
-import { pixx, pixxFlow } from 'pixx';
-pixxFlow(pixx, {
-  log: true,
-  include: ['src/**/*.tsx', 'src/**/*.jsx'],
-  ignore: ['node_modules', '**/pixx*'],
-  overwrite: true,
-});
-
 // 3. run with:
 node file.js
+
+// Returns -------------------------------------
+// import { pixx } from 'pixx';
+export default function Home() {
+  return (
+    <div className="grid grid-rows-[20px_1fr_20px]">
+      <main className="flex flex-col sm:items-start">
+        {/* Create pixx function. Run dev server. Stop server to build. */}
+        {/* pixx('./images/happy face.jpg', {
+          returnReact: true,
+          outDir: 'public',
+          omit: { remove: 'public/' },
+        }) */}
+        <picture>
+          <source
+            type="image/avif"
+            sizes="100vw"
+            srcSet="happy_face/happy_face-600w300h.avif 600w, happy_face/happy_face-720w360h.avif 720w"
+          />
+          <source
+            type="image/webp"
+            sizes="100vw"
+            srcSet="happy_face/happy_face-600w300h.webp 600w, happy_face/happy_face-720w360h.webp 720w"
+          />
+          <source
+            type="image/jpg"
+            sizes="100vw"
+            srcSet="happy_face/happy_face-600w300h.jpg 600w, happy_face/happy_face-720w360h.jpg 720w"
+          />
+          <img
+            src="happy_face/happy_face-720w360h.jpg"
+            alt="image"
+            width="720"
+            height="360"
+            loading="eager"
+            decoding="auto"
+          />
+        </picture>
+      </main>
+    </div>
+  );
+}
 ```
 
 ```html
