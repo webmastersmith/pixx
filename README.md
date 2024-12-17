@@ -385,6 +385,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Print to console.log.
 - **withClassName**: _boolean_. Default `true`. Image class attribute.
   - Options: `false = class` | `true = className`.
+  - Also changes: `false = srcset` | `true = srcSet`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
 ## pixxFlow
@@ -404,7 +405,6 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ```js
 // file.js
-// run with: node file.js
 import { pixx, pixxFlow } from 'pixx';
 // const { pixx, pixxFlow } = require('pixx');
 
@@ -415,6 +415,8 @@ pixxFlow(pixx, {
   log: true,
   overwrite: true,
 });
+
+// run with: node file.js
 ```
 
 ```html

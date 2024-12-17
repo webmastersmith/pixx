@@ -18,20 +18,31 @@ export async function pixxFlow(pixx: Pixx, options: PixxFlowOptions) {
     for (const file of files) {
       console.log(chalk.blueBright('Parsing:'), chalk.greenBright(file), '\n\n');
       const textIn = fs.readFileSync(file, 'utf-8');
+      if (!textIn.includes('pixx')) {
+        console.log(chalk.yellowBright(`Pixx not found in ${file}. Skipping...\n\n`));
+        continue;
+      }
+
       const isHTML = /htm.?$/i.test(file);
       // Regex to find pixx functions not commented out.
       const regExJSX = /(?<!\/\*\s*{\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?\s*}/gis; // jsx/tsx.
-      // const regExHTML = /(?<!<!--\s*)pixx\s*\((.*?(?:'|"|\]|})\s*)\);?/gis; // html
       const regExHTML =
         /(?<!<!--\s*)(?:<script[^>]*>)\s*pixx\s*\((.*?(?:'|"|\]|})\s*)\);?\s*(?:<\/script>)/gis;
       const textOut = await replaceAsync(textIn, isHTML ? regExHTML : regExJSX, isHTML, options, file);
-
       if (options?.debug) console.log('Processed text to write:', textOut);
+
+      // comment out pixx import.
+      let final = textOut;
+      final = final.replaceAll(/^\s*import .*?pixx.*? from .*?$/gm, (m) => `// ${m.trim()}`);
+      final = final.replaceAll(/^\s*(const|let|var).*?require(.*?pixx.*?).*?$/gm, (m) => `// ${m.trim()}`);
+
       // write file.
       const parsed = path.parse(file);
       if (options?.debug) console.log(parsed);
-      const newFileName = options?.overwrite ? file : `pixx-${parsed.base}`;
-      fs.writeFileSync(newFileName, textOut);
+      // finalize file name and write.
+      parsed.base = options?.overwrite ? parsed.base : 'pixx-' + parsed.base;
+      fs.writeFileSync(path.format(parsed), final);
+      if (options?.log || options?.debug) console.log('\n' + chalk.greenBright(path.format(parsed)));
     }
   } catch (error) {
     console.log(error);

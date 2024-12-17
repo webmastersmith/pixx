@@ -1,7 +1,7 @@
 import { pixx } from './pixx';
 import { pixxFlow } from './pixxFlow';
 export { pixx };
-export { pixxFlow } from './pixxFlow';
+export { pixxFlow };
 
 // Pixx
 // development
@@ -48,9 +48,9 @@ export { pixxFlow } from './pixxFlow';
 // }).then((m) => console.log('\n\n', m, '\n\n'));
 
 // PixxFlow
-// pixxFlow(pixx, {
-//   include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
-//   ignore: ['node_modules/**', '**/avoid*'],
-//   log: true,
-//   // overwrite: true,
-// });
+pixxFlow(pixx, {
+  include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
+  ignore: ['node_modules/**', '**/avoid*', '**/pixx*'],
+  log: true,
+  overwrite: true,
+});
