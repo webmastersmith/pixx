@@ -440,11 +440,9 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
     } else console.log(chalk.redBright('Styles could not be loaded. Double check it is an Array or object.'));
   }
   // create srcset
+  const srcSet = state.withClassName ? 'srcSet' : 'srcset';
   imgStr += !isPicture
-    ? `${state.withClassName ? 'srcSet' : 'srcset'}="${await createSrcSet(
-        state,
-        state.picTypes[0] as OutputImageType
-      )}" `
+    ? `${srcSet}="${await createSrcSet(state, state.picTypes[0] as OutputImageType)}" `
     : '';
   // create sizes
   imgStr += !isPicture ? `sizes="${state.sizes.join(', ')}" ` : '';
@@ -471,7 +469,7 @@ export async function createSourceTag(state: StateType, type: OutputImageType, m
   source += `type="image/${type}" `;
   source += media ? `media="${media}" ` : '';
   source += `sizes="${state.sizes.join(', ')}" `;
-  source += `srcset="${await createSrcSet(state, type)}" `;
+  source += `${state.withClassName ? 'srcSet' : 'srcset'}="${await createSrcSet(state, type)}" `;
   source += '/>';
   return source;
 }

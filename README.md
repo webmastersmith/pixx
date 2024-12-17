@@ -411,7 +411,7 @@ import { pixx, pixxFlow } from 'pixx';
 // PixxFlow
 pixxFlow(pixx, {
   include: ['**/*.html', '**/*.jsx', '**/*.tsx'],
-  ignore: ['node_modules/**'],
+  ignore: ['node_modules/**', '**/pixx*'],
   log: true,
   overwrite: true,
 });
