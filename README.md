@@ -404,23 +404,39 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **overwrite**?: boolean. default `false`. Create a new starting with pixx, or overwrite the file.
 
 ```js
-// file.js
-import { pixx, pixxFlow } from 'pixx';
-// const { pixx, pixxFlow } = require('pixx');
+// NEXTJS Example
+// -npm i -D pixx
+import { pixx } from 'pixx';
+export default function Home() {
+  return (
+    <div className="grid grid-rows-[20px_1fr_20px] ">
+      <main className="flex flex-col sm:items-start">
+      {/* Create pixx function. Run dev server. Stop server to build. */}
+        {pixx('./images/happy face.jpg', {
+          returnReact: true,
+          outDir: 'public',
+          omit: { remove: 'public/' },
+        })}
+      </main>
+    </div>
+  );
+}
 
-// PixxFlow
+// 2. Create run file: file.js
+import { pixx, pixxFlow } from 'pixx';
 pixxFlow(pixx, {
-  include: ['**/*.html', '**/*.jsx', '**/*.tsx'],
-  ignore: ['node_modules/**', '**/pixx*'],
   log: true,
+  include: ['src/**/*.tsx', 'src/**/*.jsx'],
+  ignore: ['node_modules', '**/pixx*'],
   overwrite: true,
 });
 
-// run with: node file.js
+// 3. run with:
+node file.js
 ```
 
 ```html
-<!-- Example HTML -->
+<!-- HTML Example  -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
