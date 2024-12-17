@@ -325,7 +325,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 ## Pixx Options
 
 - **alt**: _string_. default `image`. The img `alt` attribute.
-- **blurSize**: default _number_ `10`. Number of pixels wide the _placeholder_ image is resized to.
+- **blurSize**: _number_. default `10`. Number of pixels wide the _placeholder_ image is resized to.
   - Bigger _blurSize_, bigger _base64DataURL_.
 - **classes**: _string[]_. Array of class names. Tailwindcss can be used, and optional object syntax.
   - e.g. `['my-special-class', 'border-blue-200', { 'border-red-200': pending }]`.
