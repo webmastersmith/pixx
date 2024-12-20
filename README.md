@@ -446,7 +446,7 @@ export default MyPic;
 - **ignore**?: string[]. Files to ignore.
 - **log**?: boolean. default `false`. Console.log important results for debugging.
 - **debug**?: boolean. default `false`. Console.log everything for debugging.
-- **overwrite**?: boolean. default `false`. Create a new starting with pixx, or overwrite the file.
+- **overwrite**?: boolean. default `false`. Create a new file. (e.g.`pixx-fileName.jsx`), or overwrite the existing file.
 
 ```js
 // JS Example
