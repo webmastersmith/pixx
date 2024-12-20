@@ -391,10 +391,11 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 ## Pixx-Loader Webpack Plugin (NextJS)
 
 - to use with **NextJS**. `npm i -D pixx`.
-- When installing NextJS, you must **use the 'webpack' option**, **not** 'turbopack'.
+- When installing NextJS, you must **use the 'webpack' option**, not 'turbopack'.
 - Pixx-Loader will intercept static pages, run pixx, then return html to NextJS server.
 - **Pixx can be used in client or server pages**, because it runs before static html gets to NextJS server.
-- Pixx function will not be in the 'build'.
+- Pixx functions will not be in the 'build'.
+- **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
 
 ```ts
 // NextJS example
@@ -434,7 +435,7 @@ export default MyPic;
 
 ## pixxFlow
 
-- PixxFlow is a static file scraper. It uses [NPM library Glob](https://www.npmjs.com/package/glob) to search files for the pixx function. Once found, it runs the pixx code, comments out the pixx function and add the HTML to page.
+- PixxFlow is a static file scraper. It uses the [NPM Glob](https://www.npmjs.com/package/glob) library to search files for the pixx function. Once found, it runs the pixx code, comments out the pixx function and add the HTML to page.
 - **HTML**: place a **single** pixx function in a script tag.
 - run file with: `node file.js`
 - **Caution**: pixxFlow uses `eval()` to convert the pixx options 'string' to an 'object'. Only use this function in **_development_**.
