@@ -125,7 +125,7 @@ export type StateType = Required<
     file: FilePathType;
     buf: Buffer;
     aspectRatio: string;
-    paths: { newImageDir: string };
+    paths: { newImageDir: string; resolvedNewImageDir: string };
     fallbackPath: string;
     fallbackSize: { width: number; height: number };
     classStr: string;

@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import sharp, { Metadata } from 'sharp';
 import {
-  FilePathSchema,
   FilePathType,
   Meta,
   OutputImageType,
@@ -16,7 +15,6 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import chalk from 'chalk';
 import sizeOf from 'image-size';
-import { log } from 'console';
 
 /**
  * Progress bar. bar(1, 25). creates 'one' tick. bar(2, 25). creates second tick.
@@ -74,7 +72,7 @@ export async function getState(filePath: string, options: OptionType) {
   }
 
   // get file names. create outDir, clean?
-  const paths = createNewImageDir(optionsParsed, file, meta);
+  const paths = createNewImageDir(optionsParsed, file);
 
   // defaults
   const state: StateType = {
@@ -227,7 +225,10 @@ export function defaultSize(
  */
 export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
   if (!fs.existsSync(filePath)) throw new Error(`File not found: ${filePath}`);
-  const file = path.parse(filePath) as any as FilePathType;
+  // create absolute path from filePath.
+  const resolved = path.resolve(filePath);
+  // break filePath into file name parts.
+  const file = path.parse(resolved) as any as FilePathType;
   file.imgName = file.name.replaceAll(' ', '_');
   // {
   //   root: '',
@@ -236,7 +237,6 @@ export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
   //   ext: '.webp',
   //   name: 'img1'
   // }
-
   return { file, buf: fs.readFileSync(filePath) };
 }
 
@@ -246,14 +246,16 @@ export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
  * @param file image file name
  * @returns paths for images
  */
-export function createNewImageDir(options: OptionRequiredType, file: FilePathType, meta: Metadata) {
-  // newImage directory path
+export function createNewImageDir(options: OptionRequiredType, file: FilePathType) {
+  // newImage directory path -keep relative because srcset will use this path.
   const newImageDir = path.join(options.outDir, file.imgName);
+  // absolute path for delete/create
+  const resolvedNewImageDir = path.resolve(newImageDir);
   // clean?
-  if (options.clean) fs.rmSync(newImageDir, { recursive: true, force: true });
+  if (options.clean) fs.rmSync(resolvedNewImageDir, { recursive: true, force: true });
   // create image directory
-  if (!fs.existsSync(newImageDir)) fs.mkdirSync(newImageDir, { recursive: true });
-  return { newImageDir };
+  if (!fs.existsSync(resolvedNewImageDir)) fs.mkdirSync(resolvedNewImageDir, { recursive: true });
+  return { newImageDir, resolvedNewImageDir };
 }
 
 /**
@@ -369,27 +371,29 @@ export async function createImage(
     }
   } // end else
   // create subfolder path
-  const newImagePath = path.join(
-    state.paths.newImageDir,
-    `${state.file.imgName}-${isBlur ? 'placeholder-' : ''}${w}w${h}h.${type}`
-  );
+  const imageName = `${state.file.imgName}-${isBlur ? 'placeholder-' : ''}${w}w${h}h.${type}`;
+  // get relative path for srcset paths.
+  const newImagePath = path.join(state.paths.newImageDir, imageName);
+  // get absolute path for creating images.
+  const resolvedNewImagePath = path.join(state.paths.resolvedNewImageDir, imageName);
+
   // resize.
   const options = size.length ? { [size[0]]: size[1] } : {};
   // only create if state.clean, or image does not exist.
-  if (!fs.existsSync(newImagePath)) {
+  if (!fs.existsSync(resolvedNewImagePath)) {
     // keep original image metadata.
     if (state.withMetadata)
       await sharp(state.buf, { animated: state.withAnimation })
         .withMetadata()
         .resize(options)
         .toFormat(type)
-        .toFile(newImagePath);
+        .toFile(resolvedNewImagePath);
     // do not copy original image metadata.
     else
       await sharp(state.buf, { animated: state.withAnimation })
         .resize(options)
         .toFormat(type)
-        .toFile(newImagePath);
+        .toFile(resolvedNewImagePath);
   }
   // blur -just create base64, image was created above.
   let blurDataURL = state.withBlur ? `data:image/${type};base64,` : '';
