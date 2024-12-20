@@ -59,10 +59,8 @@ export async function getState(filePath: string, options: OptionType) {
   const optionsParsed = OptionSchema.parse(options);
   // throw error is image cannot be found.
   const { file, buf } = getFile(filePath);
-
   // get image metadata. Throw error if width or height cannot be determined.
   const meta = await getImageMetadata(buf, optionsParsed, file);
-
   // nextjs flag. -Fix paths before createNewImageDir
   if (optionsParsed.nextjs) {
     // only change if remove is empty.
@@ -70,7 +68,6 @@ export async function getState(filePath: string, options: OptionType) {
     // only change outDir is default.
     if (optionsParsed.outDir === 'pixx_images') optionsParsed.outDir = 'public';
   }
-
   // get file names. create outDir, clean?
   const paths = createNewImageDir(optionsParsed, file);
 

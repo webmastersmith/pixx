@@ -49,11 +49,11 @@ export { pixx, pixxFlow };
 // }).then((m) => console.log('\n\n', m, '\n\n'));
 
 // PixxFlow
-pixxFlow(pixx, {
-  // include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
-  include: ['./test/**/*.jsx', './test/**/*.tsx'],
-  // include: ['./test/**/*.html'],
-  ignore: ['node_modules/**', '**/avoid*', '**/pixx*'],
-  log: true,
-  // overwrite: true,
-});
+// pixxFlow(pixx, {
+//   // include: ['./test/**/*.html', './test/**/*.jsx', './test/**/*.tsx'],
+//   include: ['./test/**/*.jsx', './test/**/*.tsx'],
+//   // include: ['./test/**/*.html'],
+//   ignore: ['node_modules/**', '**/avoid*', '**/pixx*'],
+//   log: true,
+//   // overwrite: true,
+// });
