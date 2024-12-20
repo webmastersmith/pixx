@@ -388,10 +388,54 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Also changes: `false = srcset` | `true = srcSet`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
+## Pixx-Loader Webpack Plugin (NextJS)
+
+- to use with **NextJS**. `npm i -D pixx`.
+- When installing NextJS, you must **use the 'webpack' option**, **not** 'turbopack'.
+- Pixx-Loader will intercept static pages, run pixx, then return html to NextJS server.
+- **Pixx can be used in client or server pages**, because it runs before static html gets to NextJS server.
+- Pixx function will not be in the 'build'.
+
+```ts
+// NextJS example
+// npm i -D pixx
+// next.config.ts
+import type { NextConfig } from 'next';
+const nextConfig: NextConfig = {
+  /* config options here */
+  webpack: (config) => {
+    // If 'fs' or 'zlib' could not be found notification:
+    // config.resolve.fallback = { fs: false, zlib: false };
+    config.module.rules.push({
+      test: /\.(t|j)sx$/,
+      use: 'pixx',
+    });
+    return config;
+  },
+};
+export default nextConfig;
+
+// NextJS page.tsx example
+('use client');
+import { pixx } from 'pixx';
+const MyPic = () => {
+  return (
+    <div>
+      MyPic
+      {pixx('./images/img2.jpg', {
+        outDir: 'public',
+        omit: { remove: 'public/' },
+      })}
+    </div>
+  );
+};
+export default MyPic;
+```
+
 ## pixxFlow
 
-- Pixx was designed to run in an JSX/TSX environment. To use with HTML files, pixxFlow will read your 'static' files and replace the pixx function with the returned html code. The code is statically run.
-- In HTML, place a **single** pixx function in a script tag.
+- PixxFlow is a static file scraper. It uses [NPM library Glob](https://www.npmjs.com/package/glob) to search files for the pixx function. Once found, it runs the pixx code, comments out the pixx function and add the HTML to page.
+- **HTML**: place a **single** pixx function in a script tag.
 - run file with: `node file.js`
 - **Caution**: pixxFlow uses `eval()` to convert the pixx options 'string' to an 'object'. Only use this function in **_development_**.
 
@@ -404,78 +448,19 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **overwrite**?: boolean. default `false`. Create a new starting with pixx, or overwrite the file.
 
 ```js
-// NEXTJS Example
+// JS Example
 // -npm i -D pixx
-// 1. Create run file: file.js
+// 1. Create run file. e.g. 'file.js'
 import { pixx, pixxFlow } from 'pixx';
 pixxFlow(pixx, {
   log: true,
-  include: ['src/**/*.tsx', 'src/**/*.jsx'],
+  include: ['**/*.html', '**/*.tsx', 'src/**/*.jsx'],
   ignore: ['node_modules', '**/pixx*'],
   overwrite: true,
 });
 
-// page.tsx
-import { pixx } from 'pixx';
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px]">
-      <main className="flex flex-col sm:items-start">
-        {/* Create pixx function. Run dev server. Stop server to build. */}
-        {pixx('./images/happy face.jpg', {
-          returnReact: true,
-          outDir: 'public',
-          omit: { remove: 'public/' },
-        })}
-      </main>
-    </div>
-  );
-}
-
-// 3. run with:
+// 2. run with node
 node file.js
-
-// Returns -------------------------------------
-// import { pixx } from 'pixx';
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px]">
-      <main className="flex flex-col sm:items-start">
-        {/* Create pixx function. Run dev server. Stop server to build. */}
-        {/* pixx('./images/happy face.jpg', {
-          returnReact: true,
-          outDir: 'public',
-          omit: { remove: 'public/' },
-        }) */}
-        <picture>
-          <source
-            type="image/avif"
-            sizes="100vw"
-            srcSet="happy_face/happy_face-600w300h.avif 600w, happy_face/happy_face-720w360h.avif 720w"
-          />
-          <source
-            type="image/webp"
-            sizes="100vw"
-            srcSet="happy_face/happy_face-600w300h.webp 600w, happy_face/happy_face-720w360h.webp 720w"
-          />
-          <source
-            type="image/jpg"
-            sizes="100vw"
-            srcSet="happy_face/happy_face-600w300h.jpg 600w, happy_face/happy_face-720w360h.jpg 720w"
-          />
-          <img
-            src="happy_face/happy_face-720w360h.jpg"
-            alt="image"
-            width="720"
-            height="360"
-            loading="eager"
-            decoding="auto"
-          />
-        </picture>
-      </main>
-    </div>
-  );
-}
 ```
 
 ```html
@@ -488,11 +473,11 @@ export default function Home() {
     <title>Document</title>
   </head>
   <body>
-    <p>Example 1</p>
+    <p>Simple Example</p>
     <script>
       pixx('./images/img1.webp');
     </script>
-    <p>Example 2</p>
+    <p>Advanced Example</p>
     <script>
       pixx(['./images/compass.jpg', './images/happy face.jpg'], {
         omit: { remove: 'pixx_images', add: './my-special-folder' },
@@ -513,7 +498,7 @@ export default function Home() {
     <title>Document</title>
   </head>
   <body>
-    <p>Example 1</p>
+    <p>Simple Example</p>
     <!-- <script>
       pixx('./images/img1.webp');
     </script> -->
@@ -555,7 +540,7 @@ export default function Home() {
       />
     </picture>
 
-    <p>Example 2</p>
+    <p>Advanced Example</p>
     <!-- <script>
       pixx(['./images/compass.jpg', './images/happy face.jpg'], {
         omit: { remove: 'pixx_images', add: './my-special-folder' },

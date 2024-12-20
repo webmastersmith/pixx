@@ -26,12 +26,11 @@ async function pixxSingleFlow(str: string, options?: any) {
   const requirePixxRegex = /^\s*(const|let|var).*?require(.*?pixx.*?).*?$/gm;
   // .replaceAll(importPixxRegex, (m) => `// ${m.trim()}`)
   // .replaceAll(requirePixxRegex, (m) => `// ${m.trim()}`);
-
   return source.replaceAll(importPixxRegex, '').replaceAll(requirePixxRegex, '');
 }
 
 /**
- * Find with provided regular expression, modify and return.
+ * Find pixx function with regex, call it to create images and return html.
  * @param str The text to be searched.
  * @param regex The regex to use when searching HTML or JSX. Regex ignores commented out code.
  * @param isHTML When commenting out code, use HTML or JSX style comments.
@@ -41,8 +40,8 @@ async function replaceAsync(str: string, regex: RegExp, options?: any) {
   const promises: Promise<string>[] = [];
   // 1. Run first time with promises.
   str.replace(regex, (match, ...args) => {
-    // do something with match, push into promises array. 'args' is an array.
-    promises.push(asyncFn(match, args, options));
+    // do something with match, push into promises array.
+    promises.push(asyncFn(match, args, options)); // 'args' is an array.
     return match;
   });
   // 2. resolve promises
@@ -64,15 +63,17 @@ async function asyncFn(match: string, args: string[], options?: any) {
   //   omit: { remove: 'public/' },
   //   outDir: 'public',
   // }) }
-  // must return string, so remove 'returnReact'.
-  const startBracket = match.indexOf('{') + 1;
-  const endBracket = match.lastIndexOf('}');
+
+  // Remove React brackets. HTML must be returned as a string, so remove 'returnReact: true'.
+  const startBracket = match.indexOf('{') + 1; // get index of first bracket. Inclusive, so + 1.
+  const endBracket = match.lastIndexOf('}'); // get index of last bracket. Exclusive.
   const pixxFn = match
     .slice(startBracket, endBracket)
     .trim()
     .replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '');
 
   try {
+    // call the pixx function.
     const html = await eval(pixxFn);
     return html;
   } catch (error) {
