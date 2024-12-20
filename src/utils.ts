@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import sharp, { Metadata } from 'sharp';
+import sharp from 'sharp';
 import {
   FilePathType,
   Meta,

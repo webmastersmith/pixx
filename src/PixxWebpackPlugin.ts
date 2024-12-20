@@ -1,6 +1,3 @@
-import { pixx } from './pixx';
-import chalk from 'chalk';
-
 export async function PixxWebpackPlugin(source: string): Promise<string> {
   // console.log('pixx source:', source);
   //  @ts-ignore
@@ -57,6 +54,9 @@ async function replaceAsync(str: string, regex: RegExp, options?: any) {
  * @returns HTML code
  */
 async function asyncFn(match: string, args: string[], options?: any) {
+  const { pixx } = await import('./pixx.js');
+  const chalk = await import('chalk');
+
   // match example:
   // { pixx('./images/happy face.jpg', {
   //   returnReact: true,
