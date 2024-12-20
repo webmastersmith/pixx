@@ -33,13 +33,13 @@ export async function pixx(
       const states: [string, StateType][] = [];
       for (const filePath of filePaths) {
         const state = (await getState(filePath, options)) as StateType;
-        states.push([`${state.file.imgName}.${state.file.ext}`, state]);
+        states.push([`${state.file.imgName}${state.file.ext}`, state]);
         // create blurData
         if (state.withBlur) {
           const [imgPath, { blurDataURL }] = await createImage(state, ['width', state.blurSize], 'jpg', true);
           // print blurData.
-          console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
-          console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
+          console.log(`\n\n${state.file.base}:`, chalk.blue(imgPath));
+          console.log(`${state.file.base} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
         }
       } // end images.
 
@@ -95,14 +95,15 @@ export async function pixx(
       if (state.log) console.log('\n\n', chalk.magentaBright(img), '\n\n');
       // print blurData.
       if (state.withBlur) {
-        console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
-        console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
+        console.log(`\n\n${state.file.base}:`, chalk.blue(imgPath));
+        console.log(`${state.file.base} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
       }
       return state.returnReact ? parse(img) : img;
     } // end Resolution Switching
 
     // 3. Multiple Types default. state.picTypes.length > 1 and no state.media.length
     const multiTypeImg = await createPictureTag(state);
+
     // log blur
     let imgPath, blurDataURL;
     if (state.withBlur) {
@@ -114,8 +115,8 @@ export async function pixx(
     if (state.log) console.log('\n\n', chalk.magentaBright(multiTypeImg), '\n\n');
     // print blurData.
     if (state.withBlur) {
-      console.log(`\n\n${state.file.image}:`, chalk.blue(imgPath));
-      console.log(`${state.file.image} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
+      console.log(`\n\n${state.file.base}:`, chalk.blue(imgPath));
+      console.log(`${state.file.base} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
     }
     return state.returnReact ? parse(multiTypeImg) : multiTypeImg;
   } catch (error) {

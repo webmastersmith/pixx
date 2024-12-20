@@ -352,8 +352,11 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Tells browser what image to display based on viewport size.
   - This is solely used for **Art Direction**.
   - (e.g. `['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`).
+- **nextJS**: _boolean_. Default `false`.
+  - Shortcut for: `outDir: 'public'` and `omit: { remove: 'public/' }` options are set.
+  - Sets all images to _public_ folder and fixes _image paths_.
 - **outDir**: _string_. Default `pic_images`. Custom directory name to create images.
-- **omit**: _{ remove: string, add: string }_. Object with `remove` and `add` properties.
+- **omit**: _{ remove?: string, add?: string }_. Object with `remove` and `add` properties.
   - Customize any part of the image path on the `img` or `picture` elements.
   - Does not change the `outDir`. Images will still be created in the `outDir`.
   - (e.g. `{ remove: 'pixx_images', add: './my-special-path' }`).
@@ -365,6 +368,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Print the _link_ tag to console.log.
 - **preloadFetchPriority**: _enum('auto', 'async', 'sync')_. Default `auto`.
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
+- **progressBar**: _boolean_. Default `true`. Show image creation progress bar.
 - **returnReact**: _boolean_. Default `false`. Return results as React component or string.
 - **sizes**: default _string[]_ `['100vw']`. Array of media conditions and the viewport fill width.
   - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the media condition.

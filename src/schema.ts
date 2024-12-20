@@ -18,8 +18,8 @@ export type OutputImageType = z.infer<typeof OutputImageTypeSchema>;
 // filePath schema
 export const FilePathSchema = z.object({
   ext: InputImageTypeSchema,
-  rootPath: z.string({ message: 'filePath must be a string' }),
-  image: z.string({ message: 'filePath must be a string' }),
+  dir: z.string({ message: 'filePath must be a string' }),
+  base: z.string({ message: 'filePath must be a string' }),
   name: z.string({ message: 'filePath must be a string' }),
   imgName: z.string({ message: 'filePath must be a string' }),
 });
@@ -28,8 +28,8 @@ export type FilePathType = z.infer<typeof FilePathSchema>;
 // omit and replace
 const OmitSchema = z
   .object({
-    remove: z.string({ message: 'omit remove option must be string.' }).optional(),
-    add: z.string({ message: 'replace add option must be string.' }).optional(),
+    remove: z.string({ message: 'omit "remove" option must be string.' }).optional(),
+    add: z.string({ message: 'omit "add" option must be string.' }).optional(),
   })
   .optional();
 
@@ -62,6 +62,7 @@ export const OptionSchema = z
       .default('eager'),
     log: z.boolean({ message: 'log option must be true or false.' }).optional().default(false),
     media: z.string({ message: 'media option must an array of strings.' }).array().optional().default([]),
+    nextjs: z.boolean({ message: 'nextjs option must be true or false.' }).optional().default(false),
     outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pixx_images'),
     omit: OmitSchema.default({ remove: '', add: '' }),
     picTypes: OutputImageTypeSchema.array().min(1).default(['avif', 'webp', 'jpg']),
@@ -72,6 +73,7 @@ export const OptionSchema = z
       })
       .optional()
       .default('auto'),
+    progressBar: z.boolean({ message: 'progressBar option must be true or false.' }).optional().default(true),
     returnReact: z
       .boolean({ message: 'returnReact option must be true or false.' })
       .optional()
@@ -129,7 +131,7 @@ export type StateType = Required<
     classStr: string;
     imgCount: number;
     totalImages: number;
-    cliBar: (name: string, step: number, totalSteps: number) => void;
+    cliBar: ((name: string, step: number, totalSteps: number) => void) | string;
     defaultSizes: ['width' | 'height', number[]];
   }
 >;

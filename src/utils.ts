@@ -16,6 +16,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import chalk from 'chalk';
 import sizeOf from 'image-size';
+import { log } from 'console';
 
 /**
  * Progress bar. bar(1, 25). creates 'one' tick. bar(2, 25). creates second tick.
@@ -56,13 +57,25 @@ export function cn(inputs: ClassValue[]) {
 export async function getState(filePath: string, options: OptionType) {
   // Run all check on data before creating images.
   // throw error if options are not correct.
+
   const optionsParsed = OptionSchema.parse(options);
   // throw error is image cannot be found.
   const { file, buf } = getFile(filePath);
+
   // get image metadata. Throw error if width or height cannot be determined.
-  const meta = await getImageMetadata(buf, optionsParsed);
+  const meta = await getImageMetadata(buf, optionsParsed, file);
+
+  // nextjs flag. -Fix paths before createNewImageDir
+  if (optionsParsed.nextjs) {
+    // only change if remove is empty.
+    if (!optionsParsed.omit.remove) optionsParsed.omit.remove = 'public/';
+    // only change outDir is default.
+    if (optionsParsed.outDir === 'pixx_images') optionsParsed.outDir = 'public';
+  }
+
   // get file names. create outDir, clean?
   const paths = createNewImageDir(optionsParsed, file, meta);
+
   // defaults
   const state: StateType = {
     ...optionsParsed,
@@ -105,11 +118,12 @@ export async function getState(filePath: string, options: OptionType) {
     : state.heights.length
     ? state.heights.length
     : state.defaultSizes[1].length;
+  // calculate total expected images to be created.
   const totalImages = state.picTypes.length * sizeCount + 1;
   state.totalImages = totalImages;
 
   // 2. Progress Bar
-  state.cliBar = bar;
+  state.cliBar = state.progressBar ? bar : '';
   return state;
 }
 
@@ -118,8 +132,9 @@ export async function getState(filePath: string, options: OptionType) {
  * @param sharpDetails image state
  * @returns object: width, height, format
  */
-export async function getImageMetadata(buf: Buffer, options: OptionType): Promise<Meta> {
+export async function getImageMetadata(buf: Buffer, options: OptionType, file: FilePathType): Promise<Meta> {
   const details = await sharp(buf).metadata();
+
   // Make sure width, height are included in the metadata.
   if (!details.width || !details.height || Number.isNaN(+details.width) || Number.isNaN(+details.height)) {
     const dimensions = sizeOf(buf);
@@ -139,7 +154,19 @@ export async function getImageMetadata(buf: Buffer, options: OptionType): Promis
   }
   // show image EXIF, TIFF, GPS, XMP, IPTC, ICC, JFIF/Thumbnail data.
   if (options?.log) {
-    console.log('\n\nexifr', await exifr.parse(buf, true), '\n\n');
+    // catch crash. If Exifr crashes, just log and continue.
+    try {
+      console.log('\n\nexifr', await exifr.parse(buf, true), '\n\n');
+    } catch (e) {
+      console.log(
+        chalk.red(`\n\nExifr error with ${file.base}:`),
+        chalk.yellowBright(
+          `Exifr image metadata reader failed to process ${file.base} metadata. Usually this means ${
+            file.base
+          } header is malformed.\n${chalk.white(`Exifr ${e}`)}.\n\n`
+        )
+      );
+    }
   }
   return details as Meta;
 }
@@ -200,14 +227,16 @@ export function defaultSize(
  */
 export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
   if (!fs.existsSync(filePath)) throw new Error(`File not found: ${filePath}`);
-  const image = path.basename(filePath);
-  const lastIndex = image?.lastIndexOf('.');
-  const name = image?.slice(0, lastIndex);
-  const imgName = name.replaceAll(' ', '_');
-  const ext = image?.slice(lastIndex! + 1).toLowerCase();
-  const rootPath = path.dirname(filePath);
-  const preFile = { rootPath, image, name, imgName, ext };
-  const file = FilePathSchema.parse(preFile);
+  const file = path.parse(filePath) as any as FilePathType;
+  file.imgName = file.name.replaceAll(' ', '_');
+  // {
+  //   root: '',
+  //   dir: './images',
+  //   base: 'img1.webp',
+  //   ext: '.webp',
+  //   name: 'img1'
+  // }
+
   return { file, buf: fs.readFileSync(filePath) };
 }
 
@@ -386,7 +415,7 @@ export async function createImage(
   state.imgCount++;
   // if (state.cliBar instanceof SingleBar) state.cliBar.increment(state.imgCount);
   // if (state.cliBar instanceof ProgressBar) state.cliBar.tick(state.imgCount);
-  if (typeof state.cliBar === 'function') state.cliBar(state.file.image, state.imgCount, state.totalImages);
+  if (typeof state.cliBar === 'function') state.cliBar(state.file.base, state.imgCount, state.totalImages);
 
   return [fixImgPath, { width: w, height: h, blurDataURL }];
 }
@@ -480,7 +509,6 @@ export async function createSourceTag(state: StateType, type: OutputImageType, m
  * @returns HTML picture element code.
  */
 export async function createPictureTag(state: StateType) {
-  const c = state.withClassName ? 'className' : 'class';
   let picture = '<picture >\n';
   for (const type of state.picTypes) {
     picture += `\t${await createSourceTag(state, type)}\n`;
