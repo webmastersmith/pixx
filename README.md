@@ -392,13 +392,15 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Also changes: `false = srcset` | `true = srcSet`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
-## Pixx-Loader Webpack Plugin (NextJS)
+## Pixx-Loader Webpack 5 Plugin (NextJS)
 
 - to use with **NextJS**. `npm i -D pixx`.
 - When installing NextJS, you must **use the 'webpack' option**, not 'turbopack'.
 - Pixx-Loader will intercept static pages, run pixx, then return html to NextJS server.
 - **Pixx can be used in client or server pages**, because it runs before static html gets to NextJS server.
 - Pixx functions will not be in the 'build'.
+- **Images not being created**: stop development server. Delete the `.next` folder. Start server.
+  - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
 - **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
 
 ```ts
@@ -427,10 +429,7 @@ const MyPic = () => {
   return (
     <div>
       MyPic
-      {pixx('./images/img2.jpg', {
-        outDir: 'public',
-        omit: { remove: 'public/' },
-      })}
+      {pixx('./images/img2.jpg', { nextjs: true })}
     </div>
   );
 };
