@@ -1,7 +1,8 @@
 import { pixx } from './pixx';
 import { pixxFlow } from './pixxFlow';
 import { PixxWebpackPlugin } from './PixxWebpackPlugin';
-export { pixx, pixxFlow, PixxWebpackPlugin };
+export default PixxWebpackPlugin;
+export { pixx, pixxFlow };
 
 // Pixx
 // development
