@@ -20,7 +20,7 @@ npm i -D pixx;
 // commonjs
 const { pixx } = require('pixx');
 pixx('compass.jpg').then((HTML) => {});
-// esm -package.json "type": "module",
+// esm -package.json: "type": "module",
 import { pixx } from 'pixx';
 const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
 
@@ -42,7 +42,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
   <source
     type="image/webp"
     sizes="100vw"
-    srcset="
+    srcSet="
       pixx_images/compass/compass-400w300h.webp    400w,
       pixx_images/compass/compass-800w600h.webp    800w,
       pixx_images/compass/compass-1200w900h.webp  1200w,
@@ -55,7 +55,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
   <source
     type="image/jpg"
     sizes="100vw"
-    srcset="
+    srcSet="
       pixx_images/compass/compass-400w300h.jpg    400w,
       pixx_images/compass/compass-800w600h.jpg    800w,
       pixx_images/compass/compass-1200w900h.jpg  1200w,
@@ -72,6 +72,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
     height="1920"
     loading="eager"
     decoding="async"
+    fetchPriority="auto"
   />
 </picture>;
 ```
