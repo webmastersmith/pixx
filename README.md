@@ -471,8 +471,8 @@ export default MyPic;
 // JS Example
 // -npm i -D pixx
 // 1. Create run file. e.g. 'file.js'
-import { pixx, pixxFlow } from 'pixx';
-pixxFlow(pixx, {
+import { pixxFlow } from 'pixx';
+pixxFlow({
   log: true,
   include: ['**/*.html', '**/*.tsx', 'src/**/*.jsx'],
   ignore: ['node_modules', '**/pixx*'],
@@ -495,7 +495,7 @@ node file.js
   <body>
     <p>Simple Example</p>
     <script>
-      pixx('./images/img1.webp');
+      pixx('./images/img1.webp', { withClassName: false });
     </script>
     <p>Advanced Example</p>
     <script>
@@ -504,6 +504,7 @@ node file.js
         media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
         sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
         styles: ['color:    blue', 'border-color: red'],
+        withClassName: false,
       });
     </script>
   </body>
@@ -557,6 +558,7 @@ node file.js
         height="864"
         loading="eager"
         decoding="auto"
+        fetchpriority="auto"
       />
     </picture>
 
@@ -647,6 +649,7 @@ node file.js
         height="360"
         loading="eager"
         decoding="auto"
+        fetchpriority="auto"
       />
     </picture>
   </body>
