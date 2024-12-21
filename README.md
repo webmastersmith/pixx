@@ -336,6 +336,8 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Older browsers fallback to this image. Image will always be type `jpg`.
   - fallbackWidth must be <= image width. Image size is not increased.
   - (e.g. `1500`. The fallback img _src_ will be an image 1500px wide with height same aspect ratio as original).
+- **fetchPriority**: _enum('auto', 'high', 'low')_. Default `auto`.
+  - Hint to the browser how it should prioritize fetching a particular image relative to other images.
 - **heights**: _number[]_. Array of numbers representing height in pixels.
   - heights numbers must be <= image size. Image size is not increased.
   - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
@@ -415,7 +417,15 @@ const nextConfig: NextConfig = {
     // config.resolve.fallback = { fs: false, zlib: false };
     config.module.rules.push({
       test: /\.(t|j)sx$/,
+      // simple
       use: 'pixx',
+      // or -for debugging.
+      // use: {
+      //   loader: 'pixx',
+      //   options: {
+      //     log: true,
+      //   },
+      // },
     });
     return config;
   },
@@ -423,7 +433,8 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 
 // NextJS page.tsx example
-('use client');
+// prettier-ignore
+'use client';
 import { pixx } from 'pixx';
 const MyPic = () => {
   return (

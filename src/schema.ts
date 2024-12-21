@@ -49,6 +49,10 @@ export const OptionSchema = z
       .optional()
       .default('auto'),
     fallbackWidth: z.number({ message: 'fallbackWidth option must be a number.' }).optional().default(0),
+    fetchPriority: z
+      .enum(['auto', 'high', 'low'], { message: 'fetchPriority option can only be "auto", "high" or "low".' })
+      .optional()
+      .default('auto'),
     heights: z
       .number({ message: 'heights option must be an array of strings.' })
       .array()

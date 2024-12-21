@@ -483,6 +483,7 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   imgStr += state.title ? `title="${state.title}" ` : '';
   imgStr += `loading="${state.loading}" `;
   imgStr += `decoding="${state.decoding}" `;
+  imgStr += `fetchpriority="${state.fetchPriority}" `;
   imgStr += '/>';
   return imgStr;
 }
