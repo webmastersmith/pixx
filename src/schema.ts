@@ -38,11 +38,8 @@ export const OptionSchema = z
   .object({
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
     blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(10),
-    classes: z
-      .union([z.string(), z.record(z.string(), z.boolean())])
-      .array()
-      .optional()
-      .default([]),
+    classes: z.string().array().optional().default([]),
+    // classes: z.string({ message: 'classes option must be string.' }).optional().default(''),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
     decoding: z
       .enum(['auto', 'sync', 'async'], { message: 'decoding option can only be "auto", "sync" or "async".' })

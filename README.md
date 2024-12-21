@@ -77,7 +77,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
 </picture>;
 ```
 
-## Understanding Responsive Images: Resolutions Switching, Multiple Types, and Art Direction
+## Understanding Responsive Images: Resolution Switching, Multiple Types, and Art Direction
 
 - All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of html, for _**mobile browsers**_ to use the actual device viewport in decision making.
 - **Responsive Image Advantages**
@@ -332,8 +332,10 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **blurSize**: _number_. Default `10`. Number of pixels wide the _placeholder_ image is resized to.
   - Bigger _blurSize_, bigger _base64DataURL_.
 - **classes**: _string[]_. Array of class names. Tailwindcss can be used, and optional object syntax.
-  - static functions like _pixxFlow_ or _pixx-loader_, you cannot use 'dynamic' classes.
-  - e.g. `classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }]`.
+  - **static classes**: `classes: ['my-special-class', 'border-blue-200'],`
+  - **dynamic classes**: names must have 'd:' appending them.
+    - e.g. `classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],`.
+    - e.g. `classes: ['my-special-class', 'border-blue-200', 'd:pending && "border-red-500"']`.
 - **clean**: _boolean_. Default `false`. Delete image folder and create new.
 - **decoding**: _enum('auto', 'async', 'sync')_. Default `auto`. Image download priority.
   - [MDN HTML Image decoding property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decoding)

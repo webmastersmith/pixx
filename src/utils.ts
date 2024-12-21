@@ -106,7 +106,7 @@ export async function getState(filePath: string, options: OptionType) {
   state.fallbackPath = newImagePath;
   state.fallbackSize = fallbackSize;
   // get class names
-  state.classStr = cn(state.classes);
+  state.classStr = classBuilder(state);
   // initialize count
   state.imgCount = 0;
   // total created images. Check how many widths or heights or defaultSizes.
@@ -166,6 +166,21 @@ export async function getImageMetadata(buf: Buffer, options: OptionType, file: F
     }
   }
   return details as Meta;
+}
+
+function classBuilder(state: StateType) {
+  const classes = state.classes;
+  const regEx = /^(d:|{)/; // is dynamic
+  // can be static
+  const staticClass = state.classes.filter((c) => !regEx.test(c));
+  // can be dynamic
+  const dynamicClass = state.classes.filter((c) => regEx.test(c));
+  if (dynamicClass.length > 0) {
+    // add quotes to static class.
+    const quotedStaticClassStr = staticClass.map((c) => `'${c}'`).join(', ');
+    const fixDynamicClass = dynamicClass.map((c) => c.replaceAll('d:', ''));
+    return `{cn(${quotedStaticClassStr}, ${fixDynamicClass.join(', ')})}`;
+  } else return `"${staticClass.join(' ')}"`;
 }
 
 /**
@@ -456,8 +471,8 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   let imgStr = '';
   // create img element
   imgStr += '<img ';
-  // Class. Create class or className if not empty and not a picture element.
-  imgStr += state.classStr ? `${c}="${state.classStr}" ` : '';
+  // Class. Create class string or dynamic
+  imgStr += state.classes.length > 0 ? `${c}=${state.classStr} ` : '';
   // Styles
   // state.styles: string[] | object.
   if (Array.isArray(state.styles)) {
