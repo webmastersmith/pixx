@@ -8,7 +8,9 @@ import {
   OptionRequiredType,
   OptionSchema,
   OptionType,
+  PixxFlowOptions,
   StateType,
+  PixxWebpackOptions,
 } from './schema';
 import exifr from 'exifr';
 import { clsx, type ClassValue } from 'clsx';
@@ -446,7 +448,7 @@ export async function createSrcSet(state: StateType, type: OutputImageType) {
 /**
  * Create a 'responsive img' or 'fallback img' element.
  * @param state state object
- * @param isPicture boolean. Is the img fallback for picture element.
+ * @param isPicture boolean. If single picType(Resolution Switching), add srcset to 'img' attribute.
  * @returns img element
  */
 export async function createImgTag(state: StateType, isPicture: boolean = false) {
@@ -471,6 +473,7 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   }
   // create srcset
   const srcSet = state.withClassName ? 'srcSet' : 'srcset';
+  // isPicture false, single picType(Resolution Switching). Add srcset as img attribute.
   imgStr += !isPicture
     ? `${srcSet}="${await createSrcSet(state, state.picTypes[0] as OutputImageType)}" `
     : '';
@@ -483,7 +486,9 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   imgStr += state.title ? `title="${state.title}" ` : '';
   imgStr += `loading="${state.loading}" `;
   imgStr += `decoding="${state.decoding}" `;
-  imgStr += `fetchpriority="${state.fetchPriority}" `;
+  // create fetchpriority
+  const fetchPriority = state.withClassName ? 'fetchPriority' : 'fetchpriority';
+  imgStr += `${fetchPriority}="${state.fetchPriority}" `;
   imgStr += '/>';
   return imgStr;
 }
@@ -518,4 +523,95 @@ export async function createPictureTag(state: StateType) {
   picture += `\t${await createImgTag(state, true)}\n`;
   picture += '</picture>';
   return picture;
+}
+
+/**
+ * Find pixx function with regex, call it to create images and return html.
+ * @param str The text to be searched.
+ * @param regex The regex to use when searching HTML or JSX. Regex ignores commented out code.
+ * @param isHTML When commenting out code, use HTML or JSX style comments.
+ * @returns modified str.
+ */
+export async function replaceAsync(
+  str: string,
+  regex: RegExp,
+  options: PixxFlowOptions | PixxWebpackOptions
+) {
+  // comment out pixx import.
+  const importPixxRegex = /^\s*import .*? from .*?pixx.*?$/gm;
+  const requirePixxRegex = /^\s*(const|let|var).*?require(.*?pixx.*?).*?$/gm;
+  const replaceText = options.comment ? (m: string) => `// ${m.trim()}` : '';
+  const noImportHTML = str
+    .replaceAll(importPixxRegex, replaceText as string)
+    .replaceAll(requirePixxRegex, replaceText as string);
+
+  const promises: Promise<string>[] = [];
+  // 1. Run first time with promises.
+  noImportHTML.replace(regex, (match, ...args) => {
+    // do something with match, push into promises array.
+    promises.push(asyncFn(match, args, options)); // 'args' is an array.
+    return match;
+  });
+  // 2. resolve promises
+  const data = await Promise.all(promises);
+  // 3. After promises resolve, run second time, returning resolved promises instead of match.
+  return noImportHTML.replace(regex, () => data.shift() || ''); // always return something.
+}
+
+/**
+ * Regex string 'match', deconstruct, build, return only HTML
+ * @param match regex match.
+ * @param  args multiple parens match.
+ * @returns HTML code
+ */
+async function asyncFn(match: string, args: string[], options: PixxFlowOptions | PixxWebpackOptions) {
+  const { pixx } = await import('./index.js');
+  // match example: JSX
+  // { pixx('./images/happy face.jpg', {
+  //   returnReact: true,
+  //   omit: { remove: 'public/' },
+  //   outDir: 'public',
+  // }) }
+
+  // HTML
+  // <script>
+  //     pixx('./images/compass.jpg', {
+  //       widths: [50, 200],
+  //       classes: ['one', 'two', 'three'],
+  //       withClassName: false,
+  //     });
+  // </script>
+
+  // JSX only.
+  if (!options.isHTML) {
+    // Remove React brackets. HTML must be returned as a string, so remove 'returnReact: true'.
+    // const startBracket = match.indexOf('{') + 1; // get index of first bracket. Inclusive, so + 1.
+    // const endBracket = match.lastIndexOf('}'); // get index of last bracket. Exclusive.
+    // const pixxFn = match.slice(startBracket, endBracket).trim();
+    // extract only the pixx function.
+    const pixxFn = args[0];
+    const pixxFnFix = pixxFn!.replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '');
+    let html = '';
+    try {
+      if (options.log) console.log(pixxFnFix);
+      html = await eval(pixxFnFix);
+      return options.comment ? `{/* ${pixxFn} */}\n${html}` : html;
+    } catch (error) {
+      console.log(chalk.redBright(error));
+      return html;
+    }
+    // HTML
+  } else {
+    let html = '';
+    try {
+      // call the pixx function.
+      const pixxFn = args[0]!.replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '').trim();
+      if (options.log) console.log(pixxFn);
+      html = await eval(pixxFn);
+      return options.comment ? `<!-- ${match.trim()} -->\n${html}` : html;
+    } catch (error) {
+      console.log(chalk.redBright(error));
+      return '';
+    }
+  }
 }

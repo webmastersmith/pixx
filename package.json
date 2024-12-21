@@ -24,7 +24,9 @@
     "build": "pkgroll --clean-dist --sourcemap",
     "prepac": "npm run build",
     "pac": "npm version patch && git push --tags origin main && npm publish",
-    "dry": "npm publish --dry-run"
+    "dry": "npm publish --dry-run",
+    "pretest": "npm run build",
+    "test": "node ./index.js"
   },
   "repository": {
     "type": "git",

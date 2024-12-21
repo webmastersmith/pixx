@@ -117,7 +117,7 @@ await pixx('./compass.jpg', {
 
 // returns
 <img
-  srcset="
+  srcSet="
     pixx_images/compass/compass-400w300h.webp    400w,
     pixx_images/compass/compass-800w600h.webp    800w,
     pixx_images/compass/compass-1200w900h.webp  1200w,
@@ -133,6 +133,7 @@ await pixx('./compass.jpg', {
   height="1920"
   loading="eager"
   decoding="async"
+  fetchPriority="auto"
 />;
 ```
 
@@ -148,12 +149,11 @@ await pixx('./compass.jpg', {
   - Order matters. Browser takes the first truthy value.
 
 ```js
-let pending = true;
 await pixx('./src/compass.jpg', {
   title: 'Antique compass',
   alt: 'Image of an old compass',
   withBlur: true,
-  classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }],
+  classes: ['my-special-class', 'border-blue-200'],
 });
 
 // console.log blur image path and blurDataURL.
@@ -165,7 +165,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
   <source
     type="image/avif"
     sizes="100vw"
-    srcset="
+    srcSet="
       pixx_images/compass/compass-400w300h.avif    400w,
       pixx_images/compass/compass-800w600h.avif    800w,
       pixx_images/compass/compass-1200w900h.avif  1200w,
@@ -178,7 +178,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
   <source
     type="image/webp"
     sizes="100vw"
-    srcset="
+    srcSet="
       pixx_images/compass/compass-400w300h.webp    400w,
       pixx_images/compass/compass-800w600h.webp    800w,
       pixx_images/compass/compass-1200w900h.webp  1200w,
@@ -191,7 +191,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
   <source
     type="image/jpg"
     sizes="100vw"
-    srcset="
+    srcSet="
       pixx_images/compass/compass-400w300h.jpg    400w,
       pixx_images/compass/compass-800w600h.jpg    800w,
       pixx_images/compass/compass-1200w900h.jpg  1200w,
@@ -202,7 +202,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
     "
   />
   <img
-    className="my-special-class border-red-200"
+    className="my-special-class border-blue-200"
     src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="Image of an old compass"
     width="2560"
@@ -210,6 +210,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
     title="Antique compass"
     loading="eager"
     decoding="async"
+    fetchPriority="auto"
   />
 </picture>
 ```
@@ -233,6 +234,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
   sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
   styles: ['color: blue', 'border-color: red'], // html
+  withClassName: false,
 });
 
 // returns
@@ -314,6 +316,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
     height="360"
     loading="eager"
     decoding="auto"
+    fetchpriority="auto"
   />
 </picture>;
 ```
@@ -324,28 +327,29 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ## Pixx Options
 
-- **alt**: _string_. default `image`. The img `alt` attribute.
-- **blurSize**: _number_. default `10`. Number of pixels wide the _placeholder_ image is resized to.
+- **alt**: _string_. Default `image`. The img `alt` attribute.
+- **blurSize**: _number_. Default `10`. Number of pixels wide the _placeholder_ image is resized to.
   - Bigger _blurSize_, bigger _base64DataURL_.
 - **classes**: _string[]_. Array of class names. Tailwindcss can be used, and optional object syntax.
-  - e.g. `['my-special-class', 'border-blue-200', { 'border-red-200': pending }]`.
+  - static functions like _pixxFlow_ or _pixx-loader_, you cannot use 'dynamic' classes.
+  - e.g. `classes: ['my-special-class', 'border-blue-200', { 'border-red-200': pending }]`.
 - **clean**: _boolean_. Default `false`. Delete image folder and create new.
-- **decoding**: _enum('auto', 'async', 'sync')_. default `auto`. Image download priority.
+- **decoding**: _enum('auto', 'async', 'sync')_. Default `auto`. Image download priority.
   - [MDN HTML Image decoding property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decoding)
 - **fallbackWidth**: _number_ . Default `image width`. Custom fallback image width in pixels.
   - Older browsers fallback to this image. Image will always be type `jpg`.
   - fallbackWidth must be <= image width. Image size is not increased.
-  - (e.g. `1500`. The fallback img _src_ will be an image 1500px wide with height same aspect ratio as original).
+  - (e.g. `fallbackWidth: 1500`. The fallback img _src_ will be an image **1500px wide** with height same aspect ratio as original).
 - **fetchPriority**: _enum('auto', 'high', 'low')_. Default `auto`.
   - Hint to the browser how it should prioritize fetching a particular image relative to other images.
 - **heights**: _number[]_. Array of numbers representing height in pixels.
-  - heights numbers must be <= image size. Image size is not increased.
+  - heights numbers must be `<=` image size. Image size is not increased.
   - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
-  - (e.g. `[300, 500, 650, 900, 1200]`).
+  - (e.g. `widths: [300, 500, 650, 900, 1200]`).
 - **incrementSize**: _number_. Default `300`. Customize increment size creation.
   - The increment pixel size `defaultSizes` uses to create images.
   - Only valid if `widths` or `heights` are empty.
-  - (e.g. Find the smaller image side (width or height), then create _img_ every `300px` until image size is reached).
+  - (e.g. `incrementSize: 200`. Find the smaller image side (width or height), then create _img_ every `200px` until image size is reached).
 - **linuxPaths**: _boolean_. Default `true`. Development on Windows, convert image paths to _linux_ style.
 - **loading**: _enum('eager', 'lazy')_. Default `eager`. Image loading priority.
 - **log**: _boolean_. Default `false`. Output build details to console.log.
@@ -353,7 +357,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **media**: _string[]_. Array of media conditions and image names.
   - Tells browser what image to display based on viewport size.
   - This is solely used for **Art Direction**.
-  - (e.g. `['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`).
+  - (e.g. `media: ['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`).
 - **nextJS**: _boolean_. Default `false`.
   - Shortcut for: `outDir: 'public'` and `omit: { remove: 'public/' }` options are set.
   - Sets all images to _public_ folder and fixes _image paths_.
@@ -361,10 +365,10 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **omit**: _{ remove?: string, add?: string }_. Object with `remove` and `add` properties.
   - Customize any part of the image path on the `img` or `picture` elements.
   - Does not change the `outDir`. Images will still be created in the `outDir`.
-  - (e.g. `{ remove: 'pixx_images', add: './my-special-path' }`).
-- **picTypes**: _enums('avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp')_. Array of strings.
+  - (e.g. `omit: { remove: 'pixx_images', add: './my-special-path' }`).
+- **picTypes**: _enums('avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp')_.
   - Default `['avif', 'webp', 'jpg']`.
-  - (e.g. `['webp']`. Create only _webp_ image types).
+  - (e.g. `picTypes: ['webp']`. Create only _webp_ image types).
 - **preload**: _boolean_. Default`false`. Create the image _link_ tag for HTML `head` element.
   - Preloading images can optimize load times for critical images.
   - Print the _link_ tag to console.log.
@@ -372,26 +376,27 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
 - **progressBar**: _boolean_. Default `true`. Show image creation progress bar.
 - **returnReact**: _boolean_. Default `false`. Return results as React component or string.
-- **sizes**: default _string[]_ `['100vw']`. Array of media conditions and the viewport fill width.
+- **sizes**: _string[]_. Default `['100vw']`. Array of media conditions and the viewport fill width.
   - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the media condition.
   - The _descriptor_ can be any CSS **media condition**.
   - The _value_ can be any **CSS length** except percentage. (e.g. 100rem; 75vw; 500px).
   - The last item in the array is the '_default_' size if _media conditions_ do not match.
-  - (e.g. `['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`).
+  - (e.g. `sizes: ['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`).
 - **styles**: _string[] | { [key: string]: string }_. Array(HTML) or Object(React) of inline styles.
-  - **React**: `{ color: "blue", backgroundColor: "red" }`
-  - **HTML**: `['color: blue', 'background-color: red']`
+  - **React**: `styles: { color: "blue", backgroundColor: "red" }`
+  - **HTML**: `styles: ['color: blue', 'background-color: red']`
 - **title**: _string_. Text to display as tooltip when hover over image.
 - **widths**: _number[]_. Array of widths to create images.
-  - widths numbers must be <= image size. Image size is not increased.
+  - widths numbers must be `<=` image size. Image size is not increased.
   - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
-  - (e.g. `[300, 500, 650, 900, 1200]`).
+  - (e.g. `widths: [300, 500, 650, 900, 1200]`).
 - **withAnimation**: _boolean_. Default `false`. Sharp image library will retain the image animation.
 - **withBlur**: _boolean_. Default `false`. Create **placeholder** image and **base64DataURL**.
   - Print to console.log.
 - **withClassName**: _boolean_. Default `true`. Image class attribute.
   - Options: `false = class` | `true = className`.
   - Also changes: `false = srcset` | `true = srcSet`.
+  - Also changes: `false = fetchpriority` | `true = fetchPriority`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
 ## Pixx-Loader Webpack 5 Plugin (NextJS)

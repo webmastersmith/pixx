@@ -146,9 +146,12 @@ export type Pixx = (
 ) => Promise<string | undefined | ReturnType<typeof parse>>;
 
 export type PixxFlowOptions = {
-  debug?: boolean;
   include: string[];
   ignore?: string[];
   log?: boolean;
   overwrite?: boolean;
+  isHTML?: boolean;
+  comment?: boolean;
 };
+
+export type PixxWebpackOptions = Required<Pick<PixxFlowOptions, 'log' | 'isHTML' | 'comment'>>;
