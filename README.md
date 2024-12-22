@@ -1,5 +1,7 @@
 # pixx
 
+- [NPM pixx](https://www.npmjs.com/package/pixx)
+
 ## What and Why
 
 - Responsive images can be **complex** and **error prone**. This module tries to simplify the image creation and html code to match.
@@ -506,8 +508,7 @@ export default MyPic;
 
 - PixxFlow is a static file scraper. It uses the [NPM Glob](https://www.npmjs.com/package/glob) library to search files for the pixx function. Once found, it runs the pixx code, comments out the pixx function and add the HTML to page.
 - **HTML**: place a **single** pixx function in a script tag.
-- run file with: `node file.js`
-- **Caution**: pixxFlow uses `eval()` to convert the pixx options 'string' to an 'object'. Only use this function in **_development_**.
+- **Caution**: pixxFlow uses `eval()` to run the pixx function. Only use this function in **_development_**.
 
 ## PixxFlow Options
 
