@@ -385,9 +385,9 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - The _value_ can be any **CSS length** except percentage. (e.g. 100rem; 75vw; 500px).
   - The last item in the array is the '_default_' size if _media conditions_ do not match.
   - (e.g. `sizes: ['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`).
-- **styles**: _string[] | { [key: string]: string }_. Array(HTML) or Object(React) of inline styles.
-  - **React**: `styles: { color: "blue", backgroundColor: "red" }`
-  - **HTML**: `styles: ['color: blue', 'background-color: red']`
+- **styles**: _string_. Inline styles.
+  - **React**: `styles: "{ color: 'blue', lineHeight : 10, padding: 20 }"`
+  - **HTML**: `styles: "color: blue; font-size: 46px;"`
 - **title**: _string_. Text to display as tooltip when hover over image.
 - **widths**: _number[]_. Array of widths to create images.
   - widths numbers must be `<=` image size. Image size is not increased.
