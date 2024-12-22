@@ -84,15 +84,7 @@ export const OptionSchema = z
       .array()
       .optional()
       .default(['100vw']),
-    styles: z
-      .array(z.string({ message: 'styles option must be an array of strings or object' }).optional())
-      .or(
-        z
-          .record(z.string(), z.string(), { message: 'styles option must be an array of strings or object' })
-          .optional()
-      )
-      .optional()
-      .default([]),
+    styles: z.string({ message: 'styles option must be a string.' }).optional().default(''),
     title: z.string({ message: 'title option must be a string.' }).optional().default(''),
     widths: z
       .number({ message: 'widths option must be an array of strings.' })

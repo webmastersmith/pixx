@@ -472,26 +472,21 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   imgStr += '<img ';
   // Class. Create class string or dynamic
   imgStr += state.classes.length > 0 ? `${c}=${state.classStr} ` : '';
-  // Styles
-  // state.styles: string[] | object.
-  if (Array.isArray(state.styles)) {
-    // <p style="color: blue; font-size: 46px;"> // html
-    if (state.styles.length) imgStr += `style="${state.styles.join('; ')}" `;
-  } else {
-    // state.styles is not an array. must be an object.
-    if (typeof state.styles === 'object') {
-      // react inline style is an object: { "color": "blue", "fontSize": "46px" }
-      imgStr += `style={${JSON.stringify({ ...state.styles })}} `;
-      // state.styles is not an array or object. Log message.
-    } else console.log(chalk.redBright('Styles could not be loaded. Double check it is an Array or object.'));
-  }
+  // Styles -react or html
+  // "color: blue; font-size: 46px;" // html
+  // "{ color: 'blue', lineHeight : 10, padding: 20 }" // react
+  imgStr += state.styles
+    ? state.styles.startsWith('{')
+      ? `style={${state.styles}} `
+      : `style="${state.styles}" `
+    : '';
   // create srcset
   const srcSet = state.withClassName ? 'srcSet' : 'srcset';
   // isPicture false, single picType(Resolution Switching). Add srcset as img attribute.
   imgStr += !isPicture
     ? `${srcSet}="${await createSrcSet(state, state.picTypes[0] as OutputImageType)}" `
     : '';
-  // create sizes
+  // create sizes -only attach to image if not a 'picture', otherwise attach to 'source'.
   imgStr += !isPicture ? `sizes="${state.sizes.join(', ')}" ` : '';
   imgStr += `src="${state.fallbackPath}" `;
   imgStr += `alt="${state.alt}" `;
