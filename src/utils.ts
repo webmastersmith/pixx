@@ -178,7 +178,7 @@ function classBuilder(state: StateType) {
     // add quotes to static class.
     const quotedStaticClassStr = staticClass.map((c) => `'${c}'`).join(', ');
     const fixDynamicClass = dynamicClass.map((c) => c.replaceAll('d:', ''));
-    return `{cn(${quotedStaticClassStr}, ${fixDynamicClass.join(', ')})}`;
+    return `{cn([${quotedStaticClassStr}, ${fixDynamicClass.join(', ')}])}`;
   } else return `"${staticClass.join(' ')}"`;
 }
 
