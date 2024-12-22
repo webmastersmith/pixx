@@ -380,7 +380,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **preloadFetchPriority**: _enum('auto', 'async', 'sync')_. Default `auto`.
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
 - **progressBar**: _boolean_. Default `true`. Show image creation progress bar.
-- **returnReact**: _boolean_. Default `false`. Return results as React component or string.
+- **returnReact**: _boolean_. Default `false`. Return HTML as React component or string.
 - **sizes**: _string[]_. Default `['100vw']`. Array of media conditions and the viewport fill width.
   - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the media condition.
   - The _descriptor_ can be any CSS **media condition**.
@@ -455,7 +455,7 @@ const HTML = await pixx('./images/compass.jpg', {
 - When installing NextJS, you must **use the 'webpack' option**, not 'turbopack'.
 - Pixx-Loader will intercept static pages, run pixx, then return html to NextJS server.
 - **Pixx can be used in client or server pages**, because it runs before static html gets to NextJS server.
-- Pixx functions will not be in the 'build'.
+- Pixx functions will not be in the 'build' unless you import the 'cn' function(dynamic classes).
 - **Images not being created**: stop development server. Delete the `.next` folder. Start server.
   - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
 - **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
