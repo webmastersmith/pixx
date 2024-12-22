@@ -552,8 +552,8 @@ export async function replaceAsync(
   options: PixxFlowOptions | PixxWebpackOptions
 ) {
   // comment out pixx import.
-  const importPixxRegex = /^\s*import .*? from .*?pixx.*?$/gm;
-  const requirePixxRegex = /^\s*(const|let|var).*?require(.*?pixx.*?).*?$/gm;
+  const importPixxRegex = /^\s*import .*?pixx.*? from .*?pixx.*?$/gm;
+  const requirePixxRegex = /^\s*(const|let|var) .*?pixx.*? require(.*?pixx.*?).*?$/gm;
   const replaceText = options.comment ? (m: string) => `// ${m.trim()}` : '';
   const noImportHTML = str
     .replaceAll(importPixxRegex, replaceText as string)

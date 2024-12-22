@@ -407,7 +407,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - Dynamic classes are for JSX.
 
 ```js
-// import the 'cn' class. Combines twMerge with clsx.
+// import the 'cn' function. Combines twMerge with clsx.
 import { pixx, cn } from 'pixx';
 
 // static classes
