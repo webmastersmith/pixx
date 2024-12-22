@@ -155,6 +155,7 @@ await pixx('./src/compass.jpg', {
   alt: 'Image of an old compass',
   withBlur: true,
   classes: ['my-special-class', 'border-blue-200'],
+  styles: "{ color: 'blue', lineHeight : 10, padding: 20 }",
 });
 
 // console.log blur image path and blurDataURL.
@@ -203,6 +204,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
     "
   />
   <img
+    style={{ color: 'blue', lineHeight : 10, padding: 20 }}
     className="my-special-class border-blue-200"
     src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="Image of an old compass"
@@ -234,7 +236,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   omit: { remove: 'pixx_images', add: './my-special-folder' },
   media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
   sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
-  styles: ['color: blue', 'border-color: red'], // html
+  styles: 'color: blue; font-size: 46px;', // html
   withClassName: false,
 });
 
@@ -310,7 +312,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
         "
   />
   <img
-    style="color: blue; border-color: red"
+    style="color: blue; font-size: 46px;"
     src="./my-special-folder/happy_face/happy_face-720w360h.jpg"
     alt="image"
     width="720"
@@ -435,7 +437,7 @@ const HTML = await pixx('./images/compass.jpg', {
 <picture>
   ...
   <img
-    className={cn('one', 'two', 'three', 'border-blue-200', classVariable, { 'border-red-200': pending })}
+    className={cn(['one', 'two', 'three', 'border-blue-200', classVariable, { 'border-red-200': pending }])}
     src="my-dir2/img1/img1-750w864h.jpg"
     alt="image"
     width="750"
@@ -550,7 +552,7 @@ node file.js
         omit: { remove: 'pixx_images', add: './my-special-folder' },
         media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
         sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
-        styles: ['color:    blue', 'border-color: red'],
+        styles: 'color: blue; font-size: 46px;',
         withClassName: false,
       });
     </script>
@@ -615,7 +617,7 @@ node file.js
         omit: { remove: 'pixx_images', add: './my-special-folder' },
         media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
         sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
-        styles: ['color:    blue', 'border-color: red'],
+        styles: "color: blue; font-size: 46px;",
       });
     </script> -->
     <picture>
@@ -689,7 +691,7 @@ node file.js
         "
       />
       <img
-        style="color: blue; border-color: red"
+        style="color: blue; font-size: 46px;"
         src="./my-special-folder/happy_face/happy_face-720w360h.jpg"
         alt="image"
         width="720"
