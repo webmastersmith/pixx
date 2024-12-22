@@ -332,8 +332,8 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **blurSize**: _number_. Default `10`. Number of pixels wide the _placeholder_ image is resized to.
   - Bigger _blurSize_, bigger _base64DataURL_.
 - **classes**: _string[]_. Array of class names. Tailwindcss can be used, and optional object syntax.
-  - **static classes**: `classes: ['my-special-class', 'border-blue-200'],`
-  - **dynamic classes**: names must have 'd:' appending them.
+  - **static classes**: `classes: ['my-special-class', 'border-blue-200']`
+  - **dynamic classes**: names must have 'd:' appending them. See 👇.
     - e.g. `classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],`.
     - e.g. `classes: ['my-special-class', 'border-blue-200', 'd:pending && "border-red-500"']`.
 - **clean**: _boolean_. Default `false`. Delete image folder and create new.
@@ -401,6 +401,51 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Also changes: `false = srcset` | `true = srcSet`.
   - Also changes: `false = fetchpriority` | `true = fetchPriority`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
+
+## Dynamic Classes
+
+- Dynamic classes are for JSX.
+
+```js
+// import the 'cn' class. Combines twMerge with clsx.
+import { pixx, cn } from 'pixx';
+
+// static classes
+const HTML = await pixx('./images/compass.jpg', { classes: ['my-special-class', 'border-blue-200'] });
+// returns
+<picture>
+  ...
+  <img
+    className="my-special-class border-blue-200"
+    src="pixx_images/compass/compass-2560w1920h.jpg"
+    alt="image"
+    width="2560"
+    height="1920"
+    loading="eager"
+    decoding="auto"
+    fetchPriority="auto"
+  />
+</picture>;
+
+// dynamic classes: names must have 'd:' appending them. See 👇.
+const HTML = await pixx('./images/compass.jpg', {
+  classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],
+});
+// returns
+<picture>
+  ...
+  <img
+    className={cn('one', 'two', 'three', 'border-blue-200', classVariable, { 'border-red-200': pending })}
+    src="my-dir2/img1/img1-750w864h.jpg"
+    alt="image"
+    width="750"
+    height="864"
+    loading="eager"
+    decoding="auto"
+    fetchPriority="auto"
+  />
+</picture>;
+```
 
 ## Pixx-Loader Webpack 5 Plugin (NextJS)
 

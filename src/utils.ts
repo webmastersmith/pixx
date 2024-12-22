@@ -169,11 +169,10 @@ export async function getImageMetadata(buf: Buffer, options: OptionType, file: F
 }
 
 function classBuilder(state: StateType) {
-  const classes = state.classes;
   const regEx = /^(d:|{)/; // is dynamic
-  // can be static
+  // classes can be static
   const staticClass = state.classes.filter((c) => !regEx.test(c));
-  // can be dynamic
+  // classes can be dynamic
   const dynamicClass = state.classes.filter((c) => regEx.test(c));
   if (dynamicClass.length > 0) {
     // add quotes to static class.
