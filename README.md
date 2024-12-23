@@ -329,7 +329,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ## React
 
-- By default, html element is returned as a string. You can return a 'React' component by setting the option `returnReact: true`.
+- By default, HTML is returned as a string. You can return HTML as 'JSX' by setting the option `returnReact: true`.
 
 ## Pixx Options
 
@@ -449,7 +449,7 @@ const HTML = await pixx('./images/compass.jpg', {
 <picture>
   ...
   <img
-    className={cn('one', 'two', 'three', 'border-blue-200', classVariable, { 'border-red-200': pending })}
+    className={cn('my-special-class', 'border-blue-200', classVariable, { 'border-red-200': pending })}
     src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="image"
     width="2560"
