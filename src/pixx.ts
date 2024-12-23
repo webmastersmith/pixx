@@ -13,10 +13,10 @@ import parse from 'html-react-parser';
 import { inspect } from 'util';
 import chalk from 'chalk';
 
-export async function pixx(
+export async function pixx<T>(
   filePaths: string | string[],
   options?: OptionType
-): Promise<string | React.JSX.Element | React.JSX.Element[]> {
+): Promise<T | string | React.JSX.Element | React.JSX.Element[]> {
   try {
     // 1. Art direction if array of multiple filePaths images.
     if (Array.isArray(filePaths) && filePaths.length > 1) {

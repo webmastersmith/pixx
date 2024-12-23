@@ -143,4 +143,4 @@ export type PixxFlowOptions = {
   comment?: boolean;
 };
 
-export type PixxWebpackOptions = Required<Pick<PixxFlowOptions, 'log' | 'isHTML' | 'comment'>>;
+export type PixxWebpackOptions = Required<Pick<PixxFlowOptions, 'log' | 'isHTML' | 'comment' | 'overwrite'>>;

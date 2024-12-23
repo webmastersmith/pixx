@@ -100,11 +100,11 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
 ### Resolution Switching
 
 - Uses the `img` element with the `srcset` and `sizes` attributes.
-- **Single image type**. Browsers can choose what image **size** to download based on the device viewport.
+- **Single image type**. Browsers can choose what image **size** to download based on the device viewport and pixel density.
 - Fallback is the img `src` attribute.
 - **Pros**
   - The least complex. Default _sizes_ attribute is `100vw`.
-  - Can offer multiple image size options.
+  - Can offer multiple image **size** options.
 - **Cons**
   - Only single image type can be used at a time.
 
@@ -143,10 +143,10 @@ await pixx('./compass.jpg', {
 ### Multiple Types
 
 - Uses the `picture` and `source` element with the `srcset` and `sizes` attributes.
-- Same advantages as Resolution Switching, with the added benefit of multiple formats.
+- **Multiple image types**. Browsers can choose what image **size** and **type** to download based on the device viewport and pixel density.
 - Fallback is `img` element.
 - **Pros**
-  - Use new and highly optimized image formats, with fallback formats for browsers that don't support them.
+  - Use new and highly optimized image types, with fallback, for browsers that don't support them.
 - **Cons**
   - Code can be complex.
   - Order matters. Browser takes the first truthy value.
@@ -223,6 +223,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
 ### Art Direction
 
 - Uses the `picture` and `source` element with the `srcset`, `sizes` and `media` attributes.
+- **Multiple images**. Browsers can choose between different images and their **size** and **type** to download based on the device viewport and pixel density.
 - Switch different image formats based on first truthy _media_ condition.
 - Fallback is `img` element.
 - **Pros**
@@ -468,6 +469,11 @@ const HTML = await pixx('./images/compass.jpg', {
 - **Images not being created**: stop development server. Delete the `.next` folder. Start server.
   - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
 - **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
+- **Options**
+  - **log**: output debug info to console.
+  - **isHTML**: internal usage. `pixx` returns string, not JSX.
+  - **comment**: internal usage. Remove `pixx` import statement or comment out.
+  - **overwrite**: speed up development when you have finalized images. Comments out pixx function. Writes code to file.
 
 ```ts
 // NextJS example

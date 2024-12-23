@@ -525,6 +525,25 @@ export async function createPictureTag(state: StateType) {
   return picture;
 }
 
+// jsx/tsx. -match pixx function, do not match commented function.
+export const pixxFnRegexJSX = /{\s*(?!\/\*)\s*(pixx\s*(?:<[^>]*>)?\s*\(.*?(?:'|"|\]|})\s*\));?\s*}/gis;
+// { pixx('./images/happy face.jpg', {
+//   returnReact: true,
+//   omit: { remove: 'public/' },
+//   outDir: 'public',
+// }) }
+
+// html  -match pixx function, do not match commented function.
+export const pixxFnRegexHTML =
+  /(?<!<!--\s*)(?:<script[^>]*>).*?(pixx\s*\(.*?(?:'|"|\]|})\s*\));?.*?(?:<\/script>)/gis;
+// <script>
+//     pixx('./images/compass.jpg', {
+//       widths: [50, 200],
+//       classes: ['one', 'two', 'three'],
+//       withClassName: false,
+//     });
+// </script>
+
 /**
  * Find pixx function with regex, call it to create images and return html.
  * @param str The text to be searched.

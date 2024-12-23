@@ -3,18 +3,24 @@ import path from 'path';
 import { glob } from 'glob';
 import { PixxFlowOptions } from './schema';
 import chalk from 'chalk';
-import { replaceAsync } from './utils';
+import { replaceAsync, pixxFnRegexHTML, pixxFnRegexJSX } from './utils';
 
 export async function pixxFlow(options: PixxFlowOptions) {
   try {
+    // set options defaults
+    if (!Array.isArray(options?.include)) options.include = ['**/*.html', '**/*.jsx', '**/*.tsx'];
+    if (!Array.isArray(options?.ignore)) options.ignore = ['node_modules/**', '**/pixx*'];
+    if (typeof options?.log !== 'boolean') options.log = false;
+    // return HTML and pixx function commented out.
+    if (typeof options?.comment !== 'boolean') options.comment = true;
+    if (typeof options?.overwrite !== 'boolean') options.overwrite = false;
+
     // All files to parse. string[].
     const files = await (options?.ignore
       ? glob(options.include, { ignore: options.ignore })
       : glob(options.include));
     if (options?.log) console.log(files);
 
-    // return HTML and pixx function commented out.
-    options.comment = true;
     // Loop files. Extract static code. Run code.
     for (const file of files) {
       // isHTML file. Change comment style.
@@ -26,26 +32,8 @@ export async function pixxFlow(options: PixxFlowOptions) {
         console.log(chalk.yellowBright(`Pixx function not found in ${file}. Skipping...\n\n`));
         continue;
       }
-      // Regex to find pixx functions not commented out.
-      const regExJSX = /{\s*(?!\/\*)\s*(pixx\s*\(.*?(?:'|"|\]|})\s*\));?\s*}/gis; // jsx/tsx.
-      // regExJSX:
-      // { pixx('./images/happy face.jpg', {
-      //   returnReact: true,
-      //   omit: { remove: 'public/' },
-      //   outDir: 'public',
-      // }) }
-      const regExHTML =
-        /(?<!<!--\s*)(?:<script[^>]*>).*?(pixx\s*\(.*?(?:'|"|\]|})\s*\));?.*?(?:<\/script>)/gis;
-      // regExHTML:
-      // <script>
-      //     pixx('./images/compass.jpg', {
-      //       widths: [50, 200],
-      //       classes: ['one', 'two', 'three'],
-      //       withClassName: false,
-      //     });
-      // </script>
 
-      const html = await replaceAsync(textIn, options.isHTML ? regExHTML : regExJSX, options);
+      const html = await replaceAsync(textIn, options.isHTML ? pixxFnRegexHTML : pixxFnRegexJSX, options);
 
       // write file.
       const parsed = path.parse(path.resolve(file));
