@@ -13,8 +13,8 @@ import parse from 'html-react-parser';
 import { inspect } from 'util';
 import chalk from 'chalk';
 import type React from 'react';
-
-export async function pixx(filePaths: string | string[], options?: OptionType): Promise<React.ReactNode>;
+// @ts-ignore
+export async function pixx(filePaths: string | string[], options?: OptionType): React.ReactNode;
 export async function pixx(
   filePaths: string | string[],
   options?: OptionType
