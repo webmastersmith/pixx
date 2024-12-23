@@ -27,7 +27,14 @@ export async function PixxLoader(source: string): Promise<string> {
     console.log(chalk.yellow('\n\nHTML returned to NextJS Server:\n'), chalk.greenBright(html), '\n\n');
 
   // overwrite?
-  if (options.overwrite) fs.writeFileSync(filePath, html);
+  if (options.overwrite) {
+    try {
+      fs.writeFileSync(filePath, html);
+      console.log(chalk.green(`\n\nFile: ${filePath} written successfully.\n\n`));
+    } catch (error) {
+      console.error(chalk.red(error));
+    }
+  }
 
   return html;
 }

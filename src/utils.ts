@@ -546,13 +546,15 @@ export const pixxFnRegexHTML =
 
 // If import 'pixx' is commented out, return false. -JSX only test.
 export const returnEarlyRegex = /^(?<!\/)\s*(?:import|const|var|let).*?(?:'|")pixx(?:'|")/m;
+const returnReactRegex = /returnReact:\s*(?:true|false)\s*,?\s*/gi;
 
 /**
- * Find pixx function with regex, call it to create images and return html.
+ * Run async code inside replaceAll function.
+ * Use regex to find pixx functions, call function to create images and return html.
  * @param str The text to be searched.
  * @param regex The regex to use when searching HTML or JSX. Regex ignores commented out code.
- * @param isHTML When commenting out code, use HTML or JSX style comments.
- * @returns modified str.
+ * @param options options to know how to comment code. HTML or JSX style comments.
+ * @returns HTML or empty str.
  */
 export async function replaceAsync(str: string, regex: RegExp, options: PixxFlowOptions | PixxPluginOptions) {
   // comment out pixx import.
@@ -578,10 +580,11 @@ export async function replaceAsync(str: string, regex: RegExp, options: PixxFlow
 }
 
 /**
- * Regex string 'match', deconstruct, build, return only HTML
+ * Use regex match to call pixx function, build images, return HTML or empty string.
  * @param match regex match.
  * @param  args multiple parens match.
- * @returns HTML code
+ * @param options options to know how to comment code. HTML or JSX style comments.
+ * @returns HTML or empty string.
  */
 async function asyncFn(match: string, args: string[], options: PixxFlowOptions | PixxPluginOptions) {
   const { pixx } = await import('./index.js');
@@ -601,42 +604,29 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
   //     });
   // </script>
 
-  // JSX only.
-  if (!options.isHTML) {
-    // Remove React brackets. HTML must be returned as a string, so remove 'returnReact: true'.
-    // const startBracket = match.indexOf('{') + 1; // get index of first bracket. Inclusive, so + 1.
-    // const endBracket = match.lastIndexOf('}'); // get index of last bracket. Exclusive.
-    // const pixxFn = match.slice(startBracket, endBracket).trim();
-    // extract only the pixx function.
-    const pixxFn = args[0];
-    const pixxFnFix = pixxFn!.replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '');
+  try {
+    // args[0] removes everything outside pixx(). HTML must be returned as a string, so remove 'returnReact: true'.
+    const pixxFn = args[0] ? args[0].replaceAll(returnReactRegex, '').trim() : '';
+    if (options.log) console.log(chalk.blue('\n\nExtracted pixx function: ' + pixxFn + '\n\n'));
+    // run pixx function.
     let html = '';
-    try {
-      if (options.log) console.log(pixxFnFix);
-      html = await eval(pixxFnFix);
-      return options.comment ? `{/* ${pixxFn} */}\n${html}` : html;
-    } catch (error) {
-      console.log(chalk.redBright(error));
-      return html;
-    }
-    // HTML
-  } else {
-    let html = '';
-    try {
-      // call the pixx function.
-      const pixxFn = args[0]!.replaceAll(/returnReact:\s*(?:true|false)\s*,?\s*/gi, '').trim();
-      if (options.log) console.log(pixxFn);
-      html = await eval(pixxFn);
-      return options.comment ? `<!-- ${match.trim()} -->\n${html}` : html;
-    } catch (error) {
-      console.log(chalk.redBright(error));
-      return '';
-    }
+
+    if (pixxFn && typeof pixxFn === 'string') await eval(pixxFn);
+    else throw new Error(`Something was wrong with pixx function. Check code and retry.`);
+    // If comment, return comment, else HTML.
+    return options.comment
+      ? options.isHTML
+        ? `<!-- ${match.trim()} -->\n${html}`
+        : `{/* ${pixxFn} */}\n${html}`
+      : html;
+  } catch (error) {
+    console.log(chalk.redBright(error));
+    return '';
   }
 }
 
 /**
- * Test if text has pixx function and is not commented out.
+ * Test if text has pixx function, or if pixx function is commented out.
  * @param str text to scan for 'pixx' word.
  * @returns boolean.
  */
@@ -649,6 +639,11 @@ export function pluginReturnEarly(str: string): boolean {
   return false;
 }
 
+/**
+ * Create options defaults.
+ * @param option options to control plugins.
+ * @returns options with defaults.
+ */
 export function pluginSetOptions(option: PixxPluginInput) {
   // Start -set options defaults.
   const options = { ...option };
@@ -657,8 +652,8 @@ export function pluginSetOptions(option: PixxPluginInput) {
   if (typeof options?.comment !== 'boolean') options.comment = false;
   if (typeof options?.isHTML !== 'boolean') options.isHTML = false;
 
-  // if 'comment' false and 'overwrite' true, change 'comment' to true.
-  if (!options.comment) options.comment = options.overwrite ? true : false;
+  // if 'overwrite' true, change 'comment' to true.
+  if (options.overwrite) options.comment = true;
 
   return options as PixxPluginOptions;
 }

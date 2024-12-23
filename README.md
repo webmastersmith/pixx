@@ -603,6 +603,10 @@ export default App;
   - **ignore**?: _string[]_. Default `['node_modules/**', '**/pixx*']`. Files to ignore.
     - PixxFlow uses [glob](https://www.npmjs.com/package/glob) to ignore files.
   - **log**?: _boolean_. Default `false`. Output debug info to console.
+  - **isHTML**: _boolean_. Default `false`. Internal usage.
+    - `pixxFlow` uses automatically set this flag based on file extension. (e.g. .html or .jsx).
+    - determines which regular expression to use when extracting pixx function: HTML or JSX.
+    - If `comment: true`, isHTML is used to determine HTML or JSX style comments.
   - **overwrite**?: _boolean_. Default `false`. By default pixxFlow will create a new file.
     - The file will be created in the same directory with 'pixx-' prepending the file name.
       - (e.g.`pixx-fileName.jsx`).

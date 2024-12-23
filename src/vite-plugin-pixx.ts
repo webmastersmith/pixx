@@ -21,6 +21,7 @@ export function VitePluginPixx(option?: PixxPluginInput) {
           console.log('options', options);
           console.log(chalk.yellow('\n\nSource React File:\n'), chalk.magentaBright(text), '\n\n');
         }
+
         const html = await replaceAsync(text, pixxFnRegexJSX, options);
 
         if (options.log)
@@ -30,7 +31,7 @@ export function VitePluginPixx(option?: PixxPluginInput) {
         if (options.overwrite)
           fs.writeFile(id, html, (err) => {
             if (err) console.error(chalk.red(err));
-            else console.log(chalk.green(`File: ${id} written successfully.`));
+            else console.log(chalk.green(`\n\nFile: ${id} written successfully.\n\n`));
           });
 
         return html;
