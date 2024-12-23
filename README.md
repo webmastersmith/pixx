@@ -408,12 +408,9 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ## Dynamic Classes
 
-- Dynamic classes are for JSX.
+- Dynamic classes need the **cn** function.
 
 ```js
-// import the 'cn' function. Combines twMerge with clsx.
-import { pixx, cn } from 'pixx';
-
 // static classes
 const HTML = await pixx('./images/compass.jpg', { classes: ['my-special-class', 'border-blue-200'] });
 // returns
@@ -432,6 +429,16 @@ const HTML = await pixx('./images/compass.jpg', { classes: ['my-special-class', 
 </picture>;
 
 // dynamic classes: names must have 'd:' appending them. See 👇.
+// Download cn function
+npm i cncn
+
+// commonjs
+const cn = require('cncn');
+// esm
+import cn from 'cncn';
+
+const classVariable = 'some-class';
+const pending = true;
 const HTML = await pixx('./images/compass.jpg', {
   classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],
 });
@@ -439,11 +446,11 @@ const HTML = await pixx('./images/compass.jpg', {
 <picture>
   ...
   <img
-    className={cn(['one', 'two', 'three', 'border-blue-200', classVariable, { 'border-red-200': pending }])}
-    src="my-dir2/img1/img1-750w864h.jpg"
+    className={cn('one', 'two', 'three', 'border-blue-200', classVariable, { 'border-red-200': pending })}
+    src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="image"
-    width="750"
-    height="864"
+    width="2560"
+    height="1920"
     loading="eager"
     decoding="auto"
     fetchPriority="auto"
