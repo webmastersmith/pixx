@@ -10,15 +10,13 @@ import {
   createPictureTag,
 } from './utils';
 import parse from 'html-react-parser';
-// const parse = require('html-react-parser');
 import { inspect } from 'util';
 import chalk from 'chalk';
-// const chalk = require('chalk');
 
 export async function pixx(
   filePaths: string | string[],
   options?: OptionType
-): Promise<string | undefined | ReturnType<typeof parse>> {
+): Promise<string | ReturnType<typeof parse>> {
   try {
     // 1. Art direction if array of multiple filePaths images.
     if (Array.isArray(filePaths) && filePaths.length > 1) {
@@ -121,12 +119,17 @@ export async function pixx(
     return state.returnReact ? parse(multiTypeImg) : multiTypeImg;
   } catch (error) {
     if (error instanceof z.ZodError) {
-      throw new Error(fromError(error).toString());
+      // throw new Error();
+      console.log(chalk.red(fromError(error).toString()));
+      return '';
     }
     if (error instanceof Error) {
-      throw new Error(error.message);
+      console.log(chalk.red(error.message));
+      return '';
+      // throw new Error(error.message);
     }
-    console.log(error);
+    console.log(chalk.red(error));
+    return '';
   }
 }
 // export default pixx;

@@ -40,15 +40,6 @@ export function bar(name: string, step: number, totalSteps: number) {
 }
 
 /**
- * Tailwind 'cn' function.
- * @param inputs array of class names and conditional object classes.
- * @returns class names.
- */
-export function cn(inputs: ClassValue[]) {
-  return twMerge(clsx(inputs)); // inputs must b
-}
-
-/**
  * Initial setup for each image. Create metadata and convert image to buffer. Create fallback image.
  * @param filePath Array of images for 'Art Direction' or single image path.
  * @param options optional. Object of available options.
