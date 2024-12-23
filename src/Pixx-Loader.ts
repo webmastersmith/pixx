@@ -1,33 +1,33 @@
-import { replaceAsync, pixxFnRegexJSX } from './utils.js';
-import { PixxWebpackOptions } from './schema.js';
+import { replaceAsync, pixxFnRegexJSX, pluginReturnEarly, pluginSetOptions } from './utils.js';
+import { PixxPluginInput } from './schema.js';
 import chalk from 'chalk';
+import fs from 'fs';
 
 export async function PixxLoader(source: string): Promise<string> {
-  // console.log('pixx source:', source);
-  //  @ts-ignore
-  const options = this.getOptions() as PixxWebpackOptions;
-  if (typeof options?.comment !== 'boolean') options.comment = false;
-  if (typeof options?.log !== 'boolean') options.log = false;
-  if (typeof options?.isHTML !== 'boolean') options.isHTML = false;
-  if (typeof options?.overwrite !== 'boolean') options.overwrite = false;
+  // true, return early, false continue.
+  if (pluginReturnEarly(source)) return source;
 
-  // console.log('pixx options:', options);
-  if (options?.log) {
+  //  @ts-ignore -set default options.
+  const options = pluginSetOptions(this.getOptions() as PixxPluginInput);
+
+  // @ts-ignore
+  const filePath = this.resourcePath;
+
+  // Start
+  if (options.log) {
+    console.log(chalk.magenta(filePath));
     console.log('options', options);
     console.log(chalk.yellow('\n\nSource React File:\n'), chalk.magentaBright(source), '\n\n');
   }
-  const html = await pixxSingleFlow(source, options);
-  if (options?.log)
-    console.log(chalk.yellow('\n\nHTML returned to NextJS Server:\n'), chalk.greenBright(html), '\n\n');
-  return html;
-}
 
-/**
- * From 'page' or string, run pixx. return html code and comment out function.
- * @param str single str(page) to parse images from.
- */
-async function pixxSingleFlow(str: string, options: PixxWebpackOptions) {
   // Async replace with commented pixx function and html code.
-  const html = await replaceAsync(str, pixxFnRegexJSX, options);
+  const html = await replaceAsync(source, pixxFnRegexJSX, options);
+
+  if (options.log)
+    console.log(chalk.yellow('\n\nHTML returned to NextJS Server:\n'), chalk.greenBright(html), '\n\n');
+
+  // overwrite?
+  if (options.overwrite) fs.writeFileSync(filePath, html);
+
   return html;
 }

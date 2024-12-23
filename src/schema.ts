@@ -38,8 +38,7 @@ export const OptionSchema = z
   .object({
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
     blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(10),
-    classes: z.string().array().optional().default([]),
-    // classes: z.string({ message: 'classes option must be string.' }).optional().default(''),
+    classes: z.string({ message: 'classes option must an array of strings.' }).array().optional().default([]),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
     decoding: z
       .enum(['auto', 'sync', 'async'], { message: 'decoding option can only be "auto", "sync" or "async".' })
@@ -51,7 +50,7 @@ export const OptionSchema = z
       .optional()
       .default('auto'),
     heights: z
-      .number({ message: 'heights option must be an array of strings.' })
+      .number({ message: 'heights option must be an array of numbers.' })
       .array()
       .optional()
       .default([]),
@@ -80,7 +79,7 @@ export const OptionSchema = z
       .optional()
       .default(false),
     sizes: z
-      .string({ message: 'sizes option must an array of strings.' })
+      .string({ message: 'sizes option must be an array of strings.' })
       .array()
       .optional()
       .default(['100vw']),
@@ -96,7 +95,7 @@ export const OptionSchema = z
       .boolean({ message: 'withAnimation option must be true or false.' })
       .optional()
       .default(false),
-    withBlur: z.boolean({ message: 'withBlur option must be a number.' }).optional().default(false),
+    withBlur: z.boolean({ message: 'withBlur option must be true or false.' }).optional().default(false),
     withClassName: z
       .boolean({ message: 'withClassName option must be true or false.' })
       .optional()
@@ -136,7 +135,7 @@ export type Pixx = (
 ) => Promise<string | undefined | ReturnType<typeof parse>>;
 
 export type PixxFlowOptions = {
-  include: string[];
+  include?: string[];
   ignore?: string[];
   log?: boolean;
   overwrite?: boolean;
@@ -144,4 +143,13 @@ export type PixxFlowOptions = {
   comment?: boolean;
 };
 
-export type PixxWebpackOptions = Required<Pick<PixxFlowOptions, 'log' | 'isHTML' | 'comment' | 'overwrite'>>;
+export type PixxPluginInput =
+  | {
+      log?: boolean;
+      overwrite?: boolean;
+      isHTML?: boolean;
+      comment?: boolean;
+    }
+  | undefined;
+
+export type PixxPluginOptions = NonNullable<Required<PixxPluginInput>>;

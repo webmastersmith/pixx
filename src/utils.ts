@@ -10,11 +10,10 @@ import {
   OptionType,
   PixxFlowOptions,
   StateType,
-  PixxWebpackOptions,
+  PixxPluginOptions,
+  PixxPluginInput,
 } from './schema';
 import exifr from 'exifr';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import chalk from 'chalk';
 import sizeOf from 'image-size';
 
@@ -545,6 +544,9 @@ export const pixxFnRegexHTML =
 //     });
 // </script>
 
+// If import 'pixx' is commented out, return false. -JSX only test.
+export const returnEarlyRegex = /^(?<!\/)\s*(?:import|const|var|let).*?(?:'|")pixx(?:'|")/m;
+
 /**
  * Find pixx function with regex, call it to create images and return html.
  * @param str The text to be searched.
@@ -552,11 +554,7 @@ export const pixxFnRegexHTML =
  * @param isHTML When commenting out code, use HTML or JSX style comments.
  * @returns modified str.
  */
-export async function replaceAsync(
-  str: string,
-  regex: RegExp,
-  options: PixxFlowOptions | PixxWebpackOptions
-) {
+export async function replaceAsync(str: string, regex: RegExp, options: PixxFlowOptions | PixxPluginOptions) {
   // comment out pixx import.
   const importPixxRegex = /^\s*import .*?pixx.*? from .*?pixx.*?$/gm;
   const requirePixxRegex = /^\s*(const|let|var) .*?pixx.*? require(.*?pixx.*?).*?$/gm;
@@ -585,7 +583,7 @@ export async function replaceAsync(
  * @param  args multiple parens match.
  * @returns HTML code
  */
-async function asyncFn(match: string, args: string[], options: PixxFlowOptions | PixxWebpackOptions) {
+async function asyncFn(match: string, args: string[], options: PixxFlowOptions | PixxPluginOptions) {
   const { pixx } = await import('./index.js');
   // match example: JSX
   // { pixx('./images/happy face.jpg', {
@@ -635,4 +633,32 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
       return '';
     }
   }
+}
+
+/**
+ * Test if text has pixx function and is not commented out.
+ * @param str text to scan for 'pixx' word.
+ * @returns boolean.
+ */
+export function pluginReturnEarly(str: string): boolean {
+  // If no pixx function, return early. -this is faster.
+  if (!str.includes('pixx')) return true;
+  // Has pixx function, check if pixx import statement is commented out. -JSX only test.
+  if (!returnEarlyRegex.test(str)) return true;
+  // File need processing.
+  return false;
+}
+
+export function pluginSetOptions(option: PixxPluginInput) {
+  // Start -set options defaults.
+  const options = { ...option };
+  if (typeof options?.log !== 'boolean') options.log = false;
+  if (typeof options?.overwrite !== 'boolean') options.overwrite = false;
+  if (typeof options?.comment !== 'boolean') options.comment = false;
+  if (typeof options?.isHTML !== 'boolean') options.isHTML = false;
+
+  // if 'comment' false and 'overwrite' true, change 'comment' to true.
+  if (!options.comment) options.comment = options.overwrite ? true : false;
+
+  return options as PixxPluginOptions;
 }

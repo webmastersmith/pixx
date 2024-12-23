@@ -463,19 +463,26 @@ const HTML = await pixx('./images/compass.jpg', {
 
 ## Pixx-Loader Webpack 5 Plugin (NextJS)
 
-- to use with **NextJS**. `npm i -D pixx`.
+- Plugin to use with **NextJS**. `npm i -D pixx`.
 - When installing NextJS, you must **use the 'webpack' option**, not 'turbopack'.
-- Pixx-Loader will intercept static pages, run pixx, then return html to NextJS server.
+- Pixx-Loader will intercept static pages, run pixx, then return HTML to server.
 - **Pixx can be used in client or server pages**, because it runs before static html gets to NextJS server.
 - Pixx functions will not be in the 'build'.
 - **Images not being created**: stop development server. Delete the `.next` folder. Start server.
   - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
 - **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
 - **Options**
-  - **log**: output debug info to console.
-  - **isHTML**: internal usage. `pixx` returns string, not JSX.
-  - **comment**: internal usage. Remove `pixx` import statement or comment out.
-  - **overwrite**: speed up development when you have finalized images. Comments out pixx function. Writes code to file.
+  - **log**?: _boolean_. Default `false`. Output debug info to console.
+  - **isHTML**: _boolean_. Default `false`. Internal usage.
+    - `pixx` function returns string, not JSX.
+    - If `comment: true`, isHTML is used to determine HTML or JSX style comments.
+  - **comment**: _boolean_. Default `false`. Internal usage.
+    - Remove `pixx` import statement and functions or comment out.
+    - Automatically set to `true` if `overwrite: true`.
+  - **overwrite**?: _boolean_. Default `false`.
+    - By default PixxLoader will read file, run pixx locally, then send HTML to server.
+    - If `overwrite: true`, the file will be updated with HTML and pixx functions and import statements will commented out.
+      - Pixx will not run once commented out. This speeds up development when you have finalized images.
 
 ```ts
 // NextJS example
@@ -521,16 +528,23 @@ export default MyPic;
 
 ## Vite-Plugin-Pixx
 
-- to use with **Vite**. `npm i -D pixx`.
+- Plugin to be used with **Vite**.
 - Vite-Plugin-Pixx will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
 - **Pixx is not run on client**, because it runs before static html gets to _Vite_ server.
-- Pixx functions will not be in the 'build'.
-- **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function. Only use this function in **_development_**.
+- Pixx functions will not be included in the 'build'.
+- **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this function in **_development_**.
 - **Options**
-  - **log**: output debug info to console.
-  - **isHTML**: internal usage. `pixx` returns string, not JSX.
-  - **comment**: internal usage. Remove `pixx` import statement or comment out.
-  - **overwrite**: speed up development when you have finalized images. Comments out pixx function. Writes code to file.
+  - **log**?: _boolean_. Default `false`. Output debug info to console.
+  - **isHTML**: _boolean_. Default `false`. Internal usage.
+    - `pixx` function returns string, not JSX.
+    - If `comment: true`, isHTML is used to determine HTML or JSX style comments.
+  - **comment**: _boolean_. Default `false`. Internal usage.
+    - Remove `pixx` import statement and functions or comment out.
+    - Automatically set to `true` if `overwrite: true`.
+  - **overwrite**?: _boolean_. Default `false`.
+    - By default Vite-Plugin-Pixx will read file, run pixx locally, then send HTML to Vite server.
+    - If `overwrite: true`, the file will be updated with HTML and pixx functions and import statements will commented out.
+      - Pixx will not run once commented out. This speeds up development when you have finalized images.
 
 ```ts
 // vite.config.js
@@ -539,7 +553,7 @@ import { VitePluginPixx } from 'pixx';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [VitePluginPixx({ log: true })],
+  plugins: [VitePluginPixx({ log: true, overwrite: true })],
 });
 
 // App.tsx
@@ -583,19 +597,25 @@ export default App;
 - PixxFlow is a static file scraper. It uses the [NPM Glob](https://www.npmjs.com/package/glob) library to search files for the pixx function. Once found, it runs the pixx code, comments out the pixx function and add the HTML to page.
 - **HTML**: place a **single** pixx function in a script tag.
 - **Caution**: pixxFlow uses `eval()` to run the pixx function. Only use this function in **_development_**.
-
-## PixxFlow Options
-
-- **include**: string[]. Files to include. PixxFlow uses [glob](https://www.npmjs.com/package/glob) to search for files.
-- **ignore**?: string[]. Files to ignore.
-- **log**?: boolean. default `false`. Console.log important results for debugging.
-- **overwrite**?: boolean. default `false`. Create a new file. (e.g.`pixx-fileName.jsx`), or overwrite the existing file.
+- **Options**
+  - **include**?: _string[]_. Default `['**/*.html', '**/*.jsx', '**/*.tsx']`. Files to include.
+    - PixxFlow uses [glob](https://www.npmjs.com/package/glob) to search for files.
+  - **ignore**?: _string[]_. Default `['node_modules/**', '**/pixx*']`. Files to ignore.
+    - PixxFlow uses [glob](https://www.npmjs.com/package/glob) to ignore files.
+  - **log**?: _boolean_. Default `false`. Output debug info to console.
+  - **overwrite**?: _boolean_. Default `false`. By default pixxFlow will create a new file.
+    - The file will be created in the same directory with 'pixx-' prepending the file name.
+      - (e.g.`pixx-fileName.jsx`).
+    - If `overwrite: true`, pixxFlow will overwrite the existing file.
 
 ```js
-// JS Example
-// -npm i -D pixx
-// 1. Create run file. e.g. 'file.js'
+// 1. Create a run file in root of directory. e.g. 'file.js'
 import { pixxFlow } from 'pixx';
+
+// simple
+pixxFlow();
+
+// advanced
 pixxFlow({
   log: true,
   include: ['**/*.html', '**/*.tsx', 'src/**/*.jsx'],
@@ -608,7 +628,7 @@ node file.js
 ```
 
 ```html
-<!-- HTML Example  -->
+<!-- PixxFlow HTML Example  -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -621,6 +641,7 @@ node file.js
     <script>
       pixx('./images/img1.webp', { withClassName: false });
     </script>
+
     <p>Advanced Example</p>
     <script>
       pixx(['./images/compass.jpg', './images/happy face.jpg'], {
@@ -645,7 +666,7 @@ node file.js
   <body>
     <p>Simple Example</p>
     <!-- <script>
-      pixx('./images/img1.webp');
+      pixx('./images/img1.webp', { withClassName: false });
     </script> -->
     <picture>
       <source
@@ -693,6 +714,7 @@ node file.js
         media: ['(min-width: 401px) compass.jpg', '(max-width: 400px) happy face.jpg'],
         sizes: ['(min-width: 401px) 50vw', '(max-width: 400px) 100vw', '100vw'],
         styles: "color: blue; font-size: 46px;",
+        withClassName: false,
       });
     </script> -->
     <picture>

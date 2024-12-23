@@ -5,8 +5,9 @@ import { PixxFlowOptions } from './schema';
 import chalk from 'chalk';
 import { replaceAsync, pixxFnRegexHTML, pixxFnRegexJSX } from './utils';
 
-export async function pixxFlow(options: PixxFlowOptions) {
+export async function pixxFlow(option?: PixxFlowOptions) {
   try {
+    const options = { ...option };
     // set options defaults
     if (!Array.isArray(options?.include)) options.include = ['**/*.html', '**/*.jsx', '**/*.tsx'];
     if (!Array.isArray(options?.ignore)) options.ignore = ['node_modules/**', '**/pixx*'];
