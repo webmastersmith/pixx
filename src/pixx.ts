@@ -13,8 +13,8 @@ import parse from 'html-react-parser';
 import { inspect } from 'util';
 import chalk from 'chalk';
 import type React from 'react';
-// @ts-ignore
-export async function pixx(filePaths: string | string[], options?: OptionType): React.ReactNode;
+// @ts-ignore -stop the 'reactNode' error, when scraping page and not calling function in React.
+export async function pixx(filePaths: string | string[], options?: OptionType): React.JSX;
 export async function pixx(
   filePaths: string | string[],
   options?: OptionType
