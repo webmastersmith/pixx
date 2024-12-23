@@ -541,10 +541,8 @@ export async function replaceAsync(
   const importPixxRegex = /^\s*import .*?pixx.*? from .*?pixx.*?$/gm;
   const requirePixxRegex = /^\s*(const|let|var) .*?pixx.*? require(.*?pixx.*?).*?$/gm;
   const replaceText = options.comment ? (m: string) => `// ${m.trim()}` : '';
-  // remove 'pixx' from '{ cn, pixx }'. The other regexes will not match.
-  // if only '{ pixx }', then it will get commented or removed.
+  // if import/require '{ pixx }', then it will get commented or removed.
   const noImportHTML = str
-    .replaceAll(/pixx,?\s*(?=\s?cn)|(?<=cn\s?),?\s*pixx/g, '')
     .replaceAll(importPixxRegex, replaceText as string)
     .replaceAll(requirePixxRegex, replaceText as string);
 
