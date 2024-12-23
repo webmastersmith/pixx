@@ -44,7 +44,7 @@ export async function pixxFlow(option?: PixxFlowOptions): Promise<boolean> {
       parsed.base = options?.overwrite ? parsed.base : 'pixx-' + parsed.base;
       const filePath = path.format(parsed);
       fs.writeFileSync(filePath, html);
-      console.log(chalk.green(`\n\nFile: ${filePath} written successfully.\n\n`));
+      console.log(chalk.green(`\n\nFile written successfully: ${filePath}\n\n`));
     }
     return true;
   } catch (error) {

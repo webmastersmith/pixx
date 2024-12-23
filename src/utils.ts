@@ -608,10 +608,10 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
     // args[0] removes everything outside pixx(). HTML must be returned as a string, so remove 'returnReact: true'.
     const pixxFn = args[0] ? args[0].replaceAll(returnReactRegex, '').trim() : '';
     if (options.log) console.log(chalk.blue('\n\nExtracted pixx function: ' + pixxFn + '\n\n'));
+
     // run pixx function.
     let html = '';
-
-    if (pixxFn && typeof pixxFn === 'string') await eval(pixxFn);
+    if (pixxFn && typeof pixxFn === 'string') html = await eval(pixxFn);
     else throw new Error(`Something was wrong with pixx function. Check code and retry.`);
     // If comment, return comment, else HTML.
     return options.comment

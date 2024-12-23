@@ -31,7 +31,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
   <source
     type="image/avif"
     sizes="100vw"
-    srcset="
+    srcSet="
       pixx_images/compass/compass-400w300h.avif    400w,
       pixx_images/compass/compass-800w600h.avif    800w,
       pixx_images/compass/compass-1200w900h.avif  1200w,
@@ -73,7 +73,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
     width="2560"
     height="1920"
     loading="eager"
-    decoding="async"
+    decoding="auto"
     fetchPriority="auto"
   />
 </picture>;
