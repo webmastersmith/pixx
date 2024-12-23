@@ -394,6 +394,8 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - **React**: `styles: "{ color: 'blue', lineHeight : 10, padding: 20 }"`
   - **HTML**: `styles: "color: blue; font-size: 46px;"`
 - **title**: _string_. Text to display as tooltip when hover over image.
+- **vite**: _boolean_. Default `false`.
+  - Shortcut for: `outDir: 'public'` and `omit: { remove: 'public/' }` options are set.
 - **widths**: _number[]_. Array of widths to create images.
   - widths numbers must be `<=` image size. Image size is not increased.
   - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
@@ -465,7 +467,7 @@ const HTML = await pixx('./images/compass.jpg', {
 - When installing NextJS, you must **use the 'webpack' option**, not 'turbopack'.
 - Pixx-Loader will intercept static pages, run pixx, then return html to NextJS server.
 - **Pixx can be used in client or server pages**, because it runs before static html gets to NextJS server.
-- Pixx functions will not be in the 'build' unless you import the 'cn' function(dynamic classes).
+- Pixx functions will not be in the 'build'.
 - **Images not being created**: stop development server. Delete the `.next` folder. Start server.
   - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
 - **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
@@ -515,6 +517,65 @@ const MyPic = () => {
   );
 };
 export default MyPic;
+```
+
+## Vite-Plugin-Pixx
+
+- to use with **Vite**. `npm i -D pixx`.
+- Vite-Plugin-Pixx will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
+- **Pixx is not run on client**, because it runs before static html gets to _Vite_ server.
+- Pixx functions will not be in the 'build'.
+- **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function. Only use this function in **_development_**.
+- **Options**
+  - **log**: output debug info to console.
+  - **isHTML**: internal usage. `pixx` returns string, not JSX.
+  - **comment**: internal usage. Remove `pixx` import statement or comment out.
+  - **overwrite**: speed up development when you have finalized images. Comments out pixx function. Writes code to file.
+
+```ts
+// vite.config.js
+import { defineConfig } from 'vite';
+import { VitePluginPixx } from 'pixx';
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [VitePluginPixx({ log: true })],
+});
+
+// App.tsx
+// Example shows dynamic variables. Pixx does not run on client.
+// Pages is scraped, pixx is run, and HTML is returned to vite server.
+import './App.css';
+import { pixx } from 'pixx'; // npm i -D pixx cncn
+import cn from 'cncn';
+
+function App() {
+  const classVariable = 'hi';
+  const pending = true;
+
+  return (
+    <div>
+      <p>hi</p>
+      {pixx(['./images/happy face.jpg', './images/img1.webp'], {
+        returnReact: true,
+        vite: true,
+        sizes: ['(min-width: 500px) 500px', '(max-width: 499px) 50vw', '100vw'],
+        media: ['(min-width: 500px) happy face.jpg', '(max-width: 499px) img1.webp'],
+        classes: [
+          'one',
+          'two',
+          'three',
+          'd:classVariable',
+          'border-blue-200',
+          '{ "border-red-200": pending }',
+        ],
+        styles: "{ color: 'blue', lineHeight : 10, padding: 20 }",
+      })}
+      <p>bye</p>
+    </div>
+  );
+}
+export default App;
 ```
 
 ## pixxFlow

@@ -55,7 +55,7 @@ export async function getState(filePath: string, options: OptionType) {
   // get image metadata. Throw error if width or height cannot be determined.
   const meta = await getImageMetadata(buf, optionsParsed, file);
   // nextjs flag. -Fix paths before createNewImageDir
-  if (optionsParsed.nextjs) {
+  if (optionsParsed.nextjs || optionsParsed.vite) {
     // only change if remove is empty.
     if (!optionsParsed.omit.remove) optionsParsed.omit.remove = 'public/';
     // only change outDir is default.
@@ -83,7 +83,8 @@ export async function getState(filePath: string, options: OptionType) {
   if (state.sizes.at(-1)?.includes(')'))
     console.log(
       chalk.red(
-        '\n\nDid you forget the default "sizes" media condition? ------------------------------- \n--------------------------------------------------------------------------- \n---------------------------------------------------------------------------\n\n'
+        `\n\nDid you forget the default "sizes" media condition on pixx('${state.file.base}', { 
+        sizes: ${state.sizes} })? ------------------------------- \n--------------------------------------------------------------------------- \n---------------------------------------------------------------------------\n\n`
       )
     );
 
