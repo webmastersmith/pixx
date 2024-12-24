@@ -570,13 +570,15 @@ const MyPic = () => {
 export default MyPic;
 ```
 
-## Vite-Plugin-Pixx
+## Vite-Plugin-React-Pixx
 
 - Plugin to be used with **Vite**.
-- Vite-Plugin-Pixx will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
+- **VitePluginReactPixx** will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
 - **Pixx is not run on client**, because it runs before static html gets to _Vite_ server.
 - Pixx functions will not be included in the 'build'.
 - **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this function in **_development_**.
+- **tsc -b && vite build**: _tsc_ will error on pixx function because it is not able to run in client.
+  - use `overwrite: true` option, before `npm run build`.
 - **Options**
   - **log**?: _boolean_. Default `false`. Output debug info to console.
   - **isHTML**: _boolean_. Default `false`. Internal usage.

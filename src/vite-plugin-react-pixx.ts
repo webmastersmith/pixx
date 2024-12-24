@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { replaceAsync, pixxFnRegexJSX, pluginReturnEarly, pluginSetOptions } from './utils';
 import { PixxPluginInput } from './schema.js';
 
-export function VitePluginPixx(option?: PixxPluginInput) {
+export function VitePluginReactPixx(option?: PixxPluginInput) {
   return {
     name: 'vite-plugin-pixx', // this name will show up in warnings and errors
     async load(id: string) {
