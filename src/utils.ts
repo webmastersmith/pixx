@@ -93,36 +93,55 @@ export async function getState(filePath: string, options: OptionType) {
   if (state.fallbackWidth > state.meta.width) state.fallbackWidth = state.meta.width;
   // Create fallback image same as original image size unless fallbackWidth is provided.
   const sizeArr: [] | ['width', number] = state.fallbackWidth ? ['width', state.fallbackWidth] : [];
-  const [newImagePath, fallbackSize] = await createImage(state, sizeArr, 'jpg');
-  state.fallbackPath = newImagePath;
-  state.fallbackSize = fallbackSize;
+  const [fallbackPath, { width, height }] = await createImage(state, sizeArr, 'jpg');
+  state.fallbackData = { fallbackPath, width, height };
 
-  //create blur image
+  // 2. create blur image
   if (state.withBlur) {
-    const [blurPath, { width, height, blurDataURL }] = await createImage(
-      state,
-      ['width', state.blurSize],
-      'jpg',
-      true
-    );
+    // find smallest side.
+    const smallestSide: ['height' | 'width', number] =
+      state.meta.width > state.meta.height ? ['height', state.blurSize] : ['width', state.blurSize];
+    // create blur image -last item is true, tells 'createImage' to create dataURL.
+    const [blurPath, { width, height, blurDataURL }] = await createImage(state, smallestSide, 'webp', true);
     state.blurData = { blurPath, width, height, blurDataURL };
-    // create base64 url of blur image. This will be attached to 'img'.
-    const bi = state.withClassName ? 'backgroundImage' : 'background-image';
-    const bs = state.withClassName ? 'backgroundSize' : 'background-size';
-    const newStyle = `${bi}: url(${blurDataURL}); ${bs}: cover; ${state.styles}`;
-    state.styles = newStyle;
     console.log(`\n\n${state.file.base}:`, chalk.blue(blurPath));
     console.log(`${state.file.base} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
+
+    // fallbackPreloadWidth -create lo-res image and add to style and add preload tag to head.
+    if (!state.fallbackPreloadWidth)
+      state.fallbackPreloadWidth = Math.floor(state.fallbackData[smallestSide[0]] * 0.3);
+    const [fallbackPreloadPath, size] = await createImage(
+      state,
+      [smallestSide[0], state.fallbackPreloadWidth],
+      'webp', // type
+      false, // isBlur
+      true // isPreload
+    );
+    state.fallbackPreloadData = { fallbackPreloadPath, width: size.width, height: size.height };
 
     // preload tag
     console.log(chalk.green('Place preload link in the "head" element.'));
     console.log(
       `<${chalk.yellowBright(
         'link'
-      )} rel="preload" href="${blurPath}" as="image" type="image/jpg" fetchpriority="${
-        state.preloadFetchPriority
+      )} rel="preload" href="${fallbackPreloadPath}" as="image" type="image/jpg" fetchpriority="${
+        state.preloadFetchPriority === 'auto' ? 'high' : state.preloadFetchPriority
       }" />\n\n`
     );
+
+    // add styles
+    // separator could be comma(JSX) or semi-colon(HTML).
+    const urlsJSX = `backgroundImage: 'url(${fallbackPreloadPath}), url(${blurDataURL})', backgroundSize: 'cover'`;
+    const urlsHTML = `background-image: url(${fallbackPreloadPath}), url(${blurDataURL}); background-size: cover`;
+    const placeholderImages = state.withClassName ? urlsJSX : urlsHTML;
+    // styles for JSX could have brackets.
+    const fixStyles = state.styles.replaceAll(/{|}/g, '').trim();
+    // create style tag.
+    const sep = state.styles ? (state.withClassName ? ',' : ';') : '';
+    const newStyle = `{ ${placeholderImages}${sep} ${fixStyles} }`;
+    console.log('newStyle', newStyle);
+
+    state.styles = newStyle;
   }
 
   // get class names
@@ -379,9 +398,10 @@ export function getDimension({
  */
 export async function createImage(
   state: StateType,
-  size: never[] | ['width' | 'height', number],
+  size: [] | ['width' | 'height', number],
   type: OutputImageType,
-  isBlur: boolean = false
+  isBlur: boolean = false,
+  isPreload: boolean = false
 ): Promise<[string, { width: number; height: number; blurDataURL: string }]> {
   // Find missing side dimension. Return w/h info.
   const options: { width: number; height: number; [key: string]: any } = {
@@ -395,8 +415,8 @@ export async function createImage(
   } else {
     // Passed a resize, find opposite side dimensions.
     const dimension = {
-      orgWidth: state.meta.width!,
-      orgHeight: state.meta.height!,
+      orgWidth: state.meta.width,
+      orgHeight: state.meta.height,
       desiredDimension: size[1],
       returnHeight: size[0] === 'width',
     };
@@ -407,7 +427,8 @@ export async function createImage(
   } // end else
 
   // create subfolder path
-  const imageName = `${state.file.imgName}-${isBlur ? 'placeholder-' : ''}${options['width']}w${
+  const middle = isPreload ? 'preload-' : 'placeholder-';
+  const imageName = `${state.file.imgName}-${!isBlur && !isPreload ? '' : middle}${options['width']}w${
     options['height']
   }h.${type}`;
   // get relative path for srcset paths.
@@ -446,12 +467,13 @@ export async function createImage(
   // if (state.cliBar instanceof ProgressBar) state.cliBar.tick(state.imgCount);
   if (typeof state.cliBar === 'function') state.cliBar(state.file.base, state.imgCount, state.totalImages);
 
-  // blur -just create base64, image was created above. -Resize default is 10px wide.
-  options['blurDataURL'] = state.withBlur
-    ? `data:image/${type};base64,${(await sharp(state.buf).resize(state.blurSize).toBuffer()).toString(
-        'base64'
-      )}`
-    : '';
+  // blurDataURL
+  options['blurDataURL'] = '';
+  // only create blur data if isBlur and withBlur are true. For 'img' element.
+  if (isBlur && state.withBlur)
+    options['blurDataURL'] = `data:image/${type};base64,${(
+      await sharp(state.buf).resize(state.blurSize).toBuffer()
+    ).toString('base64')}`;
 
   return [fixImgPath, options as { width: number; height: number; blurDataURL: string }];
 }
@@ -507,10 +529,10 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
     : '';
   // create sizes -only attach to image if not a 'picture', otherwise attach to 'source'.
   imgStr += !isPicture ? `sizes="${state.sizes.join(', ')}" ` : '';
-  imgStr += `src="${state.fallbackPath}" `;
-  imgStr += `alt="${state.alt}" `;
-  imgStr += `width="${state.fallbackSize.width}" `;
-  imgStr += `height="${state.fallbackSize.height}" `;
+  imgStr += `src="${state.fallbackData.fallbackPath}" `;
+  imgStr += state.withBlur && isPicture ? '' : `alt="${state.alt}" `; // alt constrains blur image.
+  imgStr += `width="${state.fallbackData.width}" `;
+  imgStr += `height="${state.fallbackData.height}" `;
   imgStr += state.title ? `title="${state.title}" ` : '';
   imgStr += `loading="${state.loading}" `;
   imgStr += `decoding="${state.decoding}" `;

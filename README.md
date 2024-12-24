@@ -383,6 +383,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Print the _link_ tag to console.log.
 - **preloadFetchPriority**: _enum('auto', 'async', 'sync')_. Default `auto`.
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
+- **preloadFetchWidth**: _number_. Default `30% of fallbackSize`. Size second preload image.
 - **progressBar**: _boolean_. Default `true`. Show image creation progress bar.
 - **returnReact**: _boolean_. Default `false`. Return HTML as React component or string.
 - **sizes**: _string[]_. Default `['100vw']`. Array of media conditions and the viewport fill width.
@@ -404,6 +405,8 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **withAnimation**: _boolean_. Default `false`. Sharp image library will retain the image animation.
 - **withBlur**: _boolean_. Default `false`. Create **placeholder** image and **base64DataURL**.
   - Print to console.log.
+  - Print `<link preload />` tag for the head element.
+  - `alt` attribute is removed from the blur `img` element because it constrains image on some browsers.
 - **withClassName**: _boolean_. Default `true`. Image class attribute.
   - Options: `false = class` | `true = className`.
   - Also changes: `false = srcset` | `true = srcSet`.
@@ -462,6 +465,42 @@ const HTML = await pixx('./images/compass.jpg', {
     fetchPriority="auto"
   />
 </picture>;
+```
+
+## withBlur
+
+- Inspired by [csswizardry](https://csswizardry.com/2023/09/the-ultimate-lqip-lcp-technique/).
+- Creates 2 Low-Quality Image Placeholders (LQIP).
+  - First is base64 data url. It creates a blur effect placeholder.
+  - Second is a lo-res image 1/3 of the fallbackSize.
+    - A 'preload' tag is printed to console that goes into the HTML head section.
+      - This tells the browser to start downloading image before you do anything else.
+    - Once received, browser displays until the 'best' image is ready.
+
+```html
+<!-- HTML Preload lo-res images -->
+<!-- withBlur option prints 'preload' tag to console. Copy and past in head -->
+<!-- This is only for 'above-the-fold' images! -->
+<head>
+  <meta charset="UTF-8" />
+  <link
+    rel="preload"
+    href="compass/compass-preload-89w67h.webp"
+    as="image"
+    type="image/jpg"
+    fetchpriority="high"
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<!-- withBlur add blur image base64 data to style tag -->
+<picture>
+  ... <img className={cn('bg-red-200', classVariable, { "border-red-200": pending })} style={{
+  backgroundImage: 'url(img1/img1-preload-90w104h.webp),
+  url(data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAwAgCdASoKAAwAAUAmJaACdGuAAs3cdGTssAD+7bCvzXRecVgXgtlAlkGMSZ1TLFPF7VKi4zMnAXKKmsOQ0i2O9/xBUv4+mzTITNNme5NwAA==)',
+  backgroundSize: 'cover', color: 'blue' }} src="img1/img1-300w346h.jpg" width="300" height="346"
+  loading="eager" decoding="auto" fetchPriority="auto" />
+</picture>
 ```
 
 ## Pixx-Loader Webpack 5 Plugin (NextJS)

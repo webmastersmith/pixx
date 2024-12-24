@@ -45,6 +45,10 @@ export const OptionSchema = z
       .optional()
       .default('auto'),
     fallbackWidth: z.number({ message: 'fallbackWidth option must be a number.' }).optional().default(0),
+    fallbackPreloadWidth: z
+      .number({ message: 'fallbackPreload option must be a number.' })
+      .optional()
+      .default(0),
     fetchPriority: z
       .enum(['auto', 'high', 'low'], { message: 'fetchPriority option can only be "auto", "high" or "low".' })
       .optional()
@@ -119,10 +123,10 @@ export type StateType = Required<
     buf: Buffer;
     aspectRatio: string;
     paths: { newImageDir: string; resolvedNewImageDir: string };
-    fallbackPath: string;
-    fallbackSize: { width: number; height: number };
-    classStr: string;
+    fallbackData: { width: number; height: number; fallbackPath: string };
+    fallbackPreloadData: { width: number; height: number; fallbackPreloadPath: string };
     blurData: { blurPath: string; width: number; height: number; blurDataURL: string };
+    classStr: string;
     imgCount: number;
     totalImages: number;
     cliBar: ((name: string, step: number, totalSteps: number) => void) | string;
