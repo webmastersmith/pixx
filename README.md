@@ -4,10 +4,11 @@
 
 ## What and Why
 
-- Responsive images can be **complex** and **error prone**. This module tries to simplify the image creation and html code to match.
+- Responsive images can be **complex** and **error prone**.
+- Pixx was created to simplify **Responsive Image** creation with matched **HTML**.
 - Using the _[sharp](https://sharp.pixelplumbing.com/)_ image library, quickly create responsive images, and the HTML code to match.
 - This package only runs in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
-- Pixx does not increase image size. Start with the **largest input image**.
+- Pixx does not increase image size. Start with the **largest optimized image** for best results.
 - Pixx is designed to use in project **development**.
 - **Sharp error on Windows**: Could not load the "sharp" module using the win32-x64 runtime.
   - **Solution**: `npm install --include=optional sharp`
@@ -407,6 +408,8 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Options: `false = class` | `true = className`.
   - Also changes: `false = srcset` | `true = srcSet`.
   - Also changes: `false = fetchpriority` | `true = fetchPriority`.
+  - Also changes: `false = background-image` | `true = backgroundImage`.
+  - Also changes: `false = background-size` | `true = backgroundSize`.
 - **withMetadata**: _boolean_. Default `false`. Copy original image metadata to new images.
 
 ## Dynamic Classes
@@ -603,7 +606,7 @@ export default App;
   - **ignore**?: _string[]_. Default `['node_modules/**', '**/pixx*']`. Files to ignore.
     - PixxFlow uses [glob](https://www.npmjs.com/package/glob) to ignore files.
   - **log**?: _boolean_. Default `false`. Output debug info to console.
-  - **isHTML**: _boolean_. Default `false`. Internal usage.
+  - **isHTML**: _boolean_. Default `false`. Internal usage. Cannot be changed.
     - `pixxFlow` uses automatically set this flag based on file extension. (e.g. .html or .jsx).
     - determines which regular expression to use when extracting pixx function: HTML or JSX.
     - If `comment: true`, isHTML is used to determine HTML or JSX style comments.

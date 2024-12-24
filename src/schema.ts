@@ -122,6 +122,7 @@ export type StateType = Required<
     fallbackPath: string;
     fallbackSize: { width: number; height: number };
     classStr: string;
+    blurData: { blurPath: string; width: number; height: number; blurDataURL: string };
     imgCount: number;
     totalImages: number;
     cliBar: ((name: string, step: number, totalSteps: number) => void) | string;

@@ -78,7 +78,7 @@ export async function getState(filePath: string, options: OptionType) {
   if (state.heights.length > 0) state.heights = state.heights.filter((h) => h! <= state.meta.height);
   if (state.widths.length > 0) state.widths = state.widths.filter((w) => w! <= state.meta.width);
 
-  // check sizes array for default media condition.
+  // check last item in sizes array for default media condition. If includes ')' not default.
   if (state.sizes.at(-1)?.includes(')'))
     console.log(
       chalk.red(
@@ -96,6 +96,35 @@ export async function getState(filePath: string, options: OptionType) {
   const [newImagePath, fallbackSize] = await createImage(state, sizeArr, 'jpg');
   state.fallbackPath = newImagePath;
   state.fallbackSize = fallbackSize;
+
+  //create blur image
+  if (state.withBlur) {
+    const [blurPath, { width, height, blurDataURL }] = await createImage(
+      state,
+      ['width', state.blurSize],
+      'jpg',
+      true
+    );
+    state.blurData = { blurPath, width, height, blurDataURL };
+    // create base64 url of blur image. This will be attached to 'img'.
+    const bi = state.withClassName ? 'backgroundImage' : 'background-image';
+    const bs = state.withClassName ? 'backgroundSize' : 'background-size';
+    const newStyle = `${bi}: url(${blurDataURL}); ${bs}: cover; ${state.styles}`;
+    state.styles = newStyle;
+    console.log(`\n\n${state.file.base}:`, chalk.blue(blurPath));
+    console.log(`${state.file.base} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
+
+    // preload tag
+    console.log(chalk.green('Place preload link in the "head" element.'));
+    console.log(
+      `<${chalk.yellowBright(
+        'link'
+      )} rel="preload" href="${blurPath}" as="image" type="image/jpg" fetchpriority="${
+        state.preloadFetchPriority
+      }" />\n\n`
+    );
+  }
+
   // get class names
   state.classStr = classBuilder(state);
   // initialize count
@@ -321,20 +350,24 @@ export function getDimension({
   desiredDimension: number;
   returnHeight?: boolean;
   aspectRatio?: string;
-}): number {
+}): { width: number; height: number } {
   let left, right;
   // if aspectRatio, use that for formula.
   if (aspectRatio) {
     const [w, h] = aspectRatio.split(':');
-    // h = orgHeight/orgWidth*desiredWidth
-    // w = orgWidth/orgHeight*desiredHeight
+    // to find h = orgHeight/orgWidth*desiredWidth
+    // to find w = orgWidth/orgHeight*desiredHeight
     left = returnHeight ? +h! : +w!;
     right = returnHeight ? +w! : +h!;
   } else {
     left = returnHeight ? orgHeight : orgWidth;
     right = returnHeight ? orgWidth : orgHeight;
   }
-  return Math.round((left / right) * desiredDimension);
+  const missing = Math.round((left / right) * desiredDimension);
+  return {
+    width: returnHeight ? desiredDimension : missing,
+    height: returnHeight ? missing : desiredDimension,
+  };
 }
 
 /**
@@ -349,40 +382,42 @@ export async function createImage(
   size: never[] | ['width' | 'height', number],
   type: OutputImageType,
   isBlur: boolean = false
-): Promise<[string, { width: number; height: number; blurDataURL?: string }]> {
-  let w: number;
-  let h: number;
-  // if empty size, create same size as original image with desired format.
+): Promise<[string, { width: number; height: number; blurDataURL: string }]> {
+  // Find missing side dimension. Return w/h info.
+  const options: { width: number; height: number; [key: string]: any } = {
+    width: 0,
+    height: 0,
+  };
+  // If size is empty, use original image size for w/h.
   if (!size.length) {
-    w = state.meta.width!;
-    h = state.meta.height!;
+    options['width'] = state.meta.width;
+    options['height'] = state.meta.height;
   } else {
+    // Passed a resize, find opposite side dimensions.
     const dimension = {
       orgWidth: state.meta.width!,
       orgHeight: state.meta.height!,
       desiredDimension: size[1],
       returnHeight: size[0] === 'width',
     };
-    // get missing dimension
-    const missing = getDimension(dimension);
-    // record
-    if (size[0] === 'width') {
-      w = size[1];
-      h = missing;
-    } else {
-      w = missing;
-      h = size[1];
-    }
+    // get missing dimension. returns { width, height }
+    const imageSize = getDimension(dimension);
+    options['width'] = imageSize.width;
+    options['height'] = imageSize.height;
   } // end else
+
   // create subfolder path
-  const imageName = `${state.file.imgName}-${isBlur ? 'placeholder-' : ''}${w}w${h}h.${type}`;
+  const imageName = `${state.file.imgName}-${isBlur ? 'placeholder-' : ''}${options['width']}w${
+    options['height']
+  }h.${type}`;
   // get relative path for srcset paths.
   const newImagePath = path.join(state.paths.newImageDir, imageName);
   // get absolute path for creating images.
   const resolvedNewImagePath = path.join(state.paths.resolvedNewImageDir, imageName);
 
-  // resize.
-  const options = size.length ? { [size[0]]: size[1] } : {};
+  // create webp images w/ high quality chroma subSampling.
+  if (type === 'webp') options['smartSubsample'] = true;
+
   // only create if state.clean, or image does not exist.
   if (!fs.existsSync(resolvedNewImagePath)) {
     // keep original image metadata.
@@ -399,33 +434,26 @@ export async function createImage(
         .toFormat(type)
         .toFile(resolvedNewImagePath);
   }
-  // blur -just create base64, image was created above.
-  let blurDataURL = state.withBlur ? `data:image/${type};base64,` : '';
-  // Resize to 10px wide
-  if (state.withBlur)
-    blurDataURL += (await sharp(state.buf).resize(state.blurSize).toBuffer()).toString('base64');
 
   // image has been created. Fix return img path. linux or remove/add beginning.
   const fixImgPath = state.linuxPaths
     ? newImagePath.replaceAll('\\', '/').replace(state.omit.remove || '', state.omit.add || '')
     : newImagePath.replace(state.omit.remove || '', state.omit.add || '');
 
-  // preload
-  if (state.preload)
-    console.log(
-      `\n\n<${chalk.yellowBright(
-        'link'
-      )} rel="preload" href="${fixImgPath}" as="image" type="image/${type}" fetchpriority="${
-        state.preloadFetchPriority
-      }" />\n\n`
-    );
   // increment image count.
   state.imgCount++;
   // if (state.cliBar instanceof SingleBar) state.cliBar.increment(state.imgCount);
   // if (state.cliBar instanceof ProgressBar) state.cliBar.tick(state.imgCount);
   if (typeof state.cliBar === 'function') state.cliBar(state.file.base, state.imgCount, state.totalImages);
 
-  return [fixImgPath, { width: w, height: h, blurDataURL }];
+  // blur -just create base64, image was created above. -Resize default is 10px wide.
+  options['blurDataURL'] = state.withBlur
+    ? `data:image/${type};base64,${(await sharp(state.buf).resize(state.blurSize).toBuffer()).toString(
+        'base64'
+      )}`
+    : '';
+
+  return [fixImgPath, options as { width: number; height: number; blurDataURL: string }];
 }
 
 /**

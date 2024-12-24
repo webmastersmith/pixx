@@ -21,13 +21,15 @@ export async function pixxFlow(option?: PixxFlowOptions): Promise<boolean> {
 
     // All files to parse. string[].
     const files = await glob(options.include, { ignore: options.ignore });
-    if (options?.log) console.log(files);
+    if (options?.log) console.log('Files ready to parse:', files);
+    if (options?.log) console.log('pixxFlow Options:', options);
 
     // Loop files. Extract static code. Run code.
     for (const file of files) {
       // isHTML file. Change comment style.
-      if (typeof options?.isHTML !== 'boolean') options.isHTML = /htm.?$/i.test(file);
-      console.log(chalk.blueBright('Parsing:'), chalk.greenBright(file), '\n\n');
+      console.log(chalk.blueBright('Parsing:'), chalk.greenBright(file));
+      options.isHTML = /htm.?$/i.test(file);
+      console.log(chalk.blueBright('isHTML:'), chalk.greenBright(options.isHTML), '\n\n');
       const textIn = fs.readFileSync(file, 'utf-8');
       // if 'pixx' function not found in file, skip.
       if (!textIn.includes('pixx')) {
