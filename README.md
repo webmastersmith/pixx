@@ -397,6 +397,9 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - **React**: `styles: "{ color: 'blue', lineHeight : 10, padding: 20 }"`
   - **HTML**: `styles: "color: blue; font-size: 46px;"`
 - **title**: _string_. Default `''`. Text to display as tooltip when hover over image.
+- **v**: _any[]_. Default []. Array of anything. Special placeholder array for all dynamic variables.
+  - Gets removed before any parsing. Stops **linter error**.
+  - `(e.g. v: [var1, var2, cn])`.
 - **vite**: _boolean_. Default `false`.
   - Shortcut for: `outDir: 'public'` and `omit: { remove: 'public/' }` options are set.
 - **widths**: _number[]_. Default `[]`. Array of widths to create images.
@@ -407,6 +410,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **withBlur**: _boolean_. Default `false`. Create **placeholder** image and **base64DataURL**.
   - Print to console.log. Placeholder images are created as `webp` type.
   - Print `<link preload />` tag for the head element.
+  - See below 👇 for **LQIP** explanation.
 - **withClassName**: _boolean_. Default `true`. Image class attribute fixed for JSX.
   - Changes: `false = class` | `true = className`.
   - Also changes: `false = srcset` | `true = srcSet`.
@@ -419,6 +423,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 - Dynamic classes need the **cn** function.
 - [`npm i cncn`](https://www.npmjs.com/package/cncn).
+- See below 👇 to stop **linting errors**.
 
 ```js
 // static classes
@@ -478,11 +483,11 @@ const HTML = await pixx('./images/compass.jpg', {
   - The second image is a **lo-res image 1/3 of the fallbackSize**. Width can be changed with the `preloadFetchWidth` option.
     - A `preload` tag for the **second image** is **printed to console** that goes into the HTML `head` section.
       - As soon as the browser parses the `head` section and sees the `preload` tag, it immediately starts downloading image, then continues to parse HTML.
-    - Once the second image is ready, the browser will display until the **best** image is ready.
+    - Once the second _lo-res_ image is ready, the browser will display it until the **best** image is downloaded.
   - Both LQIP images are inlined as a `background-image` in the `style` tag.
 
 ```tsx
-// HTML Preload lo-res images
+// HTML Example
 // withBlur option prints 'preload' tag to console. Copy and past in head
 // This is only for 'above-the-fold' critical images!
 <head>
@@ -495,7 +500,31 @@ const HTML = await pixx('./images/compass.jpg', {
     fetchpriority="high"
   />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
+</head>;
+
+// NextJS 15 App Router Example
+import { pixx } from 'pixx';
+import cn from 'cncn';
+import ReactDOM from 'react-dom';
+
+export default function Home() {
+  // NextJS 15 preload tag through React-Dom.
+  ReactDOM.preload('compass/compass-preload-269w202h.webp', {
+    as: 'image',
+    type: 'image/webp',
+    fetchPriority: 'high',
+  });
+
+  return (
+    <div>
+      {pixx('./images/compass.jpg', {
+        nextjs: true,
+        withBlur: true,
+        fallbackWidth: 500,
+      })}
+    </div>
+  );
+}
 
 // withBlur add lo-res image and blur image base64 data to style tag.
 <picture>
@@ -514,7 +543,33 @@ const HTML = await pixx('./images/compass.jpg', {
     decoding="auto"
     fetchPriority="auto"
   />
-</picture>
+</picture>;
+```
+
+## Linting Errors
+
+- To avoid **linting errors**, a special placeholder is provided for your dynamic variables.
+- `v: [var1, var2, cn]`.
+- Internally it gets removed before any parsing, so you can add whatever you want.
+
+```tsx
+import { pixx } from 'pixx';
+import cn from 'cncn';
+
+function App({ className }) {
+  const classVariable = 'hi';
+  const pending = true;
+
+  return (
+    <div>
+      {pixx('./images/happy face.jpg', {
+        classes: ['d:classVariable', '{ "border-red-200": pending }'],
+        v: [classVariable, className, pending, cn],
+      })}
+    </div>
+  );
+}
+export default App;
 ```
 
 ## Pixx-Loader Webpack 5 Plugin (NextJS)
@@ -559,6 +614,7 @@ const nextConfig: NextConfig = {
       //   loader: 'pixx',
       //   options: {
       //     log: true,
+      //     overwrite: false,
       //   },
       // },
     });
@@ -590,12 +646,8 @@ export default MyPic;
 - Pixx functions will not be included in the 'build'.
 - **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this function in **_development_**.
 - **Building**:
-  - **tsc -b && vite build**: _tsc_ will error on pixx function because it is not able to run in client.
-  - **Simple**: remove `tsc -b &&` from `package.json` _build_ script.
-  - **Advanced**: You want type checking.
-    - Use `overwrite: true` option during `npm run dev` to embed HTML.
-    - In `vite.config.ts`, remove plugin `import` and `VitePluginReactPixx` from _plugins_ array.
-    - Then `npm run build`.
+  - **linting errors**:
+    - Use `overwrite: true` option during `npm run dev` to embed **HTML**, then `npm run build`.
 - **Options**
   - **log**?: _boolean_. Default `false`. Output debug info to console.
   - **isHTML**: _boolean_. Default `false`. Internal usage.

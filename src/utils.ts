@@ -627,6 +627,8 @@ export const pixxFnRegexHTML =
 // If import 'pixx' is commented out, return false. -JSX only test.
 export const returnEarlyRegex = /^(?<!\/)\s*(?:import|const|var|let).*?(?:'|")pixx(?:'|")/m;
 const returnJSXRegex = /returnJSX:\s*(?:true|false)\s*,?\s*/gi;
+// placeholders. remove before eval. This helps with 'linting' errors till done.
+const placeholderRegex = /(?:v:[^\]]*],?\s*)/g;
 
 /**
  * Run async code inside replaceAll function.
@@ -686,8 +688,11 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
 
   try {
     // args[0] removes everything outside pixx(). HTML must be returned as a string, so remove 'returnJSX: true'.
-    const pixxFn = args[0] ? args[0].replaceAll(returnJSXRegex, '').trim() : '';
-    if (options.log) console.log(chalk.blue('\n\nExtracted pixx function: ' + pixxFn + '\n\n'));
+    const pixxFn = args[0] ? args[0].replaceAll(returnJSXRegex, '').replace(placeholderRegex, '').trim() : '';
+    if (options.log) {
+      console.log(chalk.yellow('\n\npixx function passed into "eval()":'));
+      console.log(chalk.blue(pixxFn + '\n\n'));
+    }
 
     // run pixx function.
     let html = '';

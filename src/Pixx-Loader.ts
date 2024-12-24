@@ -15,8 +15,9 @@ export async function PixxLoader(source: string): Promise<string> {
 
   // Start
   if (options.log) {
+    console.log(chalk.yellow('\nFile currently being parsed:'));
     console.log(chalk.magenta(filePath));
-    console.log('options', options);
+    console.log(chalk.yellow('\noptions'), options);
     console.log(chalk.yellow('\n\nSource React File:\n'), chalk.magentaBright(source), '\n\n');
   }
 
@@ -30,7 +31,8 @@ export async function PixxLoader(source: string): Promise<string> {
   if (options.overwrite) {
     try {
       fs.writeFileSync(filePath, html);
-      console.log(chalk.green(`\n\nFile: ${filePath} written successfully.\n\n`));
+      console.log(chalk.blue('\n\nFile written successfully:'));
+      console.log(chalk.green(`${filePath}`));
     } catch (error) {
       console.error(chalk.red(error));
     }

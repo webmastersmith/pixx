@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { Metadata } from 'sharp';
 import parse from 'html-react-parser';
+// import cn, { type CN, type CV } from 'cncn';
 
 // sharp input images
 const acceptableInputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp', 'svg'] as const;
@@ -40,6 +41,10 @@ export const OptionSchema = z
     blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(10),
     classes: z.string({ message: 'classes option must an array of strings.' }).array().optional().default([]),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
+    // cn: z
+    //   .custom<CN>((val) => true)
+    //   .optional()
+    //   .default(cn),
     decoding: z
       .enum(['auto', 'sync', 'async'], { message: 'decoding option can only be "auto", "sync" or "async".' })
       .optional()
@@ -86,6 +91,10 @@ export const OptionSchema = z
     styles: z.string({ message: 'styles option must be a string.' }).optional().default(''),
     title: z.string({ message: 'title option must be a string.' }).optional().default(''),
     vite: z.boolean({ message: 'vite option must be true or false.' }).optional().default(false),
+    v: z
+      .custom<any[]>((val) => true)
+      .optional()
+      .default([]),
     widths: z
       .number({ message: 'widths option must be an array of strings.' })
       .array()
