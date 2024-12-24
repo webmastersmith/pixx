@@ -110,6 +110,7 @@ export async function getState(filePath: string, options: OptionType) {
     // fallbackPreloadWidth -create lo-res image and add to style and add preload tag to head.
     if (!state.fallbackPreloadWidth)
       state.fallbackPreloadWidth = Math.floor(state.fallbackData[smallestSide[0]] * 0.3);
+    // preload images created as webp.
     const [fallbackPreloadPath, size] = await createImage(
       state,
       [smallestSide[0], state.fallbackPreloadWidth],
@@ -120,13 +121,28 @@ export async function getState(filePath: string, options: OptionType) {
     state.fallbackPreloadData = { fallbackPreloadPath, width: size.width, height: size.height };
 
     // preload tag
-    console.log(chalk.green('Place preload link in the "head" element.'));
+    const fetch = state.withClassName ? 'fetchPriority' : 'fetchpriority';
+    console.log(chalk.green('HTML preload link. Add this to your "head" element.'));
     console.log(
       `<${chalk.yellowBright(
         'link'
-      )} rel="preload" href="${fallbackPreloadPath}" as="image" type="image/jpg" fetchpriority="${
+      )} rel="preload" href="${fallbackPreloadPath}" as="image" type="image/webp" ${fetch}="${
         state.preloadFetchPriority === 'auto' ? 'high' : state.preloadFetchPriority
-      }" />\n\n`
+      }" />\n`
+    );
+    // NextJS 15
+    const nextjs = `
+import ReactDOM from 'react-dom';
+ReactDOM.preload('${fallbackPreloadPath}', {
+  as: 'image',
+  type: 'image/webp',
+  fetchPriority: '${state.preloadFetchPriority === 'auto' ? 'high' : state.preloadFetchPriority}',
+});
+\n
+`;
+    console.log(
+      chalk.green('NextJS 15 App router preload link. Add this "inside" your "page.tsx" function.'),
+      chalk.magenta(nextjs)
     );
 
     // add styles -separator could be comma(JSX) or semi-colon(HTML).
@@ -544,7 +560,7 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   // create sizes -only attach to image if not a 'picture', otherwise attach to 'source'.
   imgStr += !isPicture ? `sizes="${state.sizes.join(', ')}" ` : '';
   imgStr += `src="${state.fallbackData.fallbackPath}" `;
-  imgStr += state.withBlur && isPicture ? '' : `alt="${state.alt}" `; // alt constrains blur image.
+  imgStr += `alt="${state.alt}" `;
   imgStr += `width="${state.fallbackData.width}" `;
   imgStr += `height="${state.fallbackData.height}" `;
   imgStr += state.title ? `title="${state.title}" ` : '';
@@ -589,8 +605,8 @@ export async function createPictureTag(state: StateType) {
   return picture;
 }
 
-// jsx/tsx. -match pixx function, do not match commented function.
-export const pixxFnRegexJSX = /{\s*(?!\/\*)\s*(pixx\s*(?:<[^>]*>)?\s*\(.*?(?:'|"|\]|})\s*\));?\s*}/gis;
+// JSX/TSX. -match pixx function, do not match commented function.
+export const pixxFnRegexJSX = /(?<!{\/\*\s*){\s*(pixx\s*(?:<[^>]*>)?\s*\(.*?(?:'|"|\]|})\s*\));?\s*}/gis;
 // { pixx('./images/happy face.jpg', {
 //   returnJSX: true,
 //   omit: { remove: 'public/' },
@@ -677,11 +693,12 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
     let html = '';
     if (pixxFn && typeof pixxFn === 'string') html = await eval(pixxFn);
     else throw new Error(`Something was wrong with pixx function. Check code and retry.`);
+
     // If comment, return comment, else HTML.
     return options.comment
       ? options.isHTML
         ? `<!-- ${match.trim()} -->\n${html}`
-        : `{/* ${pixxFn} */}\n${html}`
+        : `{/* ${match.trim()} */}\n${html}`
       : html;
   } catch (error) {
     console.log(chalk.redBright(error));

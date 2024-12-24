@@ -95,7 +95,7 @@ const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
 
 - Three main ways to use responsive images.
   1. Single image in multiple sizes. (e.g. img-100.jpg, img-200.jpg, img-300.jpg).
-  2. Single image in multiple sizes and types. (e.g. img.avif, img.webp, img.jpg).
+  2. Single image in multiple sizes and types. (e.g. avif, webp, jpg).
   3. Multiple different images the browser will choose depending on viewport width.
      1. (e.g. img-full.jpg, img-crop.jpg).
 
@@ -405,11 +405,10 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - (e.g. `widths: [300, 500, 650, 900, 1200]`).
 - **withAnimation**: _boolean_. Default `false`. Sharp image library will retain the image animation.
 - **withBlur**: _boolean_. Default `false`. Create **placeholder** image and **base64DataURL**.
-  - Print to console.log.
+  - Print to console.log. Placeholder images are created as `webp` type.
   - Print `<link preload />` tag for the head element.
-  - `alt` attribute is removed from the blur `img` element because it constrains image on some browsers.
-- **withClassName**: _boolean_. Default `true`. Image class attribute.
-  - Options: `false = class` | `true = className`.
+- **withClassName**: _boolean_. Default `true`. Image class attribute fixed for JSX.
+  - Changes: `false = class` | `true = className`.
   - Also changes: `false = srcset` | `true = srcSet`.
   - Also changes: `false = fetchpriority` | `true = fetchPriority`.
   - Also changes: `false = background-image` | `true = backgroundImage`.
