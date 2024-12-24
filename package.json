@@ -1,6 +1,6 @@
 {
   "name": "pixx",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "description": "Create web friendly images and code snippets",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
