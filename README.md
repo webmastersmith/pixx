@@ -427,12 +427,12 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ```js
 // static classes
-const HTML = await pixx('./images/compass.jpg', { classes: ['my-special-class', 'border-blue-200'] });
+const HTML = await pixx('./images/compass.jpg', { classes: ['my-special-class', 'bg-blue-200'] });
 // returns
 <picture>
   ...
   <img
-    className="my-special-class border-blue-200"
+    className="my-special-class bg-blue-200"
     src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="image"
     width="2560"
@@ -457,13 +457,15 @@ const pending = true;
 const HTML = await pixx('./images/compass.jpg', {
   // Order matters. If classes clash, the last one wins.
   // dynamic class must start with 'd:' 👇
-  classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],
+  classes: ['my-special-class', 'd:classVariable', 'bg-blue-200', '{ "bg-red-200": pending }'],
+  // or
+  classes: ['my-special-class', 'd:classVariable', 'bg-blue-200', 'd:pending && "bg-red-200"'],
 });
 // returns
 <picture>
   ...
   <img
-    className={cn('my-special-class', 'border-blue-200', classVariable, { 'border-red-200': pending })}
+    className={cn('my-special-class', classVariable, 'bg-blue-200', { 'bg-red-200': pending })}
     src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="image"
     width="2560"
@@ -532,7 +534,8 @@ export default function Home() {
   <img
     style={{
       backgroundImage:
-        'url("compass/compass-preload-269w202h.webp"), url("data:image/webp;base64,/9jWB...dZ")',
+        'url("compass/compass-preload-269w202h.webp"),
+         url("data:image/webp;base64,/9jWB...dZ")',
       backgroundSize: 'cover',
       color: 'blue',
     }}
