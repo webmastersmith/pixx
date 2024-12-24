@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { Metadata } from 'sharp';
 import parse from 'html-react-parser';
-// import cn, { type CN, type CV } from 'cncn';
 
 // sharp input images
 const acceptableInputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp', 'svg'] as const;

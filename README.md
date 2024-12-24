@@ -532,7 +532,7 @@ export default function Home() {
   <img
     style={{
       backgroundImage:
-        'url("compass/compass-preload-269w202h.webp"), url("data:image/webp;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAiEAABAwIGAwAAAAAAAAAAAAABAgMEABEFBhIhMUETFCP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBv/EACARAAAFAwUAAAAAAAAAAAAAAAABAgMRBAVREmFxkaH/2gAMAwEAAhEDEQA/AJrD8FhwGIMVeVVTmHEfSR7A8rhtylPW/Rqbk5LZMl0tLmNt6zpQpi5SL7Am/IpSrFu3U8zB9nnkNWPvpQktZ+YLYf/Z")',
+        'url("compass/compass-preload-269w202h.webp"), url("data:image/webp;base64,/9jWB...dZ")',
       backgroundSize: 'cover',
       color: 'blue',
     }}
@@ -556,14 +556,14 @@ export default function Home() {
 import { pixx } from 'pixx';
 import cn from 'cncn';
 
-function App({ className }) {
-  const classVariable = 'hi';
+function App({ className }: { className: string }) {
+  const classVariable = 'some-class';
   const pending = true;
 
   return (
     <div>
       {pixx('./images/happy face.jpg', {
-        classes: ['d:classVariable', '{ "border-red-200": pending }'],
+        classes: ['bg-blue-400' 'd:classVariable', 'd:className' '{ "bg-red-200": pending }'],
         v: [classVariable, className, pending, cn],
       })}
     </div>
