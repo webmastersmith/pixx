@@ -331,16 +331,17 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 ## React
 
-- By default, HTML is returned as a string. You can return HTML as 'JSX' by setting the option `returnReact: true`.
+- By default, HTML is returned as a string. You can return HTML as 'JSX' by setting the option `returnJSX: true`.
 
 ## Pixx Options
 
-- **alt**: _string_. Default `image`. The img `alt` attribute.
-- **blurSize**: _number_. Default `10`. Number of pixels wide the _placeholder_ image is resized to.
+- **alt**: _string_. Default `'image'`. The img `alt` attribute.
+- **blurSize**: _number_. Default `10`. Number of pixels the smallest side _placeholder_ image is resized to.
   - Bigger _blurSize_, bigger _base64DataURL_.
-- **classes**: _string[]_. Array of class names. Tailwindcss can be used, and optional object syntax.
+- **classes**: _string[]_. Default `[]`. Array of class names. Tailwindcss can be used, and optional object syntax.
   - **static classes**: `classes: ['my-special-class', 'border-blue-200']`
   - **dynamic classes**: names must have 'd:' appending them. See 👇.
+    - Order matters. If classes clash, the last one wins.
     - e.g. `classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],`.
     - e.g. `classes: ['my-special-class', 'border-blue-200', 'd:pending && "border-red-500"']`.
 - **clean**: _boolean_. Default `false`. Delete image folder and create new.
@@ -353,7 +354,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - (e.g. `fallbackWidth: 1500`. The fallback img _src_ will be an image **1500px wide** with height same aspect ratio as original).
 - **fetchPriority**: _enum('auto', 'high', 'low')_. Default `auto`.
   - Hint to the browser how it should prioritize fetching a particular image relative to other images.
-- **heights**: _number[]_. Array of numbers representing height in pixels.
+- **heights**: _number[]_. Default `[]`. Array of numbers representing height in pixels.
   - heights numbers must be `<=` image size. Image size is not increased.
   - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
   - (e.g. `widths: [300, 500, 650, 900, 1200]`).
@@ -365,7 +366,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **loading**: _enum('eager', 'lazy')_. Default `eager`. Image loading priority.
 - **log**: _boolean_. Default `false`. Output build details to console.log.
   - Includes state and hidden image details: EXIF, XMP, ICC, and GPS metadata.
-- **media**: _string[]_. Array of media conditions and image names.
+- **media**: _string[]_. Default `[]`. Array of media conditions and image names.
   - Tells browser what image to display based on viewport size.
   - This is solely used for **Art Direction**.
   - (e.g. `media: ['(max-width: 400px) img1-crop.jpg', '(min-width: 401px) img1.jpg']`).
@@ -373,34 +374,32 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Shortcut for: `outDir: 'public'` and `omit: { remove: 'public/' }` options are set.
   - Sets all images to _public_ folder and fixes _image paths_.
 - **outDir**: _string_. Default `pic_images`. Custom directory name to create images.
-- **omit**: _{ remove?: string, add?: string }_. Object with `remove` and `add` properties.
-  - Customize any part of the image path on the `img` or `picture` elements.
+- **omit**: _{ remove?: string, add?: string }_. Default `{ remove: '', add: '' }`.
+  - Object with `remove` and `add` properties.
+  - Customize any part of the **image path** on the `img` or `picture` elements.
   - Does not change the `outDir`. Images will still be created in the `outDir`.
   - (e.g. `omit: { remove: 'pixx_images', add: './my-special-path' }`).
 - **picTypes**: _enums('avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp')_.
   - Default `['avif', 'webp', 'jpg']`.
   - (e.g. `picTypes: ['webp']`. Create only _webp_ image types).
-- **preload**: _boolean_. Default`false`. Create the image _link_ tag for HTML `head` element.
-  - Preloading images can optimize load times for critical images.
-  - Print the _link_ tag to console.log.
 - **preloadFetchPriority**: _enum('auto', 'async', 'sync')_. Default `auto`.
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
-- **preloadFetchWidth**: _number_. Default `30% of fallbackSize`. Second preload image width.
+- **preloadFetchWidth**: _number_. Default `30% of fallbackSize`. Second preload image width. See 👇.
 - **progressBar**: _boolean_. Default `true`. Show image creation progress bar.
-- **returnReact**: _boolean_. Default `false`. Return HTML as React component or string.
+- **returnJSX**: _boolean_. Default `false`. Return HTML as JSX or string.
 - **sizes**: _string[]_. Default `['100vw']`. Array of media conditions and the viewport fill width.
-  - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the media condition.
+  - [MDN sizes](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes). Informs the browser how much of viewport the image will fill based on the _media condition_.
   - The _descriptor_ can be any CSS **media condition**.
-  - The _value_ can be any **CSS length** except percentage. (e.g. 100rem; 75vw; 500px).
+  - The _value_ can be any **CSS length** except percentage. (e.g. rem, vw, px).
   - The last item in the array is the '_default_' size if _media conditions_ do not match.
   - (e.g. `sizes: ['((min-width: 50em) and (max-width: 60em)) 500px', '75vw']`).
-- **styles**: _string_. Inline styles.
+- **styles**: _string_. Default `''`, Inline styles.
   - **React**: `styles: "{ color: 'blue', lineHeight : 10, padding: 20 }"`
   - **HTML**: `styles: "color: blue; font-size: 46px;"`
-- **title**: _string_. Text to display as tooltip when hover over image.
+- **title**: _string_. Default `''`. Text to display as tooltip when hover over image.
 - **vite**: _boolean_. Default `false`.
   - Shortcut for: `outDir: 'public'` and `omit: { remove: 'public/' }` options are set.
-- **widths**: _number[]_. Array of widths to create images.
+- **widths**: _number[]_. Default `[]`. Array of widths to create images.
   - widths numbers must be `<=` image size. Image size is not increased.
   - **widths** have priority over **heights**. Both have priority over **defaultSizes**.
   - (e.g. `widths: [300, 500, 650, 900, 1200]`).
@@ -420,6 +419,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 ## Dynamic Classes
 
 - Dynamic classes need the **cn** function.
+- [`npm i cncn`](https://www.npmjs.com/package/cncn).
 
 ```js
 // static classes
@@ -439,7 +439,7 @@ const HTML = await pixx('./images/compass.jpg', { classes: ['my-special-class', 
   />
 </picture>;
 
-// dynamic classes: names must have 'd:' appending them. See 👇.
+// dynamic classes: names must have 'd:' appending them.
 // Download cn function
 npm i cncn
 
@@ -451,6 +451,8 @@ import cn from 'cncn';
 const classVariable = 'some-class';
 const pending = true;
 const HTML = await pixx('./images/compass.jpg', {
+  // Order matters. If classes clash, the last one wins.
+  // dynamic class must start with 'd:' 👇
   classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],
 });
 // returns
@@ -480,15 +482,15 @@ const HTML = await pixx('./images/compass.jpg', {
     - Once the second image is ready, the browser will display until the **best** image is ready.
   - Both LQIP images are inlined as a `background-image` in the `style` tag.
 
-```html
-<!-- HTML Preload lo-res images -->
-<!-- withBlur option prints 'preload' tag to console. Copy and past in head -->
-<!-- This is only for 'above-the-fold' critical images! -->
+```tsx
+// HTML Preload lo-res images
+// withBlur option prints 'preload' tag to console. Copy and past in head
+// This is only for 'above-the-fold' critical images!
 <head>
   <meta charset="UTF-8" />
   <link
     rel="preload"
-    href="compass/compass-preload-89w67h.webp"
+    href="compass/compass-preload-269w202h.webp"
     as="image"
     type="image/jpg"
     fetchpriority="high"
@@ -496,12 +498,23 @@ const HTML = await pixx('./images/compass.jpg', {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
-<!-- withBlur add blur image base64 data and lo-res image to style tag -->
+// withBlur add lo-res image and blur image base64 data to style tag.
 <picture>
-  ... <img src="img1/img1-300w346h.jpg" width="300" height="346" style={{ backgroundImage:
-  'url(img1/img1-preload-90w104h.webp),
-  url(data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAwAgCdASoKAAwAAUAmJaACdGuAAs3cdGTssAD+7bCvzXRecVgXgtlAlkGMSZ1TLFPF7VKi4zMnAXKKmsOQ0i2O9/xBUv4+mzTITNNme5NwAA==)',
-  backgroundSize: 'cover', color: 'blue' }} loading="eager" decoding="auto" fetchPriority="auto" />
+  ...
+  <img
+    style={{
+      backgroundImage:
+        'url("compass/compass-preload-269w202h.webp"), url("data:image/webp;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAiEAABAwIGAwAAAAAAAAAAAAABAgMEABEFBhIhMUETFCP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBv/EACARAAAFAwUAAAAAAAAAAAAAAAABAgMRBAVREmFxkaH/2gAMAwEAAhEDEQA/AJrD8FhwGIMVeVVTmHEfSR7A8rhtylPW/Rqbk5LZMl0tLmNt6zpQpi5SL7Am/IpSrFu3U8zB9nnkNWPvpQktZ+YLYf/Z")',
+      backgroundSize: 'cover',
+      color: 'blue',
+    }}
+    src="compass/compass-900w675h.jpg"
+    width="900"
+    height="675"
+    loading="eager"
+    decoding="auto"
+    fetchPriority="auto"
+  />
 </picture>
 ```
 
@@ -577,8 +590,13 @@ export default MyPic;
 - **Pixx is not run on client**, because it runs before static html gets to _Vite_ server.
 - Pixx functions will not be included in the 'build'.
 - **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this function in **_development_**.
-- **tsc -b && vite build**: _tsc_ will error on pixx function because it is not able to run in client.
-  - use `overwrite: true` option, before `npm run build`.
+- **Building**:
+  - **tsc -b && vite build**: _tsc_ will error on pixx function because it is not able to run in client.
+  - **Simple**: remove `tsc -b &&` from `package.json` _build_ script.
+  - **Advanced**: You want type checking.
+    - Use `overwrite: true` option during `npm run dev` to embed HTML.
+    - In `vite.config.ts`, remove plugin `import` and `VitePluginReactPixx` from _plugins_ array.
+    - Then `npm run build`.
 - **Options**
   - **log**?: _boolean_. Default `false`. Output debug info to console.
   - **isHTML**: _boolean_. Default `false`. Internal usage.
@@ -617,7 +635,7 @@ function App() {
     <div>
       <p>hi</p>
       {pixx(['./images/happy face.jpg', './images/img1.webp'], {
-        returnReact: true,
+        returnJSX: true,
         vite: true,
         sizes: ['(min-width: 500px) 500px', '(max-width: 499px) 50vw', '100vw'],
         media: ['(min-width: 500px) happy face.jpg', '(max-width: 499px) img1.webp'],

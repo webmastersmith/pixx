@@ -410,8 +410,8 @@ export async function createImage(
   state: StateType,
   size: [] | ['width' | 'height', number],
   type: OutputImageType,
-  isBlur: boolean = false,
-  isPreload: boolean = false
+  isBlur: boolean = false, // tru adds 'placeholder' and creates base64BlurDataURI.
+  isPreload: boolean = false // true adds 'preload-' to image name.
 ): Promise<[string, { width: number; height: number; blurDataURL: string }]> {
   // Find missing side dimension. Return w/h info.
   const options: { width: number; height: number; [key: string]: any } = {
@@ -592,7 +592,7 @@ export async function createPictureTag(state: StateType) {
 // jsx/tsx. -match pixx function, do not match commented function.
 export const pixxFnRegexJSX = /{\s*(?!\/\*)\s*(pixx\s*(?:<[^>]*>)?\s*\(.*?(?:'|"|\]|})\s*\));?\s*}/gis;
 // { pixx('./images/happy face.jpg', {
-//   returnReact: true,
+//   returnJSX: true,
 //   omit: { remove: 'public/' },
 //   outDir: 'public',
 // }) }
@@ -610,7 +610,7 @@ export const pixxFnRegexHTML =
 
 // If import 'pixx' is commented out, return false. -JSX only test.
 export const returnEarlyRegex = /^(?<!\/)\s*(?:import|const|var|let).*?(?:'|")pixx(?:'|")/m;
-const returnReactRegex = /returnReact:\s*(?:true|false)\s*,?\s*/gi;
+const returnJSXRegex = /returnJSX:\s*(?:true|false)\s*,?\s*/gi;
 
 /**
  * Run async code inside replaceAll function.
@@ -654,7 +654,7 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
   const { pixx } = await import('./index.js');
   // match example: JSX
   // { pixx('./images/happy face.jpg', {
-  //   returnReact: true,
+  //   returnJSX: true,
   //   omit: { remove: 'public/' },
   //   outDir: 'public',
   // }) }
@@ -669,8 +669,8 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
   // </script>
 
   try {
-    // args[0] removes everything outside pixx(). HTML must be returned as a string, so remove 'returnReact: true'.
-    const pixxFn = args[0] ? args[0].replaceAll(returnReactRegex, '').trim() : '';
+    // args[0] removes everything outside pixx(). HTML must be returned as a string, so remove 'returnJSX: true'.
+    const pixxFn = args[0] ? args[0].replaceAll(returnJSXRegex, '').trim() : '';
     if (options.log) console.log(chalk.blue('\n\nExtracted pixx function: ' + pixxFn + '\n\n'));
 
     // run pixx function.

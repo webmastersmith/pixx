@@ -55,7 +55,7 @@ export async function pixx(
       if (optionsParsed.log) console.log('\n\nstates:', inspect(states, false, null, true), '\n\n');
       // show created image element.
       if (optionsParsed.log) console.log('\n\n', chalk.magentaBright(picture), '\n\n');
-      return optionsParsed.returnReact ? parse(picture) : picture;
+      return optionsParsed.returnJSX ? parse(picture) : picture;
     } // end Art Direction.
 
     // Responsive Images 👇 -------------------------------------------------------------
@@ -74,7 +74,7 @@ export async function pixx(
       if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
       // print img HTML
       if (state.log) console.log('\n\n', chalk.magentaBright(img), '\n\n');
-      return state.returnReact ? parse(img) : img;
+      return state.returnJSX ? parse(img) : img;
     } // end Resolution Switching
 
     // 3. Multiple Types default. state.picTypes.length > 1 and no state.media.length
@@ -84,7 +84,7 @@ export async function pixx(
     if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
     // show picture HTML
     if (state.log) console.log('\n\n', chalk.magentaBright(multiTypeImg), '\n\n');
-    return state.returnReact ? parse(multiTypeImg) : multiTypeImg;
+    return state.returnJSX ? parse(multiTypeImg) : multiTypeImg;
   } catch (error) {
     if (error instanceof z.ZodError) {
       // throw new Error();

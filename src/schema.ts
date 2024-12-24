@@ -70,7 +70,6 @@ export const OptionSchema = z
     outDir: z.string({ message: 'outDir option must be a string.' }).optional().default('pixx_images'),
     omit: OmitSchema.default({ remove: '', add: '' }),
     picTypes: OutputImageTypeSchema.array().min(1).default(['avif', 'webp', 'jpg']),
-    preload: z.boolean({ message: 'preload option must be true or false.' }).optional().default(false),
     preloadFetchPriority: z
       .enum(['auto', 'low', 'high'], {
         message: 'preloadFetchPriority option can only be "auto", "low" or "high".',
@@ -78,10 +77,7 @@ export const OptionSchema = z
       .optional()
       .default('auto'),
     progressBar: z.boolean({ message: 'progressBar option must be true or false.' }).optional().default(true),
-    returnReact: z
-      .boolean({ message: 'returnReact option must be true or false.' })
-      .optional()
-      .default(false),
+    returnJSX: z.boolean({ message: 'returnJSX option must be true or false.' }).optional().default(false),
     sizes: z
       .string({ message: 'sizes option must be an array of strings.' })
       .array()
