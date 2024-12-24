@@ -10,6 +10,7 @@
 - This package only runs in a _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
 - Pixx does not increase image size. Start with the **largest optimized image** for best results.
 - Pixx is designed to use in project **development**.
+- Your code must use double quote (ASCII 34 `"`) or single quote (ASCII 39 `'`). Fancy quotes other than these will break pixx logic.
 - **Sharp error on Windows**: Could not load the "sharp" module using the win32-x64 runtime.
   - **Solution**: `npm install --include=optional sharp`
 
@@ -27,7 +28,7 @@ pixx('compass.jpg').then((HTML) => {});
 import { pixx } from 'pixx';
 const HTML = await pixx('compass.jpg'); // size is 2560w x 1920h.
 
-// returns
+// Creates these images 👇 and returns this HTML.
 <picture>
   <source
     type="image/avif"
@@ -348,6 +349,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **fallbackWidth**: _number_ . Default `image width`. Custom fallback image width in pixels.
   - Older browsers fallback to this image. Image will always be type `jpg`.
   - fallbackWidth must be <= image width. Image size is not increased.
+  - When `withBlur` is true, `preloadFetchWidth` default will be `30%` of _fallbackWidth_.
   - (e.g. `fallbackWidth: 1500`. The fallback img _src_ will be an image **1500px wide** with height same aspect ratio as original).
 - **fetchPriority**: _enum('auto', 'high', 'low')_. Default `auto`.
   - Hint to the browser how it should prioritize fetching a particular image relative to other images.
@@ -383,7 +385,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
   - Print the _link_ tag to console.log.
 - **preloadFetchPriority**: _enum('auto', 'async', 'sync')_. Default `auto`.
   - [MDN Preload fetchPriority property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLLinkElement/fetchPriority).
-- **preloadFetchWidth**: _number_. Default `30% of fallbackSize`. Size second preload image.
+- **preloadFetchWidth**: _number_. Default `30% of fallbackSize`. Second preload image width.
 - **progressBar**: _boolean_. Default `true`. Show image creation progress bar.
 - **returnReact**: _boolean_. Default `false`. Return HTML as React component or string.
 - **sizes**: _string[]_. Default `['100vw']`. Array of media conditions and the viewport fill width.
@@ -467,20 +469,21 @@ const HTML = await pixx('./images/compass.jpg', {
 </picture>;
 ```
 
-## withBlur
+## withBlur & preload
 
 - Inspired by [csswizardry](https://csswizardry.com/2023/09/the-ultimate-lqip-lcp-technique/).
-- Creates 2 Low-Quality Image Placeholders (LQIP).
-  - First is base64 data url. It creates a blur effect placeholder.
-  - Second is a lo-res image 1/3 of the fallbackSize.
-    - A 'preload' tag is printed to console that goes into the HTML head section.
-      - This tells the browser to start downloading image before you do anything else.
-    - Once received, browser displays until the 'best' image is ready.
+- When you use `withBlur` option, 2 Low-Quality Image Placeholders (LQIP) are created.
+  - The first image is a very low quality inline **base64 dataURL**. This creates a blur effect placeholder.
+  - The second image is a **lo-res image 1/3 of the fallbackSize**. Width can be changed with the `preloadFetchWidth` option.
+    - A `preload` tag for the **second image** is **printed to console** that goes into the HTML `head` section.
+      - As soon as the browser parses the `head` section and sees the `preload` tag, it immediately starts downloading image, then continues to parse HTML.
+    - Once the second image is ready, the browser will display until the **best** image is ready.
+  - Both LQIP images are inlined as a `background-image` in the `style` tag.
 
 ```html
 <!-- HTML Preload lo-res images -->
 <!-- withBlur option prints 'preload' tag to console. Copy and past in head -->
-<!-- This is only for 'above-the-fold' images! -->
+<!-- This is only for 'above-the-fold' critical images! -->
 <head>
   <meta charset="UTF-8" />
   <link
@@ -493,13 +496,12 @@ const HTML = await pixx('./images/compass.jpg', {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 
-<!-- withBlur add blur image base64 data to style tag -->
+<!-- withBlur add blur image base64 data and lo-res image to style tag -->
 <picture>
-  ... <img className={cn('bg-red-200', classVariable, { "border-red-200": pending })} style={{
-  backgroundImage: 'url(img1/img1-preload-90w104h.webp),
+  ... <img src="img1/img1-300w346h.jpg" width="300" height="346" style={{ backgroundImage:
+  'url(img1/img1-preload-90w104h.webp),
   url(data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAwAgCdASoKAAwAAUAmJaACdGuAAs3cdGTssAD+7bCvzXRecVgXgtlAlkGMSZ1TLFPF7VKi4zMnAXKKmsOQ0i2O9/xBUv4+mzTITNNme5NwAA==)',
-  backgroundSize: 'cover', color: 'blue' }} src="img1/img1-300w346h.jpg" width="300" height="346"
-  loading="eager" decoding="auto" fetchPriority="auto" />
+  backgroundSize: 'cover', color: 'blue' }} loading="eager" decoding="auto" fetchPriority="auto" />
 </picture>
 ```
 

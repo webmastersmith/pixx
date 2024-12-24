@@ -129,20 +129,19 @@ export async function getState(filePath: string, options: OptionType) {
       }" />\n\n`
     );
 
-    // add styles
-    // separator could be comma(JSX) or semi-colon(HTML).
-    const urlsJSX = `backgroundImage: 'url(${fallbackPreloadPath}), url(${blurDataURL})', backgroundSize: 'cover'`;
-    const urlsHTML = `background-image: url(${fallbackPreloadPath}), url(${blurDataURL}); background-size: cover`;
+    // add styles -separator could be comma(JSX) or semi-colon(HTML).
+    const urlsJSX = `backgroundImage: 'url("${fallbackPreloadPath}"), url("${blurDataURL}")', backgroundSize: 'cover'`;
+    const urlsHTML = `background-image: url('${fallbackPreloadPath}'), url('${blurDataURL}'); background-size: cover`;
     const placeholderImages = state.withClassName ? urlsJSX : urlsHTML;
     // styles for JSX could have brackets.
-    const fixStyles = state.styles.replaceAll(/{|}/g, '').trim();
+    const fixStyles = state.withClassName ? state.styles.replaceAll(/{|}/g, '').trim() : state.styles;
     // create style tag.
     const sep = state.styles ? (state.withClassName ? ',' : ';') : '';
-    const newStyle = `{ ${placeholderImages}${sep} ${fixStyles} }`;
-    console.log('newStyle', newStyle);
-
+    const newStyle = state.withClassName
+      ? `{ ${placeholderImages}${sep} ${fixStyles} }`
+      : `${placeholderImages}${sep} ${fixStyles}`;
     state.styles = newStyle;
-  }
+  } // end blur image.
 
   // get class names
   state.classStr = classBuilder(state);
@@ -207,18 +206,29 @@ export async function getImageMetadata(buf: Buffer, options: OptionType, file: F
   return details as Meta;
 }
 
+/**
+ * Create classes. Dynamic classes will need the 'cn' function. Decide whether JSX or string return.
+ * @param state State object.
+ * @returns classes string.
+ */
 function classBuilder(state: StateType) {
   const regEx = /^(d:|{)/; // is dynamic
-  // classes can be static
-  const staticClass = state.classes.filter((c) => !regEx.test(c));
-  // classes can be dynamic
-  const dynamicClass = state.classes.filter((c) => regEx.test(c));
-  if (dynamicClass.length > 0) {
-    // add quotes to static class.
-    const quotedStaticClassStr = staticClass.map((c) => `'${c}'`).join(', ');
-    const fixDynamicClass = dynamicClass.map((c) => c.replaceAll('d:', ''));
-    return `{cn(${quotedStaticClassStr}, ${fixDynamicClass.join(', ')})}`;
-  } else return `"${staticClass.join(' ')}"`;
+
+  // Check if has dynamic. Returns boolean.
+  const hasDynamic = !!state.classes.filter((item) => regEx.test(item)).length;
+  // dynamic will need the cn function. Must be brackets for HTML or JSX.
+  if (hasDynamic) {
+    const mapped = state.classes
+      .map((item) => {
+        if (regEx.test(item)) return item.replace('d:', ''); // keep variables without quotes.
+        else return `'${item}'`; // add quotes to strings.
+      })
+      .join(', ');
+    return `{cn(${mapped})}`;
+  } else {
+    // Not Dynamic. OK to quote JSX or HTML.
+    return `"${state.classes.join(' ')}"`;
+  }
 }
 
 /**
@@ -511,8 +521,10 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
   let imgStr = '';
   // create img element
   imgStr += '<img ';
+
   // Class. Create class string or dynamic
   imgStr += state.classes.length > 0 ? `${c}=${state.classStr} ` : '';
+
   // Styles -react or html
   // "color: blue; font-size: 46px;" // html
   // "{ color: 'blue', lineHeight : 10, padding: 20 }" // react
@@ -521,12 +533,14 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
       ? `style={${state.styles}} `
       : `style="${state.styles}" `
     : '';
+
   // create srcset
   const srcSet = state.withClassName ? 'srcSet' : 'srcset';
   // isPicture false, single picType(Resolution Switching). Add srcset as img attribute.
   imgStr += !isPicture
     ? `${srcSet}="${await createSrcSet(state, state.picTypes[0] as OutputImageType)}" `
     : '';
+
   // create sizes -only attach to image if not a 'picture', otherwise attach to 'source'.
   imgStr += !isPicture ? `sizes="${state.sizes.join(', ')}" ` : '';
   imgStr += `src="${state.fallbackData.fallbackPath}" `;

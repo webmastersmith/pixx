@@ -1,14 +1,7 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
-import { OptionType, StateType, OptionSchema, Pixx } from './schema.js';
-import {
-  createImage,
-  getState,
-  createImgTag,
-  createSourceTag,
-  splitCondition,
-  createPictureTag,
-} from './utils';
+import { OptionType, StateType, OptionSchema } from './schema.js';
+import { getState, createImgTag, createSourceTag, splitCondition, createPictureTag } from './utils';
 import parse from 'html-react-parser';
 import { inspect } from 'util';
 import chalk from 'chalk';
@@ -77,11 +70,9 @@ export async function pixx(
     // 2. Resolution Switching: single image type.
     if (state.picTypes.length === 1) {
       const img = await createImgTag(state, false);
-      // blurData
-      let imgPath, blurDataURL;
       // show state after all processing done.
       if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
-      // print img element
+      // print img HTML
       if (state.log) console.log('\n\n', chalk.magentaBright(img), '\n\n');
       return state.returnReact ? parse(img) : img;
     } // end Resolution Switching
@@ -89,13 +80,10 @@ export async function pixx(
     // 3. Multiple Types default. state.picTypes.length > 1 and no state.media.length
     const multiTypeImg = await createPictureTag(state);
 
-    // log blur
-    let imgPath, blurDataURL;
     // show state after all processing done.
     if (state.log) console.log('\n\nstates:', inspect(state, false, null, true), '\n\n');
-    // show picture element
+    // show picture HTML
     if (state.log) console.log('\n\n', chalk.magentaBright(multiTypeImg), '\n\n');
-    // print blurData.
     return state.returnReact ? parse(multiTypeImg) : multiTypeImg;
   } catch (error) {
     if (error instanceof z.ZodError) {
