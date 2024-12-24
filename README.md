@@ -581,14 +581,14 @@ export default App;
 - Pixx functions will not be in the 'build'.
 - **Images not being created**: stop development server. Delete the `.next` folder. Start server.
   - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
-- **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this function in **_development_**.
+- **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this in **_development_**.
 - **Options**
   - **log**?: _boolean_. Default `false`. Output debug info to console.
   - **isHTML**: _boolean_. Default `false`. Internal usage.
     - `pixx` function returns string, not JSX.
     - If `comment: true`, isHTML is used to determine HTML or JSX style comments.
   - **comment**: _boolean_. Default `false`. Internal usage.
-    - Remove `pixx` import statement and functions or comment out.
+    - Remove `pixx` import statement and functions or comment them out.
     - Automatically set to `true` if `overwrite: true`.
   - **overwrite**?: _boolean_. Default `false`.
     - By default PixxLoader will read file, run pixx locally, then send HTML to server.
@@ -609,7 +609,7 @@ const nextConfig: NextConfig = {
       test: /\.(t|j)sx$/,
       // simple
       use: 'pixx',
-      // or -for debugging.
+      // or
       // use: {
       //   loader: 'pixx',
       //   options: {
@@ -644,9 +644,10 @@ export default MyPic;
 - **VitePluginReactPixx** will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
 - **Pixx is not run on client**, because it runs before static html gets to _Vite_ server.
 - Pixx functions will not be included in the 'build'.
-- **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this function in **_development_**.
+- **Caution**: Vite-Plugin-React-Pixx uses `eval()` to run the pixx function locally. Only use this in **_development_**.
 - **Building**:
   - **linting errors**:
+    - `pix('img.jpg', { v: [var1, var2, cn] }` // or
     - Use `overwrite: true` option during `npm run dev` to embed **HTML**, then `npm run build`.
 - **Options**
   - **log**?: _boolean_. Default `false`. Output debug info to console.
@@ -654,14 +655,14 @@ export default MyPic;
     - `pixx` function returns string, not JSX.
     - If `comment: true`, isHTML is used to determine HTML or JSX style comments.
   - **comment**: _boolean_. Default `false`. Internal usage.
-    - Remove `pixx` import statement and functions or comment out.
+    - Remove `pixx` import statement and functions or comment them out.
     - Automatically set to `true` if `overwrite: true`.
   - **overwrite**?: _boolean_. Default `false`.
     - By default Vite-Plugin-Pixx will read file, run pixx locally, then send HTML to Vite server.
     - If `overwrite: true`, the file will be updated with HTML and pixx functions and import statements will commented out.
       - Pixx will not run once commented out. This speeds up development when you have finalized images.
 
-```ts
+```tsx
 // vite.config.js
 import { defineConfig } from 'vite';
 import { VitePluginPixx } from 'pixx';
@@ -678,7 +679,7 @@ import './App.css';
 import { pixx } from 'pixx'; // npm i -D pixx cncn
 import cn from 'cncn';
 
-function App() {
+function App({ className }: { className: string }) {
   const classVariable = 'hi';
   const pending = true;
 
@@ -690,15 +691,9 @@ function App() {
         vite: true,
         sizes: ['(min-width: 500px) 500px', '(max-width: 499px) 50vw', '100vw'],
         media: ['(min-width: 500px) happy face.jpg', '(max-width: 499px) img1.webp'],
-        classes: [
-          'one',
-          'two',
-          'three',
-          'd:classVariable',
-          'border-blue-200',
-          '{ "border-red-200": pending }',
-        ],
-        styles: "{ color: 'blue', lineHeight : 10, padding: 20 }",
+        classes: ['bg-blue-200', 'd:classVariable', 'd:className', 'd:pending && "border-red-200"'],
+        v: [pending, classVariable, className, cn],
+        styles: "{ color: 'green', lineHeight : 10, padding: 20 }",
       })}
       <p>bye</p>
     </div>
