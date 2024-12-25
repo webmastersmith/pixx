@@ -107,31 +107,35 @@ export async function getState(filePath: string, options: OptionType) {
     console.log(`\n\n${state.file.base}:`, chalk.blue(blurPath));
     console.log(`${state.file.base} blurDataURL:`, chalk.yellow(blurDataURL), '\n\n');
 
-    // fallbackPreloadWidth -create lo-res image and add to style and add preload tag to head.
-    if (!state.fallbackPreloadWidth)
-      state.fallbackPreloadWidth = Math.floor(state.fallbackData[smallestSide[0]] * 0.3);
-    // preload images created as webp.
-    const [fallbackPreloadPath, size] = await createImage(
-      state,
-      [smallestSide[0], state.fallbackPreloadWidth],
-      'webp', // type
-      false, // isBlur
-      true // isPreload
-    );
-    state.fallbackPreloadData = { fallbackPreloadPath, width: size.width, height: size.height };
+    // fallbackPreloadData default. Ensure exist if 'blurOnly' is true.
+    state.fallbackPreloadData = { fallbackPreloadPath: '', width: 0, height: 0 };
+    // If blurOnly = false, create lo-res image.
+    if (!state.blurOnly) {
+      // Create lo-res image and add to style attribute and add preload tag to head.
+      if (!state.fallbackPreloadWidth)
+        state.fallbackPreloadWidth = Math.floor(state.fallbackData[smallestSide[0]] * 0.3);
+      // preload images created as webp.
+      const [fallbackPreloadPath, size] = await createImage(
+        state,
+        [smallestSide[0], state.fallbackPreloadWidth],
+        'webp', // type
+        false, // isBlur
+        true // isPreload
+      );
+      state.fallbackPreloadData = { fallbackPreloadPath, width: size.width, height: size.height };
 
-    // preload tag
-    const fetch = state.withClassName ? 'fetchPriority' : 'fetchpriority';
-    console.log(chalk.green('HTML preload link. Add this to your "head" element.'));
-    console.log(
-      `<${chalk.yellowBright(
-        'link'
-      )} rel="preload" href="${fallbackPreloadPath}" as="image" type="image/webp" ${fetch}="${
-        state.preloadFetchPriority === 'auto' ? 'high' : state.preloadFetchPriority
-      }" />\n`
-    );
-    // NextJS 15
-    const nextjs = `
+      // preload tag
+      const fetch = state.withClassName ? 'fetchPriority' : 'fetchpriority';
+      console.log(chalk.green('HTML preload link. Add this to your "head" element.'));
+      console.log(
+        `<${chalk.yellowBright(
+          'link'
+        )} rel="preload" href="${fallbackPreloadPath}" as="image" type="image/webp" ${fetch}="${
+          state.preloadFetchPriority === 'auto' ? 'high' : state.preloadFetchPriority
+        }" />\n`
+      );
+      // NextJS 15
+      const nextjs = `
 import ReactDOM from 'react-dom';
 ReactDOM.preload('${fallbackPreloadPath}', {
   as: 'image',
@@ -139,15 +143,20 @@ ReactDOM.preload('${fallbackPreloadPath}', {
   fetchPriority: '${state.preloadFetchPriority === 'auto' ? 'high' : state.preloadFetchPriority}',
 });
 \n
-`;
-    console.log(
-      chalk.green('NextJS 15 App router preload link. Add this "inside" your "page.tsx" function.'),
-      chalk.magenta(nextjs)
-    );
+  `;
+      console.log(
+        chalk.green('NextJS 15 App router preload link. Add this "inside" your "page.tsx" function.'),
+        chalk.magenta(nextjs)
+      );
+    } // end blurOnly
 
     // add styles -separator could be comma(JSX) or semi-colon(HTML).
-    const urlsJSX = `backgroundImage: 'url("${fallbackPreloadPath}"), url("${blurDataURL}")', backgroundSize: 'cover'`;
-    const urlsHTML = `background-image: url('${fallbackPreloadPath}'), url('${blurDataURL}'); background-size: cover`;
+    const urlsJSX = `backgroundImage: '${
+      state.blurOnly ? '' : `url("${state.fallbackPreloadData.fallbackPreloadPath}"),`
+    } url("${blurDataURL}")', backgroundSize: 'cover'`;
+    const urlsHTML = `background-image: ${
+      state.blurOnly ? '' : `url('${state.fallbackPreloadData.fallbackPreloadPath}'),`
+    } url('${blurDataURL}'); background-size: cover`;
     const placeholderImages = state.withClassName ? urlsJSX : urlsHTML;
     // styles for JSX could have brackets.
     const fixStyles = state.withClassName ? state.styles.replaceAll(/{|}/g, '').trim() : state.styles;

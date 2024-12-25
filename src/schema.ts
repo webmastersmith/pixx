@@ -38,6 +38,7 @@ export const OptionSchema = z
   .object({
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
     blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(10),
+    blurOnly: z.boolean({ message: 'blurOnly option must be true or false.' }).optional().default(false),
     classes: z.string({ message: 'classes option must an array of strings.' }).array().optional().default([]),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
     // cn: z

@@ -338,12 +338,13 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 - **alt**: _string_. Default `'image'`. The img `alt` attribute.
 - **blurSize**: _number_. Default `10`. Number of pixels the smallest side _placeholder_ image is resized to.
   - Bigger _blurSize_, bigger _base64DataURL_.
+- **blurOnly**: _boolean_. Default `false`. Only create a blur image. Prevents creation and attaching the `lo-res` image.
 - **classes**: _string[]_. Default `[]`. Array of class names. Tailwindcss can be used, and optional object syntax.
   - **static classes**: `classes: ['my-special-class', 'border-blue-200']`
   - **dynamic classes**: names must have 'd:' appending them. See 👇.
     - Order matters. If classes clash, the last one wins.
-    - e.g. `classes: ['my-special-class', 'd:classVariable', 'border-blue-200', '{ "border-red-200": pending }'],`.
-    - e.g. `classes: ['my-special-class', 'border-blue-200', 'd:pending && "border-red-500"']`.
+    - e.g. `classes: ['d:classVariable', '{ "border-red-200": pending }']`.
+    - e.g. `classes: ['d:className', 'd:pending && "border-red-500"']`.
 - **clean**: _boolean_. Default `false`. Delete image folder and create new.
 - **decoding**: _enum('auto', 'async', 'sync')_. Default `auto`. Image download priority.
   - [MDN HTML Image decoding property](https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/decoding)
