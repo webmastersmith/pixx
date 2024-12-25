@@ -498,8 +498,7 @@ export async function createImage(
 
   // increment image count.
   state.imgCount++;
-  // if (state.cliBar instanceof SingleBar) state.cliBar.increment(state.imgCount);
-  // if (state.cliBar instanceof ProgressBar) state.cliBar.tick(state.imgCount);
+  // only run if state has 'bar' function attached.
   if (typeof state.cliBar === 'function') state.cliBar(state.file.base, state.imgCount, state.totalImages);
 
   // blurDataURL

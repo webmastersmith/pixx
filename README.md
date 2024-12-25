@@ -611,16 +611,16 @@ const nextConfig: NextConfig = {
     // config.resolve.fallback = { fs: false, zlib: false };
     config.module.rules.push({
       test: /\.(t|j)sx$/,
-      // simple
-      use: 'pixx',
-      // or
-      // use: {
-      //   loader: 'pixx',
-      //   options: {
-      //     log: true,
-      //     overwrite: false,
-      //   },
-      // },
+      // Simple
+      // use: 'pixx',
+      // Advanced
+      use: {
+        loader: 'pixx',
+        options: {
+          log: true,
+          overwrite: false,
+        },
+      },
     });
     return config;
   },
