@@ -157,14 +157,9 @@ await pixx('./compass.jpg', {
 await pixx('./src/compass.jpg', {
   title: 'Antique compass',
   alt: 'Image of an old compass',
-  withBlur: true,
   classes: ['my-special-class', 'border-blue-200'],
   styles: "{ color: 'blue', lineHeight : 10, padding: 20 }",
 });
-
-// console.log blur image path and blurDataURL.
-compass.jpg: 'pixx_images/compass/compass-placeholder-10w8h.jpg'
-compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
 
 // returns
 <picture>
@@ -208,7 +203,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
     "
   />
   <img
-    style={{ color: 'blue', lineHeight : 10, padding: 20 }}
+    style={{ color: 'blue', lineHeight: 10, padding: 20 }}
     className="my-special-class border-blue-200"
     src="pixx_images/compass/compass-2560w1920h.jpg"
     alt="Image of an old compass"
@@ -219,7 +214,7 @@ compass.jpg blurDataURL: 'data:image/jpg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBw...'
     decoding="async"
     fetchPriority="auto"
   />
-</picture>
+</picture>;
 ```
 
 ### Art Direction
@@ -424,6 +419,11 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 - Dynamic classes need the **cn** function.
 - [`npm i cncn`](https://www.npmjs.com/package/cncn).
+- **Why do variables have to be strings with 'd:' appended to them?**
+  - When pixxFlow or plugins run, only the 'pixx' function is parsed, so outside variables do not exist in the function scope and will error.
+  - Pixx returns HTML with the variables properly added, so when the compiler parses page, the code will work correctly.
+  - A special option `v: []` has been added, so linter will not error on 'unused' variables.
+    - These variables get removed internally before parsing 'pixx' function.
 - See below 👇 to stop **linting errors**.
 
 ```js
@@ -478,6 +478,32 @@ const HTML = await pixx('./images/compass.jpg', {
 </picture>;
 ```
 
+## Linting Errors
+
+- To avoid **linting errors**, a special placeholder is provided for your dynamic variables.
+- `v: [var1, var2, cn]`.
+- Internally it gets removed before any parsing, so you can add whatever you want.
+
+```tsx
+import { pixx } from 'pixx';
+import cn from 'cncn';
+
+function App({ className }: { className: string }) {
+  const classVariable = 'some-class';
+  const pending = true;
+
+  return (
+    <div>
+      {pixx('./images/happy face.jpg', {
+        classes: ['bg-blue-400' 'd:classVariable', 'd:className' '{ "bg-red-200": pending }'],
+        v: [classVariable, className, pending, cn],
+      })}
+    </div>
+  );
+}
+export default App;
+```
+
 ## withBlur & preload
 
 - Inspired by [csswizardry](https://csswizardry.com/2023/09/the-ultimate-lqip-lcp-technique/).
@@ -488,6 +514,7 @@ const HTML = await pixx('./images/compass.jpg', {
       - As soon as the browser parses the `head` section and sees the `preload` tag, it immediately starts downloading image, then continues to parse HTML.
     - Once the second _lo-res_ image is ready, the browser will display it until the **best** image is downloaded.
   - Both LQIP images are inlined as a `background-image` in the `style` tag.
+- `blurOnly: true` option will only create and attach the _base64BlurData_ to `style` tag.
 
 ```tsx
 // HTML Example
@@ -499,7 +526,7 @@ const HTML = await pixx('./images/compass.jpg', {
     rel="preload"
     href="compass/compass-preload-269w202h.webp"
     as="image"
-    type="image/jpg"
+    type="image/webp"
     fetchpriority="high"
   />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -548,32 +575,6 @@ export default function Home() {
     fetchPriority="auto"
   />
 </picture>;
-```
-
-## Linting Errors
-
-- To avoid **linting errors**, a special placeholder is provided for your dynamic variables.
-- `v: [var1, var2, cn]`.
-- Internally it gets removed before any parsing, so you can add whatever you want.
-
-```tsx
-import { pixx } from 'pixx';
-import cn from 'cncn';
-
-function App({ className }: { className: string }) {
-  const classVariable = 'some-class';
-  const pending = true;
-
-  return (
-    <div>
-      {pixx('./images/happy face.jpg', {
-        classes: ['bg-blue-400' 'd:classVariable', 'd:className' '{ "bg-red-200": pending }'],
-        v: [classVariable, className, pending, cn],
-      })}
-    </div>
-  );
-}
-export default App;
 ```
 
 ## Pixx-Loader Webpack 5 Plugin (NextJS)
