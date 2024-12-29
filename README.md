@@ -4,7 +4,7 @@
 
 ## Why
 
-- 🖼️ Creating _responsive images_ (images that adapt to different screen sizes) can be **complicated** and prone to **errors**.
+- 🖼️ Creating **responsive images** (images that adapt to different screen sizes) can be **complicated** and prone to **errors**.
 - ✨ `Pixx` generates both the **responsive images** themselves and the corresponding **HTML** code needed to display them correctly.
 - ⏩ Using the _[sharp](https://sharp.pixelplumbing.com/)_ library, (a high-performance Node.js module for image processing), `pixx` efficiently creates different sizes and formats of your images.
 - 💻 This package uses the _[NodeJS](https://nodejs.org/en/download/package-manager)_ environment.
