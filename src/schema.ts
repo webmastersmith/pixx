@@ -37,7 +37,11 @@ const OmitSchema = z
 export const OptionSchema = z
   .object({
     alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
-    blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(10),
+    backgroundSize: z
+      .string({ message: 'backgroundSize option must be a string.' })
+      .optional()
+      .default('cover'),
+    blurSize: z.number({ message: 'blurSize option must be a number.' }).optional().default(16),
     blurOnly: z.boolean({ message: 'blurOnly option must be true or false.' }).optional().default(false),
     classes: z.string({ message: 'classes option must an array of strings.' }).array().optional().default([]),
     clean: z.boolean({ message: 'clean option must be true or false.' }).optional().default(false),
@@ -68,7 +72,7 @@ export const OptionSchema = z
     loading: z
       .enum(['eager', 'lazy'], { message: 'loading option can only be "eager" or "lazy".' })
       .optional()
-      .default('eager'),
+      .default('lazy'),
     log: z.boolean({ message: 'log option must be true or false.' }).optional().default(false),
     media: z.string({ message: 'media option must an array of strings.' }).array().optional().default([]),
     nextjs: z.boolean({ message: 'nextjs option must be true or false.' }).optional().default(false),
@@ -92,7 +96,7 @@ export const OptionSchema = z
     title: z.string({ message: 'title option must be a string.' }).optional().default(''),
     vite: z.boolean({ message: 'vite option must be true or false.' }).optional().default(false),
     v: z
-      .custom<any[]>((val) => true)
+      .custom<unknown[]>((val: unknown[]) => true)
       .optional()
       .default([]),
     widths: z

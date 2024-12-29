@@ -63,6 +63,11 @@ export async function getState(filePath: string, options: OptionType) {
   // get file names. create outDir, clean?
   const paths = createNewImageDir(optionsParsed, file);
 
+  // only parse defaultSizes if none were provided.
+  const defaultSizes =
+    optionsParsed.widths.length > 0 || optionsParsed.heights.length > 0
+      ? []
+      : defaultSize(meta, optionsParsed, file);
   // defaults
   const state: StateType = {
     ...optionsParsed,
@@ -71,7 +76,7 @@ export async function getState(filePath: string, options: OptionType) {
     buf,
     paths,
     aspectRatio: getAspectRatio(meta.width / meta.height),
-    defaultSizes: defaultSize(meta.width, meta.height, optionsParsed.incrementSize!),
+    defaultSizes,
   } as StateType;
 
   // filter sizes above image size.
@@ -153,10 +158,10 @@ ReactDOM.preload('${fallbackPreloadPath}', {
     // add styles -separator could be comma(JSX) or semi-colon(HTML).
     const urlsJSX = `backgroundImage: '${
       state.blurOnly ? '' : `url("${state.fallbackPreloadData.fallbackPreloadPath}"),`
-    } url("${blurDataURL}")', backgroundSize: 'cover'`;
+    } url("${blurDataURL}")', backgroundSize: '${state.backgroundSize}'`;
     const urlsHTML = `background-image: ${
       state.blurOnly ? '' : `url('${state.fallbackPreloadData.fallbackPreloadPath}'),`
-    } url('${blurDataURL}'); background-size: cover`;
+    } url('${blurDataURL}'); background-size: ${state.backgroundSize}`;
     const placeholderImages = state.withClassName ? urlsJSX : urlsHTML;
     // styles for JSX could have brackets.
     const fixStyles = state.withClassName ? state.styles.replaceAll(/{|}/g, '').trim() : state.styles;
@@ -270,39 +275,40 @@ export function splitCondition(condition: string): [string | boolean, string] {
 }
 
 /**
- * When no options are passed in, create image sizes every 300px
- * @param width original image width.
- * @param height original image height.
+ * When 'state' is being setup, if no 'widths' or 'heights' provided, use 'incrementSize' to automatically create images.
+ * Default create image sizes every 300px.
+ * Only use 'width', and keep aspect ratio.
+ * @param meta Image metadata.
+ * @param optionsParsed pass in all options defaults.
+ * @param file Image name.
+ * @returns ['width', numbers[]]
  */
 export function defaultSize(
-  width: number = 0,
-  height: number = 0,
-  increaseSize: number
-): ['width' | 'height', number[]] {
-  // return early if not a number or less than 1.
+  meta: Meta,
+  optionsParsed: OptionRequiredType,
+  file: FilePathType
+): ['width', number[]] {
+  const increaseSize = optionsParsed.incrementSize;
+  const width = meta.width;
+  // return early if 'increaseSize' is >= image width.
+  if (increaseSize >= width) {
+    console.log(
+      chalk.cyan(`\n\n${file.name} 'increaseSize' (${increaseSize}) was >= image 'width' (${width}).\n\n`)
+    );
+    return ['width', [width]];
+  }
 
-  // width, height ok, get default sizes.
+  // Find sizes
   let size = increaseSize;
   const sizes: number[] = [];
   // return the smaller side
-  const smallSide = width <= height ? width : height;
-  const key = width <= height ? 'width' : 'height';
-  while (size < smallSide) {
-    if (size < smallSide) {
-      sizes.push(size);
-      size += increaseSize;
-    } else {
-      // check if image was smaller than increaseSize;
-      if (sizes.length === 0) {
-        console.error(chalk.cyan('\n\nImage increase size was bigger than image.\n\n'));
-        sizes.push(smallSide);
-      }
-      return [key, sizes];
-    }
+  while (size < width) {
+    sizes.push(size);
+    size += increaseSize;
   } // end while
-  // add original image size into mix.
-  if (size !== smallSide) sizes.push(smallSide);
-  return [key, sizes];
+  // Check if last size was equal to width. If not, add original image size.
+  if (sizes.at(-1) !== width) sizes.push(width);
+  return ['width', sizes];
 }
 
 /**
