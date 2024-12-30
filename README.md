@@ -1103,12 +1103,12 @@ pixx('img.jpg', { styles: 'color: blue; font-size: 46px;' });
   - **include**: _string[]_
     - Default `['**/*.html', '**/*.jsx', '**/*.tsx']`.
     - This option specifies an array of file patterns to include in the processing.
-    - PixxFlow uses [glob](https://www.npmjs.com/package/glob) to search for files.
+    - `PixxFlow` uses [glob](https://www.npmjs.com/package/glob) to search for files.
   - **ignore**: _string[]_
     - Default `['node_modules/**', '**/pixx*']`.
     - This option specifies an array of file patterns to exclude from processing.
     - To ignore directories, append `/**` to name. (e.g. `node_modules/**`).
-    - PixxFlow uses [glob](https://www.npmjs.com/package/glob) to ignore files.
+    - `PixxFlow` uses [glob](https://www.npmjs.com/package/glob) to ignore files.
   - **log**: _boolean_
     - Default `false`.
     - This option controls whether debugging information is printed to the console.
@@ -1350,7 +1350,7 @@ node file.js
 
 - **Images not being created**: stop development server. Delete the `.next` folder. Start server.
   - NextJS 'caches' files to speed up development. It also runs file three different times to determine 'server', 'server api' or 'client' page. Avoid the `clean: true` option to prevent drastic slowdown.
-- ⚠️ **Caution**: pixx-loader uses `eval()` to run the pixx function. Only use this in **_development_**.
+- ⚠️ **Caution**: pixx-loader uses `eval()` to run the `pixx` function. Only use this in **_development_**.
 - **Options**
   - **comment**: _boolean_
     - Default `false`. Internal usage.
@@ -1416,14 +1416,14 @@ export default MyPic;
 ### Vite-Plugin-Pixx
 
 - Plugin to be used with **Vite**.
-- **VitePluginPixx** will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
+- **VitePluginPixx** will intercept static pages, run `pixx`, then return **HTML** to _Vite_ server.
 - **Pixx is not run on client**, because it processes and transforms your code during **development**, leaving only the optimized output in **HTML** sent to client.
 - `Pixx` functions wil not be included in **build**.
 
 <details>
   <summary><b><code>Vite-Plugin-Pixx Options</code></b></summary>
 
-- ⚠️ **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this in **_development_**.
+- ⚠️ **Caution**: Vite-Plugin-Pixx uses `eval()` to run the `pixx` function locally. Only use this in **_development_**.
 - **Building**:
   - **linting errors**:
     - `pix('img.jpg', { v: [var1, var2, cn] }` // or
