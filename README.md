@@ -1005,7 +1005,7 @@ pixx('img.jpg', { picTypes: ['webp'] }); // create only webp images
 - **React**:
   - By default, HTML is returned as a string.
   - You can return HTML as 'JSX' by setting the option `returnJSX: true`.
-  - when using a loader (_pixxFlow, Pixx-Loader, Vite-Plugin-React-Pixx_), `returnJSX` will be set to `false`.
+  - when using a loader (_pixxFlow, Pixx-Loader, Vite-Plugin-Pixx_), `returnJSX` will be set to `false`.
 
 ```tsx
 pixx('img.jpg', { returnJSX: false }); // will return HTML.
@@ -1413,17 +1413,17 @@ export default MyPic;
 
 </details>
 
-### Vite-Plugin-React-Pixx
+### Vite-Plugin-Pixx
 
 - Plugin to be used with **Vite**.
-- **VitePluginReactPixx** will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
+- **VitePluginPixx** will intercept static pages, run pixx, then return **HTML** to _Vite_ server.
 - **Pixx is not run on client**, because it processes and transforms your code during **development**, leaving only the optimized output in **HTML** sent to client.
 - `Pixx` functions wil not be included in **build**.
 
 <details>
-  <summary><b><code>Vite-Plugin-React-Pixx Options</code></b></summary>
+  <summary><b><code>Vite-Plugin-Pixx Options</code></b></summary>
 
-- ⚠️ **Caution**: Vite-Plugin-React-Pixx uses `eval()` to run the pixx function locally. Only use this in **_development_**.
+- ⚠️ **Caution**: Vite-Plugin-Pixx uses `eval()` to run the pixx function locally. Only use this in **_development_**.
 - **Building**:
   - **linting errors**:
     - `pix('img.jpg', { v: [var1, var2, cn] }` // or
