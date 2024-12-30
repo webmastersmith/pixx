@@ -518,14 +518,24 @@ export default function Home() {
 
 ### Static Classes
 
+- by default static classes will not be add to `cn` function. If you want to run your static classes through the `cn` function (remove class clashes), add **'cn'** in the `classes` array.
+
 ```tsx
 // static classes
 pixx('img.jpg', { classes: ['my-special-class', 'bg-blue-200'], withClassName: false });
-
 // returns
 <picture>
   ...
   <img className="my-special-class bg-blue-200" src="..." />
+</picture>;
+
+// static classes run through 'cn' function. -resolve class clashes.
+pixx('img.jpg', { classes: ['cn', 'my-special-class', 'bg-blue-200', 'bg-red-500'], withClassName: false });
+// returns
+// when parsed, returns class names: 'my-special-class bg-red-500'
+<picture>
+  ...
+  <img className={cn('my-special-class', 'bg-blue-200', 'bg-red-500')} src="..." />
 </picture>;
 ```
 
@@ -539,8 +549,8 @@ pixx('img.jpg', { classes: ['my-special-class', 'bg-blue-200'], withClassName: f
   - When the `pixx` function (or its plugins) runs, it has a limited "view" of the available variables. It can only directly access variables defined within its own code block. Variables defined outside of `pixx` are not immediately visible.
   - To work around this, the system requires you to add the prefix "d:" to variables that need to be accessed within the `pixx` function. This signals to the system that these variables need to be made available within the `pixx` function's scope.
   - The `pixx` function processes the code and generates HTML output. During this process, it correctly incorporates the "d:" variables into the output. When the final code is compiled (e.g., by a browser or other program), these variables are then properly recognized and used.
-- **Linting Erros and the 'v:' Option**
-  - **Linters**: Linters are tools that analyze code for potential errors, inconsistencies, and style issues. One common warning linters give is for "unused variables" – variables that are defined but never actually used in the code.
+- **Linting Errors and the 'v:' Option**
+  - **Linters**: Linters are tools that analyze code for potential errors, inconsistencies, and style issues. One common warning linters give is for "**unused variables**" – variables that are defined but never actually used in the code.
   - **The 'v:' Solution**: Since the "d:" variables might look unused to a linter (because they're not directly used within the `pixx` function), this system provides a special option `v: []`. You can list your "d:" variables within this array to tell the linter not to flag them as unused.
   - **Internal Handling**: The system internally removes these "d:" variables before processing the `pixx` function, ensuring they don't cause any conflicts or errors during execution.
   - In simpler terms, the "d:" prefix is a way to pass variables into the pixx function, and the `v: []` option prevents linters from complaining about these variables.
@@ -780,7 +790,8 @@ pixx('img.jpg', { fetchPriority: 'high', loading: 'eager', decoding: 'async', pr
 - **outDir**: _string_
   - Default `pic_images`.
   - This option lets you specify the name of the directory where the optimized images will be saved.
-- **vite**: _boolean_. Default `false`
+- **vite**: _boolean_
+  - Default `false`.
   - Similar to the `nextJS` option, this is a shortcut for developers using the Vite build tool.
   - When set to `true`, it sets `outDir` to 'public' and configures omit to correctly handle image paths within Vite projects.
 

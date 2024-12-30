@@ -244,11 +244,13 @@ export async function getImageMetadata(buf: Buffer, options: OptionType, file: F
 function classBuilder(state: StateType) {
   const regEx = /^(d:|{)/; // is dynamic
 
-  // Check if has dynamic. Returns boolean.
-  const hasDynamic = !!state.classes.filter((item) => regEx.test(item)).length;
+  // Check if has dynamic or has 'cn'. Returns boolean.
+  const hasDynamic =
+    !!state.classes.filter((item) => regEx.test(item)).length || state.classes.includes('cn');
   // dynamic will need the cn function. Must be brackets for HTML or JSX.
   if (hasDynamic) {
     const mapped = state.classes
+      .filter((item) => item !== 'cn') // remove 'cn' from array if added.
       .map((item) => {
         if (regEx.test(item)) return item.replace('d:', ''); // keep variables without quotes.
         else return `'${item}'`; // add quotes to strings.
