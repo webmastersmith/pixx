@@ -518,7 +518,8 @@ export default function Home() {
 
 ### Static Classes
 
-- by default static classes will not be add to `cn` function. If you want to run your static classes through the `cn` function (remove class clashes), add **'cn'** in the `classes` array.
+- By default static classes will not be added to the `cn` function.
+- If you want to run your static classes through the `cn` function (e.g. remove class clashes), add **'cn'** in the `classes` array.
 
 ```tsx
 // static classes
