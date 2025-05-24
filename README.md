@@ -375,7 +375,7 @@ await pixx(['./src/compass.jpg', './src/happy face.jpg'], {
 
 - Images _above-the-fold_ (e.g. images you see as soon as the web page loads) should have `withBlur: true` option.
   - The `<link preload ... />` tag printed to the console should be added to the `<head>` section.
-  - `loading: 'eager'` option should also be set.
+  - `loading: 'eager'` option should also be set. See _Pixx Options / Blur_ 👇.
 - Images _below-the-fold_ by default will have the `loading: 'lazy'` option set.
 - The `sizes` option informs the browser of how much of the viewport the image will take. Default is `100vw`. The browser will choose the _best_ image based on this option and it's pixel density. If image is full width of screen, `sizes` option is not needed.
 
@@ -465,7 +465,7 @@ pixx('img.jpg', {
 ```tsx
 // HTML Example
 // withBlur option prints 'preload' tag to console. Copy and past in head
-// This is only for 'above-the-fold' critical images!
+// This is only for 'above-the-fold' critical images.
 <head>
   <meta charset="UTF-8" />
   <link

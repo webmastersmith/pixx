@@ -12,7 +12,7 @@
 !pixxFlow.ts
 !test>*
 !Pixx-Loader.ts
-!vite-plugin-react-pixx.ts
+!vite-plugin-pixx.ts
 !images
 !color-divider-small.png
 !color-divider.png

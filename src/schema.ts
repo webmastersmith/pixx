@@ -163,6 +163,7 @@ export type PixxPluginInput =
       overwrite?: boolean;
       isHTML?: boolean;
       comment?: boolean;
+      regularExpression?: string;
     }
   | undefined;
 
