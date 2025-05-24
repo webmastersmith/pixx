@@ -1,7 +1,7 @@
 import { replaceAsync, pixxFnRegexJSX, pluginReturnEarly, pluginSetOptions } from './utils.js';
-import { PixxPluginInput } from './schema.js';
+import type { PixxPluginInput } from './schema.js';
 import chalk from 'chalk';
-import fs from 'fs';
+import fs from 'node:fs';
 
 export async function PixxLoader(source: string): Promise<string> {
   // true, return early, false continue.

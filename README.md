@@ -506,7 +506,7 @@ export default function Home() {
 </details>
 
 <details>
-  <summary><b><code>Classes and Linting Erros</code></b><i> withClassName, dynamic_classes</i></summary>
+  <summary><b><code>Classes and Linting Errors</code></b><i> withClassName, dynamic_classes</i></summary>
 
 - Default `[]`. Array of class names. Tailwindcss can be used, and optional object syntax.
 - **withClassName**: _boolean_. Default `true`. Image class attribute fixed for JSX.

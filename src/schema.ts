@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { Metadata } from 'sharp';
-import parse from 'html-react-parser';
+import type { Metadata } from 'sharp';
+import type parse from 'html-react-parser';
 
 // sharp input images
 const acceptableInputImageTypes = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'tiff', 'webp', 'svg'] as const;
@@ -36,7 +36,7 @@ const OmitSchema = z
 // check options
 export const OptionSchema = z
   .object({
-    alt: z.string({ message: 'alt option must be string.' }).optional().default(`image`),
+    alt: z.string({ message: 'alt option must be string.' }).optional().default('image'),
     backgroundSize: z
       .string({ message: 'backgroundSize option must be a string.' })
       .optional()

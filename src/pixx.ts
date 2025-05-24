@@ -1,9 +1,9 @@
 import { fromError } from 'zod-validation-error';
 import { z } from 'zod';
-import { OptionType, StateType, OptionSchema } from './schema.js';
+import { type OptionType, type StateType, OptionSchema } from './schema.js';
 import { getState, createImgTag, createSourceTag, splitCondition, createPictureTag } from './utils';
 import parse from 'html-react-parser';
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 import chalk from 'chalk';
 import type React from 'react';
 // @ts-ignore -stop the 'reactNode' error, when scraping page and not calling function in React.
@@ -23,7 +23,7 @@ export async function pixx(
       // last filepaths will be used for img fallback.
 
       // Store each image path and state.
-      const states: [string, StateType][] = [];
+      const states: [string, StateType][] = [] as [string, StateType][];
       for (const filePath of filePaths) {
         const state = (await getState(filePath, options)) as StateType;
         states.push([`${state.file.imgName}${state.file.ext}`, state]);
@@ -34,7 +34,7 @@ export async function pixx(
       // Loop each media condition, build the 'source' tags to include media condition.
       for (const mediaStr of optionsParsed.media) {
         // split media condition and image name.
-        const [media, file] = splitCondition(mediaStr!);
+        const [media, file] = splitCondition(mediaStr);
         const fileName = file?.replaceAll(' ', '_'); // remove spaces from file name.
         // if (optionsParsed.log) console.log('\n\nMedia Condition:', media, fileName, '\n\n');
         // make sure media condition exist.
@@ -44,12 +44,13 @@ export async function pixx(
         const [_, state] = states.find((a) => a[0] === fileName) as [string, StateType];
         // Create a 'source' element with media attribute for each img 'type'. (e.g. avif, webp, jpg).
         for (const type of optionsParsed.picTypes) {
-          picture += `\t${await createSourceTag(state!, type, media)}\n`;
+          picture += `\t${await createSourceTag(state, type, media)}\n`;
         }
       } // end media loop
 
       // last image for fallback image.
-      picture += `\t${await createImgTag(states.at(-1)![1], true)}\n`;
+      const theState = states.at(-1);
+      picture += theState ? `\t${await createImgTag(theState[1], true)}\n` : '';
       picture += '</picture>';
       // show state after all processing done.
       if (optionsParsed.log) console.log('\n\nstates:', inspect(states, false, null, true), '\n\n');
@@ -59,13 +60,11 @@ export async function pixx(
     } // end Art Direction.
 
     // Responsive Images 👇 -------------------------------------------------------------
+    // Create State from image.
     // filePaths could be an array of one or empty.
-    if (Array.isArray(filePaths)) {
-      if (filePaths.length === 1) filePaths = filePaths[0]!;
-      else throw new Error('Input file error. Check pixx input files.');
-    }
-
-    const state = (await getState(filePaths, options)) as StateType;
+    const filePath = Array.isArray(filePaths) ? filePaths?.[0] || '' : filePaths;
+    if (!filePath) throw new Error('Input file error. Check pixx input files.');
+    const state = (await getState(filePath, options)) as StateType;
 
     // 2. Resolution Switching: single image type.
     if (state.picTypes.length === 1) {

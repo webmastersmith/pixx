@@ -1,21 +1,21 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import sharp from 'sharp';
 import {
-  FilePathType,
-  Meta,
-  OutputImageType,
-  OptionRequiredType,
+  type FilePathType,
+  type Meta,
+  type OutputImageType,
+  type OptionRequiredType,
+  type OptionType,
+  type PixxFlowOptions,
+  type StateType,
+  type PixxPluginOptions,
+  type PixxPluginInput,
   OptionSchema,
-  OptionType,
-  PixxFlowOptions,
-  StateType,
-  PixxPluginOptions,
-  PixxPluginInput,
 } from './schema';
 import exifr from 'exifr';
 import chalk from 'chalk';
-import sizeOf from 'image-size';
+import { imageSize } from 'image-size';
 
 /**
  * Progress bar. bar(1, 25). creates 'one' tick. bar(2, 25). creates second tick.
@@ -80,8 +80,8 @@ export async function getState(filePath: string, options: OptionType) {
   } as StateType;
 
   // filter sizes above image size.
-  if (state.heights.length > 0) state.heights = state.heights.filter((h) => h! <= state.meta.height);
-  if (state.widths.length > 0) state.widths = state.widths.filter((w) => w! <= state.meta.width);
+  if (state.heights.length > 0) state.heights = state.heights.filter((h) => h <= state.meta.height);
+  if (state.widths.length > 0) state.widths = state.widths.filter((w) => w <= state.meta.width);
 
   // check last item in sizes array for default media condition. If includes ')' not default.
   if (state.sizes.at(-1)?.includes(')'))
@@ -202,7 +202,7 @@ export async function getImageMetadata(buf: Buffer, options: OptionType, file: F
 
   // Make sure width, height are included in the metadata.
   if (!details.width || !details.height || Number.isNaN(+details.width) || Number.isNaN(+details.height)) {
-    const dimensions = sizeOf(buf);
+    const dimensions = imageSize(buf);
     console.log('\n\nWidth and Height attributes are missing from image metadata. Adding...');
     console.log(dimensions, '\n\n');
     // throw error is second attempt to get image width, height fails.
@@ -253,14 +253,13 @@ function classBuilder(state: StateType) {
       .filter((item) => item !== 'cn') // remove 'cn' from array if added.
       .map((item) => {
         if (regEx.test(item)) return item.replace('d:', ''); // keep variables without quotes.
-        else return `'${item}'`; // add quotes to strings.
+        return `'${item}'`; // add quotes to strings.
       })
       .join(', ');
     return `{cn(${mapped})}`;
-  } else {
-    // Not Dynamic. OK to quote JSX or HTML.
-    return `"${state.classes.join(' ')}"`;
   }
+  // Not Dynamic. OK to quote JSX or HTML.
+  return `"${state.classes.join(' ')}"`;
 }
 
 /**
@@ -323,6 +322,7 @@ export function getFile(filePath: string): { file: FilePathType; buf: Buffer } {
   // create absolute path from filePath.
   const resolved = path.resolve(filePath);
   // break filePath into file name parts.
+  // biome-ignore lint/suspicious/noExplicitAny: Type cast to 'any' then FilePathType.
   const file = path.parse(resolved) as any as FilePathType;
   file.imgName = file.name.replaceAll(' ', '_');
   // {
@@ -366,14 +366,14 @@ export function getAspectRatio(val: number) {
     let upper: [number, number] = [1, 0];
 
     while (true) {
-      let mediant: [number, number] = [lower[0] + upper[0], lower[1] + upper[1]];
+      const mediant: [number, number] = [lower[0] + upper[0], lower[1] + upper[1]];
 
       if (val * mediant[1] > mediant[0]) {
         if (lim < mediant[1]) {
           return upper;
         }
         lower = mediant;
-      } else if (val * mediant[1] == mediant[0]) {
+      } else if (val * mediant[1] === mediant[0]) {
         if (lim >= mediant[1]) {
           return mediant;
         }
@@ -413,14 +413,17 @@ export function getDimension({
   returnHeight?: boolean;
   aspectRatio?: string;
 }): { width: number; height: number } {
-  let left, right;
+  let left: number;
+  let right: number;
   // if aspectRatio, use that for formula.
   if (aspectRatio) {
-    const [w, h] = aspectRatio.split(':');
+    const aspect = aspectRatio.split(':');
+    const w = aspect[0] ? +aspect[0] : 0;
+    const h = aspect[1] ? +aspect[1] : 0;
     // to find h = orgHeight/orgWidth*desiredWidth
     // to find w = orgWidth/orgHeight*desiredHeight
-    left = returnHeight ? +h! : +w!;
-    right = returnHeight ? +w! : +h!;
+    left = returnHeight ? h : w;
+    right = returnHeight ? w : h;
   } else {
     left = returnHeight ? orgHeight : orgWidth;
     right = returnHeight ? orgWidth : orgHeight;
@@ -443,18 +446,20 @@ export async function createImage(
   state: StateType,
   size: [] | ['width' | 'height', number],
   type: OutputImageType,
-  isBlur: boolean = false, // tru adds 'placeholder' and creates base64BlurDataURI.
-  isPreload: boolean = false // true adds 'preload-' to image name.
+  isBlur = false, // tru adds 'placeholder' and creates base64BlurDataURI.
+  isPreload = false // true adds 'preload-' to image name.
 ): Promise<[string, { width: number; height: number; blurDataURL: string }]> {
   // Find missing side dimension. Return w/h info.
-  const options: { width: number; height: number; [key: string]: any } = {
+  const options: { width: number; height: number; smartSubsample: boolean; blurDataURL: string } = {
     width: 0,
     height: 0,
+    smartSubsample: false,
+    blurDataURL: '',
   };
   // If size is empty, use original image size for w/h.
   if (!size.length) {
-    options['width'] = state.meta.width;
-    options['height'] = state.meta.height;
+    options.width = state.meta.width;
+    options.height = state.meta.height;
   } else {
     // Passed a resize, find opposite side dimensions.
     const dimension = {
@@ -465,14 +470,14 @@ export async function createImage(
     };
     // get missing dimension. returns { width, height }
     const imageSize = getDimension(dimension);
-    options['width'] = imageSize.width;
-    options['height'] = imageSize.height;
+    options.width = imageSize.width;
+    options.height = imageSize.height;
   } // end else
 
   // create subfolder path
   const middle = isPreload ? 'preload-' : 'placeholder-';
-  const imageName = `${state.file.imgName}-${!isBlur && !isPreload ? '' : middle}${options['width']}w${
-    options['height']
+  const imageName = `${state.file.imgName}-${!isBlur && !isPreload ? '' : middle}${options.width}w${
+    options.height
   }h.${type}`;
   // get relative path for srcset paths.
   const newImagePath = path.join(state.paths.newImageDir, imageName);
@@ -480,7 +485,7 @@ export async function createImage(
   const resolvedNewImagePath = path.join(state.paths.resolvedNewImageDir, imageName);
 
   // create webp images w/ high quality chroma subSampling.
-  if (type === 'webp') options['smartSubsample'] = true;
+  options.smartSubsample = type === 'webp';
 
   // only create if state.clean, or image does not exist.
   if (!fs.existsSync(resolvedNewImagePath)) {
@@ -510,10 +515,9 @@ export async function createImage(
   if (typeof state.cliBar === 'function') state.cliBar(state.file.base, state.imgCount, state.totalImages);
 
   // blurDataURL
-  options['blurDataURL'] = '';
   // only create blur data if isBlur and withBlur are true. For 'img' element.
   if (isBlur && state.withBlur)
-    options['blurDataURL'] = `data:image/${type};base64,${(
+    options.blurDataURL = `data:image/${type};base64,${(
       await sharp(state.buf).resize(state.blurSize).toBuffer()
     ).toString('base64')}`;
 
@@ -528,13 +532,13 @@ export async function createImage(
  */
 export async function createSrcSet(state: StateType, type: OutputImageType) {
   // create images from: width or height.or defaultSizes.
-  let srcset = [];
+  const srcset = [];
   const sizes = state.widths.length
     ? state.widths
     : state.heights.length
     ? state.heights
-    : state.defaultSizes![1];
-  const key = state.widths.length ? 'width' : state.heights.length ? 'height' : state.defaultSizes![0];
+    : state.defaultSizes[1];
+  const key = state.widths.length ? 'width' : state.heights.length ? 'height' : state.defaultSizes[0];
   for (const size of sizes as number[]) {
     const [imagePath, { width, height }] = await createImage(state, [key, size], type);
     srcset.push(`${imagePath} ${width}w`);
@@ -548,7 +552,7 @@ export async function createSrcSet(state: StateType, type: OutputImageType) {
  * @param isPicture boolean. If single picType(Resolution Switching), add srcset to 'img' attribute.
  * @returns img element
  */
-export async function createImgTag(state: StateType, isPicture: boolean = false) {
+export async function createImgTag(state: StateType, isPicture = false) {
   const c = state.withClassName ? 'className' : 'class';
   let imgStr = '';
   // create img element
@@ -596,7 +600,7 @@ export async function createImgTag(state: StateType, isPicture: boolean = false)
  * @param media CSS media condition applied to each 'source' attribute.
  * @returns HTML 'source' attribute code.
  */
-export async function createSourceTag(state: StateType, type: OutputImageType, media: string = '') {
+export async function createSourceTag(state: StateType, type: OutputImageType, media = '') {
   let source = '<source ';
   source += `type="image/${type}" `;
   source += media ? `media="${media}" ` : '';
@@ -707,13 +711,14 @@ async function asyncFn(match: string, args: string[], options: PixxFlowOptions |
     const pixxFn = args[0] ? args[0].replaceAll(returnJSXRegex, '').replace(placeholderRegex, '').trim() : '';
     if (options.log) {
       console.log(chalk.yellow('\n\npixx function passed into "eval()":'));
-      console.log(chalk.blue(pixxFn + '\n\n'));
+      console.log(chalk.blue(`${pixxFn}\n\n`));
     }
 
     // run pixx function.
     let html = '';
+    // biome-ignore lint/security/noGlobalEval: Convert string to object.
     if (pixxFn && typeof pixxFn === 'string') html = await eval(pixxFn);
-    else throw new Error(`Something was wrong with pixx function. Check code and retry.`);
+    else throw new Error('Something was wrong with pixx function. Check code and retry.');
 
     // If comment, return comment, else HTML.
     return options.comment

@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { glob } from 'glob';
-import { PixxFlowOptions } from './schema';
+import type { PixxFlowOptions } from './schema';
 import chalk from 'chalk';
 import { replaceAsync, pixxFnRegexHTML, pixxFnRegexJSX } from './utils';
 
@@ -43,7 +43,7 @@ export async function pixxFlow(option?: PixxFlowOptions): Promise<boolean> {
       const parsed = path.parse(path.resolve(file));
       if (options?.log) console.log(parsed);
       // finalize file name and write.
-      parsed.base = options?.overwrite ? parsed.base : 'pixx-' + parsed.base;
+      parsed.base = options?.overwrite ? parsed.base : `pixx-${parsed.base}`;
       const filePath = path.format(parsed);
       fs.writeFileSync(filePath, html);
       console.log(chalk.green(`\n\nFile written successfully: ${filePath}\n\n`));
