@@ -980,36 +980,6 @@ async function asyncFn(
   }
 }
 
-// /**
-//  * Modify the pixx function with extra options.
-//  * @param str string. The pixx function as a string.
-//  * @param optionsToInsert Partial<OptionType>
-//  * @returns pixx string with added options.
-//  */
-// export function insertOption(str: string, optionsToInsert: Partial<OptionType>) {
-//   const viteRegex = /(?<start>pixx\s*\(.*?(?:'|"|\])?)(?<obj>{[^}]*})?\s*(?<end>\);?)/is;
-//   const result = str.match(viteRegex);
-//   // result = [completeMatch, index, inputText, groups: {start, obj, end}] // obj undefined if not exist.
-//   const toString = (obj: Record<string, any>) =>
-//     `{${Object.entries(obj)
-//       .map(([k, v]) => `${k}: ${v}`)
-//       .join(', ')}}`;
-//   // console.log(util.inspect(result,false,null,true));
-//   // has options
-//   function addOptions(optionString: string | undefined, optionsToAdd: Partial<OptionType>) {
-//     return optionString
-//       ? toString({ ...optionsToAdd, ...eval(`(${optionString})`) })
-//       : toString(optionsToAdd);
-//   }
-
-//   const pixxStr = `${result?.groups?.['start']}${addOptions(result?.groups?.['obj'], optionsToInsert)}${
-//     result?.groups?.['end']
-//   }`;
-
-//   if (pixxStr) return pixxStr;
-//   else throw new Error(`pixx function is malformed. ${str}`);
-// }
-
 /**
  * Test if text has pixx function, or if pixx function is commented out.
  * @param str text to scan for 'pixx' word.
@@ -1031,11 +1001,7 @@ export function pluginSetOptions(option: PixxPluginInput) {
   const options = { ...option };
   if (typeof options?.log !== 'boolean') options.log = false;
   if (typeof options?.overwrite !== 'boolean') options.overwrite = false;
-  if (typeof options?.comment !== 'boolean') options.comment = false;
-  if (typeof options?.isHTML !== 'boolean') options.isHTML = false;
-
-  // if 'overwrite' true, change 'comment' to true.
-  if (options.overwrite) options.comment = true;
+  if (typeof options?.isHTML !== 'boolean') options.isHTML = false; // JSX only for vite. SolidJS may need this flag.
 
   return options as PixxPluginOptions;
 }

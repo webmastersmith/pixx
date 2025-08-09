@@ -1324,12 +1324,15 @@ node index.js
 - **Options**
   - **log**: _boolean_
     - Default `false`.
-    - This option controls whether debugging information is printed to the console.
+    - This option controls whether debugging information is printed to the terminal.
   - **overwrite**: _boolean_
     - Default `false`.
     - This option determines whether the tool overwrites the original file.
     - If set to `true`, the tool will overwrite the original file with **HTML** code and comment out `pixx` functions.
     - `Pixx` function will not run again, once the code is commented out. This can speed up development when you have finalized images.
+  - **isHTML**: _boolean_
+    - comment out the `pixx` function as HTML or JSX syntax.
+    - (e.g. <!-- HTML --> or {/_ JSX _/})
 
 ```tsx
 // vite.config.js
