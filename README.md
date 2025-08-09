@@ -42,7 +42,7 @@
     <script>
       // img.jpg is 2560x1920.
       pixx('img.jpg', {
-        jsx: false, // JSX is default. Tell pixx return raw HTML.
+        jsx: false, // JSX syntax is default (e.g. class vs. className). Tell pixx return HTML syntax.
       });
     </script>
   </body>
@@ -168,7 +168,7 @@ import { pixx } from 'pixx';
 export default function App() {
   return (
     <div>
-      {/* happy face.jpg is 720x360. The space in file name will be replaced so HTMl is valid. */}
+      {/* happy face.jpg is 720x360. The space in file name will be replaced in the new images so HTMl is valid. */}
       {pixx('./images/happy face.jpg')}
     </div>
   );
@@ -232,7 +232,7 @@ export default function App() {
 
 ## Understanding Responsive Images: Resolution Switching, Multiple Types, and Art Direction
 
-- All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of html, for _**mobile browsers**_ to use the actual device viewport in decision making.
+- All 'responsive image methods' must have `<meta name="viewport" content="width=device-width">` added to the _head_ section of the _html_ page, for _**mobile browsers**_ to use the actual device viewport in decision making.
 - **Responsive Image Advantages**
   - When mobile or desktop browsers download and parse the HTML, the `sizes`, `srcset` and `media` attribute give clues to the browser about the best images to download.
   - Using these attributes, the browser decides the best image to download based on its viewport size and pixel density.

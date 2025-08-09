@@ -996,12 +996,12 @@ export function pluginReturnEarly(str: string): boolean {
  * @param option options to control plugins.
  * @returns options with defaults.
  */
-export function pluginSetOptions(option: PixxPluginInput) {
+export function pluginSetOptionsVite(option: PixxPluginInput) {
   // Start -set options defaults.
   const options = { ...option };
   if (typeof options?.log !== 'boolean') options.log = false;
   if (typeof options?.overwrite !== 'boolean') options.overwrite = false;
-  if (typeof options?.isHTML !== 'boolean') options.isHTML = false; // JSX only for vite. SolidJS may need this flag.
+  if (typeof options?.isHTML !== 'boolean') options.isHTML = false; // JSX comments for vite. SolidJS may need this flag?
 
   return options as PixxPluginOptions;
 }

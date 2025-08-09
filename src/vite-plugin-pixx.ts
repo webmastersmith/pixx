@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import chalk from 'chalk';
-import { replaceAsync, pixxFnRegexJSX, pluginReturnEarly, pluginSetOptions } from './utils';
+import { replaceAsync, pixxFnRegexJSX, pluginReturnEarly, pluginSetOptionsVite } from './utils';
 import type { PixxPluginInput } from './schema.js';
 // import util from 'node:util';
 
-export function pixxVitePlugin(option?: PixxPluginInput) {
+export function pixxVitePlugin(option: PixxPluginInput = {}) {
   return {
     name: 'vite-plugin-pixx', // this name will show up in warnings and errors
     // configResolved(config) {
@@ -23,7 +23,7 @@ export function pixxVitePlugin(option?: PixxPluginInput) {
         if (pluginReturnEarly(text)) return;
 
         // set default options
-        const options = pluginSetOptions(option);
+        const options = pluginSetOptionsVite(option);
 
         // Start
         if (options.log) {
