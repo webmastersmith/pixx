@@ -16,6 +16,7 @@ export function pixxVitePlugin(option: PixxPluginInput = {}) {
       const [id, ...rest] = _id.split('?');
 
       // some server created virtual files do not actually exist, ignore them.
+      // to-do: add array for custom ignore files.
       if (!id) return null; // return early
       if (id?.includes('~')) return null;
       if (id?.includes('node_modules')) return null;
