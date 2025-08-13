@@ -556,7 +556,10 @@ function classBuilder(store: TStore): string {
       .join(' ');
   }
 
-  // JSX syntax. dynamic will need the cn function. Must be brackets for HTML or JSX.
+  // Return JSX non-dynamic early.
+  if (!store.options.classes.some((c) => dRegEx.test(c))) return `"${store.options.classes.join(' ')}"`;
+
+  // JSX syntax. Dynamic will need the cn function. Must be brackets for HTML or JSX.
   return `{cn(${store.options.classes
     .map((item) => {
       return dRegEx.test(item)

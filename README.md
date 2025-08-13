@@ -703,6 +703,7 @@ export default function App() {
   - JSX: _key:value_ pair of strings. (e.g. ["color: 'blue'", "lineHeight: 20", "marginTop: '20px'", "marginBottom: size"])
     - Notice all strings are quoted, numbers and variables are not quoted.
     - `marginBottom: size` // size is dynamic, it's still a string, but not quoted. See example 👇.
+    - Cannot use `tailwindcss` in styles.
 - **v**: _unknown[]_
   - Default: `[]`. `v` is a placeholder for variables, so linter does not complain. When pixx runs, v is removed.
   - (e.g. `v: [var1, var2, cn]`)
@@ -785,8 +786,8 @@ export default function App() {
   return (
     <div>
       {pixx('./images/dynamic-class.avif', {
-        classes: ['one', 'cn', 'two', 'd:classString'],
-        styles: ["color: 'blue'", "lineHeight: '20px'", 'marginTop: 20', 'marginBottom: size'], // jsx
+        classes: ['one', 'cn', 'two', 'd:classString'], // dynamic classes.
+        styles: ["color: 'blue'", 'lineHeight: size', 'marginBottom: "20px"'], // jsx. 'size' is not quoted, so
         v: [cn, classString, size],
         log: true,
       })}
@@ -805,7 +806,7 @@ export default function App() {
     <div>
       {/* {pixx('./images/dynamic-class.avif', {
         classes: ['one', 'cn', 'two', 'd:classString'],
-        styles: ["color: 'blue'", "lineHeight: '20px'", 'marginTop: 20', 'marginBottom: size'], // jsx
+        styles: ["color: 'blue'", "lineHeight: size", 'marginBottom: "20px"'], // jsx
         v: [cn, classString, size],
         log: true,
       })} */}
@@ -813,7 +814,7 @@ export default function App() {
         {/* ... */}
         <img
           src="pixx_images/dynamic-class.avif/dynamic-class-fallback_w626h351.jpg"
-          style={{ color: 'blue', lineHeight: '20px', marginTop: 20, marginBottom: size }}
+          style={{ color: 'blue', lineHeight: 1.5, marginBottom: '20px' }}
           className={cn('one', 'two', classString)}
           sizes="auto"
           alt="pixx_image"
