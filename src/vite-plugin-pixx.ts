@@ -14,7 +14,12 @@ export function pixxVitePlugin(option: PixxPluginInput = {}) {
       // '_id' is file path.
       // remove query-string('?key=value&key2=value2'), when ssr splits files.
       const [id, ...rest] = _id.split('?');
+
+      // some server created virtual files do not actually exist, ignore them.
       if (!id) return null; // return early
+      if (id?.includes('~')) return null;
+      if (id?.includes('node_modules')) return null;
+      if (id?.includes('routeTree.gen')) return null;
       // console.log(id);
 
       if (/(\.(j|t)sx|\.astro)$/.test(id)) {

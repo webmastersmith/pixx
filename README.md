@@ -168,7 +168,7 @@ import { pixx } from 'pixx';
 export default function App() {
   return (
     <div>
-      {/* happy face.jpg is 720x360. The space in file name will be replaced in the new images so HTMl is valid. */}
+      {/* happy face.jpg is 720x360. The space in file name will be replaced in the new images so HTML is valid. */}
       {pixx('./images/happy face.jpg')}
     </div>
   );
